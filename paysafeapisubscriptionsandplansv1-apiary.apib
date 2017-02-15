@@ -1,0 +1,4402 @@
+FORMAT: 1A
+HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
+
+# Paysafe Subscriptions and Plans 
+
+# Release Notes
+
+| Version   | Date          | Details |
+|---        |---            |---      |
+| 1.0       | March 2017 | <ul><li>Document release</li></ul>|
+
+# Overview
+
+The Paysafe Subscriptions and Plans API allows merchants 
+
+
+# Authentication 
+
+In order for you to use the Paysafe REST API, Paysafe must first set you up on their system
+and provide you with an API key. Your API key looks something like this:
+ * Key ID – PartnerXYZ
+ * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
+
+The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
+ 1. The Key ID and Key Password are combined into a string separated by a colon, e.g.,“Key ID:Key Password”.
+ 2. The resulting string literal is then encoded using Base64.
+ 3. The authorization method and a space (i.e., “Basic”) are then put before the encoded string.
+
+For example, using the Key ID and Password examples above, the header is formed as follows:
+
+`Authorization: Basic
+UGFydG5lclhZWjpCLXRzdDEtMC01MWVkMzllNC0zMTJkMDIzNDVkM2YxMjMxMjA4ODFkZmY5YmI0MDIwYTg5ZThhYzQ0Y2RmZGNlY2Q3MDIxNTExODJmZGM5NTIyNzI2NjFkMjkwYWIyZTU4NDllMzFiYjAzZGVlZGU3ZQ==`
+
+For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_access_authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+**Note:** Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that they are used appropriately for your needs.
+
+# URLs 
+
+##  Test URL
+In order to test your integration with Paysafe, use the following Test URL:
+
+`https://api.test.paysafe.com`
+
+For example:
+
+`https://api.test.paysafe.com//subscriptionsplans/v1/plans`
+
+## Production URL
+In order to process live requests with Paysafe, use the following Production URL:
+
+`https://api.paysafe.com`
+
+For example:
+
+`https://api.paysafe.com//subscriptionsplans/v1/plans`
+
+# Pagination
+
+In the case where an API GET request returns multiple results, Paysafe returns the first 10 records by default and uses HATEOAS links to provide page navigation. In addition to the default behavior, it is also possible to control the number of results and starting point by passing in query parameters as follows:
+
+## Query Parameters for Pagination
+
+
+| Name      | Description                                                                           |
+|-----------|---------------------------------------------------------------------------------------|
+| limit     | This is the total number of records to  return. Default value is 10. Max value is 50. |
+| offset    | This is the starting position, where 0 is the first record. Default value is 0.       |
+| startDate | This is the start date in UTC. Default value is 30 days before the endDate.           |
+| endDate   | This is the end date in UTC. Default value is the current date and time.              |
+
+# Global Invalid Characters
+
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
+
+
+# API 
+
+The Subscriptions and Plans API allows merchants to set up subscription plans for repeat payments using the REST protocol. The protocol uses JSON for all requests and responses.
+
+The following request types are supported:
+
+  * [Plans](#plans)
+  * [Subscriptions](#subscriptions)
+  
+**API Endpoint**
+
+`https://api.paysafe.com/subscriptionsplans/v1/`  
+
+**Resource Patterns**
+
+|Endpoint URL                                           |Description                            |Action |
+|---                                                    |---                                    |---    |
+|/subscriptionsplans/v1/plans                           |Create a Plan                          |POST   |
+|/subscriptionsplans/v1/plans/{plan_id}                 |Look Up a Plan                         |GET    |
+|/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Look Up Subscriptions for a Plan       |GET    |
+|/subscriptionsplans/v1/plans/{plan_id}                 |Update a Plan                          |PUT    |
+|/subscriptionsplans/v1/plans/{plan_id}                 |Update a Plan                          |PATCH  |
+|/subscriptionsplans/v1/plans/{plan_id}                 |Activate a Plan                        |PATCH  |
+|/subscriptionsplans/v1/plans/{plan_id}                 |Delete a Plan                          |DELETE |
+|/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Create a Subscription                  |POST   |
+|/subscriptionsplans/v1/subscriptions/{subscription_id} |Look Up a Subscription                 |GET    |
+|/subscriptionsplans/v1/subscriptions                   |Look Up Subscriptions for a Merchant   |GET    |
+|/subscriptionsplans/v1/subscriptions/{subscription_id} |Update a Subscription                  |PUT    |
+|/subscriptionsplans/v1/subscriptions/{subscription_id} |Update a Subscription                  |PATCH  |
+|/subscriptionsplans/v1/subscriptions/{subscription_id} |Cancel a Subscription                  |PATCH  |
+|/subscriptionsplans/v1/subscriptions/{subscription_id} |Delete a Subscription                  |DELETE |
+
+
+
+# Getting Started
+
+Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions and Plans API.
+
+# Testing Instructions
+
+The Paysafe Test environment can be used to test applications without actually running requests through the live system. It is important to make sure that your systems are working correctly before going into a Live environment. Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/test-and-go-live/) for details of using the Test environment.
+
+# ISO Standards
+
+<a name="currencycodes"></a>
+## Currency Codes
+
+**Note:**
+ * The table below lists the currencies in which transaction requests are processed, but note that they may be settled in a different currency. 
+ * Not all currencies are supported by all banks. Contact your account manager for more information about which currencies are supported for your merchant account.
+
+|Currency |Code |
+|--- |--- |
+|Argentine Peso |ARS |
+|Australian Dollar  |AUD |
+|Azerbaijanian Manat    |AZN |
+|Bahraini Dinar |BHD  |
+|Belarusian Ruble   |BYR  |
+|Bolivian Boliviano |BOB  |
+|Bosnia and Herzegovina Convertible Mark |BAM  |
+|Brazilian Real |BRL  |
+|Bulgarian Lev  |BGN  |
+|Canadian Dollar    |CAD  |
+|Chilean Peso   |CLP  |
+|China Yuan Renminbi    |CNY  |
+|Columbian Peso |COP  |
+|Costa Rican Colon  |CRC  |
+|Croatian Kuna  |HRK  |
+|Czech Koruna   |CZK  |
+|Danish Krone   |DKK  |
+|Dominican Peso |DOP  |
+|East Caribbean Dollar  |XCD  |
+|Egyptian Pound |EGP  |
+|Ethiopian Birr |ETB  |
+|Euro   |EUR  |
+|Fiji Dollar    |FJD  |
+|Georgian Lari  |GEL  |
+|Guatemala Quetzal  |GTQ  |
+|Haiti Goude    |HTG  |
+|Honduran Lempira   |HNL  |
+|Hong Kong Dollar   |HKD  |
+|Hungarian Forint   |HUF  |
+|Iceland Krona  |ISK  |
+|Indian Rupee   |INR  |
+|Indonesia Rupiah   |IDR  |
+|Iranian Rial   |IRR  |
+|Jamaican Dollar    |JMD  |
+|Japanese Yen   |JPY  |
+|Jordanian Dinar    |JOD  |
+|Kazakhstan Tenge   |KZT  |
+|Kenyan Shilling    |KES  |
+|Korean Won |KRW  |
+|Kuwaiti Dinar  |KWD  |
+|Latvian Lats   |LVL  |
+|Lebanese Pound |LBP  |
+|Libyan Dinars  |LYD  |
+|Lithuanian Litas   |LTL  |
+|Malawi Kwacha  |MWK  |
+|Malaysian Ringgit  |MYR  |
+|Mauritius Rupee    |MUR  |
+|Mexican Peso   |MXN  |
+|Moldovan Leu   |MDL  |
+|Moroccan Dirham    |MAD  |
+|New Israeli Shekel |ILS  |
+|New Zealand Dollar |NZD  |
+|Nigerian Naira |NGN  |
+|Norwegian Krone    |NOK  |
+|Omani Rial |OMR  |
+|Pakistan Rupee |PKR  |
+|Panamanian Balboa  |PAB  |
+|Paraguayan Guarani |PYG  |
+|Peruvian Sol   |PEN  |
+|Philippine Peso    |PHP  |
+|Polish Zloty   |PLN  |
+|Pound Sterling |GBP  |
+|Qatari Rial    |QAR  |
+|Romanian New Leu   |RON  |
+|Russian Ruble  |RUB  |
+|Saudi Arabian Riyal    |SAR  |
+|Serbian Dinar  |RSD  |
+|Singapore Dollar   |SGD  |
+|South African Rand |ZAR  |
+|Sri Lanka Rupee    |LKR  |
+|Swedish Krona  |SEK  |
+|Swiss Franc    |CHF  |
+|Syrian Pound   |SYP  |
+|Taiwan New Dollar  |TWD  |
+|Thai Baht  |THB  |
+|Trinidad and Tobago Dollar |TTD  |
+|Tunisian Dinar |TND  |
+|Turkish Lira   |TRY  |
+|Ukranian Hryunia   |UAH  |
+|UAE Dirham |AED  |
+|Uruguay Peso   |UYU  |
+|US Dollar  |USD  |
+|Venezuelan Bolivar |VEF  |
+|Viet Nam Dong  |VND  |
+
+
+# Complex JSON Objects
+
+<a name="billingcycleobject"></a>
+## billingCycle
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|frequency                      |enum                       |Combine this value with the *interval* element to specify how often a subscription should be billed. <ul><li>DAILY</li><li>MONTHLY</li><li>YEARLY</li></ul>|
+|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, *frequency* to DAILY and *interval* to 7. </br>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not supported. |
+
+
+
+<a name="planobject"></a>
+## Plan
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|id                             |string<br/>`length<=36`    |This is the unique plan ID returned in the response.|
+|name                           |string<br/>`length=4-50`   |This is the plan name. |
+|version                        |number<br/>`max=4`         |The plan version, returned in the response. |
+|description                    |string<br/>`length<=255`   |This is a description of the plan. |
+|amount                         |number<br/>`max=99999999999`   |This is the amount of the plan, in minor units. |
+|currencyCode                   |string<br/>`length=3`      |This is the currency used for the plan amounts, e.g., USD or CAD. See [Currency Codes](#currencycodes)|
+|billingCycle                   |[billingCycle](#billingcycleobject)    |These are details of the billing cycle.    |
+|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts. **Note:** This defaults to the current date. |
+|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
+
+
+
+|accountNumber                  |string<br/>`length=1-20`   |This is the merchant's bank account number.|
+|routingNumber                  |string<br/>`length=9`      |This is the 9-digit routing number of the merchant's bank account.|
+
+```apib
+{
+  "accountNumber": "5807560412853954",
+  "transitNumber" : "854117563"
+}
+```
+
+<a name="bacsbankaccountobject"></a>
+## BACS Bank Account
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|id                             |string<br/>`length<=36`    |This is the merchant's BACS bank account ID returned in the response.|
+|beneficiaryBankCountry         |string<br/>`length=2`      |This is the [country](#bacscountries) of the beneficiary's bank address.|
+|beneficiaryAccountName         |string<br/>`length<=100`   |This is the beneficiary account name.|
+|accountNumber                  |string<br/>`length=8`      |This is the merchant's 8-digit bank account number.|
+|sortCode                       |string<br/>`length=6`      |This is the 6-digit sort code of the merchant's bank account.|
+
+```apib
+{
+  "sortCode":"857412",
+  "accountNumber":"94001521",
+  "beneficiaryAccountName":"Pmparapspd",
+  "beneficiaryBankCountry":"GB"
+}
+```
+
+<a name="businessownersobject"></a>
+## Business Owners
+
+|Element                        |Type           |Description                        |
+|---                            |---            |---       |
+|id             |string<br/>`length<=36`        |This is the ID returned in the response. It can be used later to look up or update a merchant.| 
+|firstName      |string<br/>`length<=50`        |This is the first name of the business owner.|
+|middleName     |string<br/>`length<=50`        |This is the middle name of the business owner.|
+|lastName      |string<br/>`length<=50`         |This is the last name of the business owner.|
+|previousLastName      |string<br/>`length<=50` |This is the previous last name of the business owner.|
+|email          |string<br/>`length<=255`       |This is the email address of the business owner.|
+|jobTitle       |string<br/>`length<=50`        |This is the job title of the business owner. |
+|phone          |string<br/>`length<=40`        |This is the phone number of the business owner.|
+|nationality    |enum                           |This is the nationality code of the business owner. See [Nationality Codes](#nationalitycodes).|
+|dateOfBirth    |[dateOfBirth](#date)           |This is the birth date of the business owner.|
+|ssn            |string<br/>`length<=9`         |This is the SSN/SIN of the business owner. |
+|gender         |enum                           |This is the gender of the business owner. Possible values are: <ul><li>M &ndash; male</li><li>F &ndash; female</li></ul> |
+|percentageOwnership    |number<br/>`max=100`   |This is the percentage of ownership by the business owner.|
+
+## Business Owner Addresses
+<a name="businessowneraddressesobject"></a>
+
+|Element                        |Type           |Description                        |
+|---                            |---            |---       |
+|id             |string<br/>`length<=36`        |This is the merchant account ID returned in the response.| 
+|street         |string<br/>`length<=50`        |This is the first line of the street address.|
+|street2        |string<br/>`length<=50`        |This is the second line of the street address, if required (e.g., apartment number).|
+|city           |string<br/>`length<=40`        |This is the city where address is located.|
+|state          |string<br/>`length<=40`        |This is the state/province/region of the merchant account address. Provide state if within U.S./Canada. For Canada see [Country Codes](#countrycodes). For U.S. see [State Codes](#statecodes). Provide region if outside of U.S./Canada.|
+|country        |string<br/>`length=2`          |This is the country of the merchant account address. See [Supported Country Codes](#supportedcountrycodes).|
+|zip            |string<br/>`length<=10`        |This is the zip code or postal code of the merchant account address.|
+|yearsAtAddress |number<br/>`length<+100`       |This is the number of years the business owner has been living at this address.|
+
+```apib
+{
+  "street":"100 Queen Street West",
+  "city":"Toronto",
+  "state":"ON",
+  "country":"CA",
+  "zip":"M5H 2N2",
+  "yearsAtAddress": "6"
+}
+```
+
+<a name="businessownercanadiandrivinglicensesobject"></a>
+## Business Owner Canadian Driving Licenses
+
+|Element        |Type                           |Description                        |
+|---            |---                            |---            |
+|id             |string<br/>`length<=36`        |This is the Canadian driving license ID returned in the response.| 
+|number         |string<br/>`length<=50`        |This is the driving license number.|
+|province       |string<br/>`length=2`          |This is the province that issued the driving license. See [Province Codes](#provincecodes).|
+|issueDate      |[issueDate](#dateobject)       |This is the date the driving license was issued.|
+|expiryDate     |[expiryDate](#dateobject)      |This is the date the driving license expires.|
+
+```apib
+{
+  "number":"DL1233456",
+  "city":"Toronto",
+  "province":"ON",
+  "issueDate": {
+    "day":"24",
+    "month":"10",
+    "year":"1981"
+  },
+  "expiryDate": {
+    "day":"24",
+    "month":"10",
+    "year":"1981"
+  }
+}
+```
+
+<a name="businessownereuropeanidentitycardsobject"></a>
+## Business Owner European Identity Cards
+
+|Element        |Type                           |Description                        |
+|---            |---                            |---            |
+|id             |string<br/>`length<=36`        |This is the European identity card ID returned in the response.| 
+|number         |string<br/>`length<=20`        |This is the identity card number.|
+|countryOfIssue |string<br/>`length=2`          |This is the country in which the identity card was issued. See [Country Codes](#countrycodes).|
+|expiryDate     |[expiryDate](#dateobject)      |This is the date the identity card expires.|
+|idNumberLine1  |string<br/>`length=30`         |This is the first line of the MRZ.|
+|idNumberLine2  |string<br/>`length=30`         |This is the second line of the MRZ.|
+|idNumberLine3  |string<br/>`length=30`         |This is the third line of the MRZ.|
+
+```apib
+{
+  "countryOfIssue": "GB",
+  "expiryDate": {
+    "day": 1,
+    "month": 1,
+    "year": 2018
+    },
+  "idNumberLine1": "IDGBRAA30003303<<<<<<<<<<<<<<<",
+  "idNumberLine2": "7502020M1801019GBR<<<<<<<<<<<0",
+  "idNumberLine3": "MCLAREN<<ALBERT<<<<<<<<<<<<<<<"
+}
+```
+
+<a name="businessownerinternationalpassportsobject"></a>
+## Business Owner International Passports
+
+|Element        |Type                           |Description                        |
+|---            |---                            |---            |
+|id             |string<br/>`length<=36`        |This is the international passport ID returned in the response.| 
+|number         |string<br/>`length=9`          |This is the international passport number.|
+|countryOfIssue |string<br/>`length=2`          |This is the country in which the passport was issued. See [Country Codes](#countrycodes).|
+|issueDate      |[issueDate](#dateobject)       |This is the date the passport was issued.|
+|expiryDate     |[expiryDate](#dateobject)      |This is the date the passport expires.|
+|passportNumberLine1  |string<br/>`length=44`   |This is the first line of the MRZ.|
+|passportNumberLine2  |string<br/>`length=44`   |This is the second line of the MRZ.|
+
+```apib
+{
+  "number":"123456787",
+  "passportNumberLine2": "1234567897GBR4511012M1803035<<<<<<<<<<<<<<00",
+  "countryOfIssue": "GB",
+  "issueDate": {
+    "day": 3,
+    "month": 3,
+    "year": 2016
+  },
+  "expiryDate": {
+    "day": 3,
+    "month": 3,
+    "year": 2020
+  }
+}
+```
+
+<a name="businessownerukdrivinglicensesobject"></a>
+## Business Owner UK Driving Licenses
+
+|Element        |Type                           |Description                        |
+|---            |---                            |---            |
+|id             |string<br/>`length<=36`        |This is the Canadian driving license ID returned in the response.| 
+|number         |string<br/>`length=16`        |This is the driving license number.|
+|postCode       |string<br/>`length<=8`         |This is the post code from the driving license. Ideally it should be the same as for the business owner address.|
+|issueDate      |[issueDate](#dateobject)       |This is the date the driving license was issued.|
+|expiryDate     |[expiryDate](#dateobject)      |This is the date the driving license expires.|
+
+```apib
+{
+  "number":"DL1233456",
+  "city":"Toronto",
+  "postCode":"BA133BN",
+  "issueDate": {
+    "day":"24",
+    "month":"10",
+    "year":"1981"
+  },
+  "expiryDate": {
+    "day":"24",
+    "month":"10",
+    "year":"1981"
+  }
+}
+```
+
+
+<a name="caaccountdetailsobject"></a>
+## caAccountDetails
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|type                           |enum                       |This is the type code of the business. See [Business Type Codes](#businesstypecodes).|
+|description                    |string<br/>`length<=50`    |This is a description of the business.|
+|isCardPresent                  |boolean                    |This indicates whether the customers' cards will be physically present when processing payments.|
+|hasPreviouslyProcessedCards    |boolean                    |This indicates whether the business has previously accepted credit cards.|
+|shipsGoods                     |boolean                    |This indicates whether the business will physically deliver goods.|
+|deliveryTimeRange              |enum                       |This is the time range for the business's order fulfillment. Possible values are:<ul><li>SHORT (1–7 days)</li><li>MEDIUM (8–14 days)</li><li>LONG (15 days and more)</li></ul>|
+|refundPolicy                   |boolean                    |This indicates whether the business has a refund policy.|
+|refundPolicyDescription        |string<br/>`length<=30`    |This is a description of the business's refund policy.|
+|federalTaxNumber               |string<br/>`length=9`      |This is the tax identification/registration number of the business.|
+
+```apib
+{
+  "type":"LTD",
+  "description":"Online Company",
+  "isCardPresent":true,
+  "hasPreviouslyProcessedCards":true,
+  "shipsGoods":false,
+  "refundPolicy":true,
+  "refundPolicyDescription":"Full refund available",
+  "federalTaxNumber":"123654789"
+}
+```
+
+<a name="dateobject"></a>
+## Date
+|Element    |Type                       |Description                        |
+|---        |---                        |---       |
+|day        |string<br/>`length=2 max=31`     |This is the day of the month.|
+|month      |string<br/>`length=2 max = 12`     |This is the month of the year.|
+|year       |string<br/>`length=4`      |This is the year.|
+
+```apib
+{
+  "day":"24",
+  "month":"10",
+  "year":"1981"
+}
+```
+
+<a name="eftbankaccountobject"></a>
+## EFT Bank Account
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|id                             |string<br/>`length<=36`    |This is the merchant's EFT bank account ID returned in the response.|
+|accountNumber                  |string<br/>`length=1-20`   |This is the merchant's bank account number.|
+|transitNumber                  |string<br/>`length=5`      |This is the 5-digit transit number of the merchant's bank branch.|
+|institutionId                  |string<br/>`length=3`      |This is the 3-digit institution ID of the merchant's bank branch.|
+
+```apib
+{
+  "accountNumber": "5807560412853954",
+  "transitNumber" : "52487",
+  "institutionId" : "052"
+}
+```
+
+<a name="euaccountdetailsobject"></a>
+## euAccountDetails
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|type                           |enum                       |This is the type code of the business. See [Business Type Codes](#businesstypecodes).|
+|description                    |string<br/>`length<=50`    |This is a description of the business.|
+|isCardPresent                  |boolean                    |This indicates whether the customers' cards will be physically present when processing payments.|
+|hasPreviouslyProcessedCards    |boolean                    |This indicates whether the business has previously accepted credit cards.|
+|shipsGoods                     |boolean                    |This indicates whether the business will physically deliver goods.|
+|deliveryTimeRange              |enum                       |This is the time range for the business's order fulfillment. **Note:** This value is required when *shipsGoods* is set to *true*. Possible values are:<ul><li>SHORT (1–7 days)</li><li>MEDIUM (8–14 days)</li><li>LONG (15 days and more)</li></ul>|
+|refundPolicy                   |boolean                    |This indicates whether the business has a refund policy.|
+|refundPolicyDescription        |string<br/>`length<=30`    |This is a description of the business's refund policy. **Note:** This value is required when *refundPolicy* is set to *true*.|
+|taxIdentificationNumber        |string<br/>`length<=30`    |This is the tax identification (VAT) number of the business.|
+|registrationNumber             |string<br/>`length<=20`    |This is the registration number of the business.|
+|additionalPaymentMethods       |array                      |These are optional payment types for the business. **Note:** This value is used for EU businesses only. Possible values are: <ul><li>SEPA</li><li>IDEAL</li><li>GIROPAY</li><li>SOFORT</li><li>UK_DIRECT_DEBIT</li></ul>|
+
+```apib
+{
+  "type":"CORP",
+  "description":"Online Company",
+  "isCardPresent":true,
+  "hasPreviouslyProcessedCards":true,
+  "shipsGoods":false,
+  "refundPolicy":true,
+  "refundPolicyDescription":"Full refund available",
+  "taxIdentificationNumber":"123654789",
+  "registrationNumber":"BB765432",
+  "additionalPaymentMethods":[
+    "SEPA"
+    ]
+}
+```
+
+<a name="linksobject"></a>
+## links
+
+|Element    |Type          |Required    |Description|
+|---        |---           |---         |---|
+|rel        |string        |Required    |This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.|
+|href       |string        |Required    |This is the URI of the resource.|
+
+```apib
+{
+    "links": [
+        {
+        "rel": "self",
+        "href": "https://api.test.paysafe.com/accountmanagement/v1/merchants/8b670bf0-f218-4710-86a9-1b100206e1c1"
+        }
+        ],
+}
+```
+
+<a name="merchantobject"></a>
+## Merchants
+|Element    |Type                       |Description                        |
+|---        |---                        |---       |
+|id        |string<br/>`length<=36`     |This is the ID returned in the response. It can be used later to look up or update a merchant.|
+|name      |string<br/>`length<=240`    |This is the merchant name.|
+
+```apib
+{
+  "id":"a02e52c7-c991-4418-966a-b62989cb0eae",
+  "name":"ACME"
+  }
+```
+
+<a name="merchantaccountobject"></a>
+## Merchant Accounts
+|Element        |Type                       |Description                        |
+|---            |---                        |---       |
+|id             |string<br/>`length<=36`    |This is the ID returned in the response. It can be used later to look up or update a merchant.|
+|name           |string<br/>`length<=250`   |This is the merchant name.|
+|legalEntity    |string<br/>`length<=240`   |This is the business legal/trading name (e.g., "ACME CA").|
+|status         |enum                       |This is the status of the merchant account. Possible values are: <ul><li>APPROVED - The merchant account has been approved, but not yet enabled.</li><li>DEFERRED - The merchant account application has been deferred until underwriting by Risk/Compliance is completed.</li><li>DISABLED - The merchant account application has been disabled due to suspension or termination.</li><li>ENABLED - The merchant account has been enabled for payment processing.</li><li>PENDING - The merchant account application has not yet been completed.</li><li>REJECTED - The merchant account application has been rejected due to Risk/Compliance check failure.</li><li>RETURNED - The merchant account application has been returned from Risk to Compliance for review.</li><li>SUBMITTED - The merchant account has been submitted for review by Paysafe Risk/Compliance.</li><li>WAITING - Compliance is waiting for additional information to be provided by the merchant.</li><li>WITHDRAWN - The merchant account application has been withdrawn.</li></ul>|
+|currency       |enum                       |This is the currency used for transactions on this merchant account. See [Supported Currency Codes](#supportedcurrencycodes). |
+|region         |enum                       |This is the region for the merchant account. Possible values are: <ul><li>US</li><li>CA</li><li>EU</li></ul> |
+|locale         |string<br/>`length=5`      |This is the locale value used for the merchant account. The values depend on the region. Possible values are: <ul><li>en_US (US)</li><li>en_CA (Canadian English)</li><li>fr_CA (Canadian French)</li><li>en_GB (EU)</li></ul> |
+|productCode    |string<br/>`length<=50`    |This is the code of the partner product.|
+|category       |enum                       |This is the category code of the business. Please see [Merchant Category Codes](#merchantcategorycodes). |
+|averageTransactionAmount   |number<br>`max=99999999999`    |This is the average transaction amount, in minor units. |
+|url            |string<br/>`length<=60`    |This is the website of the business. |
+|phone          |string<br/>`length<=40`     |This is the customer support phone number of the business. |
+|email          |string<br/>`length<=240`   |This is the customer support email of the business. |
+|yearlyVolumeRange  |enum                   |This is the estimated yearly volume of the business, by transaction. Possible values are: <ul><li>LOW &ndash; 0–50k</li><li>MEDIUM &ndash; 50k–100k</li><li>HIGH &ndash; 100k–250k</li><li>VERY_HIGH &ndash; 250k+</li></ul> |
+|userName       |string<br/>`min=2 max=64`  |This is the user name that will be configured to access the merchant account in back office. It should belong to the same merchant.|
+|merchantDescriptor |[merchantDescriptor](#merchantdescriptorobject)    |This is the merchant transaction descriptor.|
+|usAccountDetails   |[usAccountDetails](#usaccountdetails) |These are the merchant account details.|
+|caAccountDetails   |[caAccountDetails](#caaccountdetails)  |These are the merchant account details.|
+|euAccountDetails   |[euAccountDetails](#euaccountdetails)  |These are the merchant account details. |
+
+
+```apib
+{
+  "name":"ACME CAD",
+  "legalEntity":"ACME Enterprises",
+  "status":"ENABLED",
+  "currency":"CAD",
+  "region":"CA",
+  "locale":"en_CA",
+  "productCode":"987",
+  "category":"PC",
+  "averageTransactionAmount":"50000",
+  "url":"www.acmepc.ca",
+  "phone":"5556668888",
+  "email":"service@acmepc.ca",
+  "yearlyVolumeRange":"HIGH",
+  "userName":"Jane User"
+  }
+```
+
+<a name="merchantaccountaddressesobject"></a>
+## Merchant Account Addresses
+
+|Element                        |Type           |Description                        |
+|---                            |---            |---       |
+|id             |string<br/>`length<=36`        |This is the merchant account ID returned in the response.| 
+|street         |string<br/>`length<=50`        |This is the first line of the street address.|
+|street2        |string<br/>`length<=50`        |This is the second line of the street address, if required (e.g., apartment number).|
+|city           |string<br/>`length<=40`        |This is the city where address is located.|
+|state          |string<br/>`length<=40`        |This is the state/province/region of the merchant account address. Provide state if within U.S./Canada. For Canada see [Country Codes](#countrycodes). For U.S. see [State Codes](#statecodes). Provide region if outside of U.S./Canada.|
+|country        |string<br/>`length=2`          |This is the country of the merchant account address. See [Supported Country Codes](#supportedcountrycodes).|
+|zip            |string<br/>`length<=10`        |This is the zip code or postal code of the merchant account address.|
+
+```apib
+{
+  "street":"100 Queen Street West",
+  "city":"Toronto",
+  "state":"ON",
+  "country":"CA",
+  "zip":"M5H 2N2"
+}
+```
+
+
+<a name="merchantdescriptorobject"></a>
+## merchantDescriptor
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|dynamicDescriptor              |string<br/>`length<=20`    |This is the dynamic descriptor field.|
+|phone                          |string<br/>`length=13`     |This is the phone number to use in the card descriptor.|
+
+```apib
+{
+  "dynamicDescriptor":"Acme Corp.",
+  "phone":"555-666-9999"
+}
+```
+
+<a name="microdepositobject"></a>
+## Microdeposit
+|Element    |Type                       |Description                        |
+|---        |---                        |---       |
+|amount     |number<br/>`0.01-0.99`     |This is the amount associated with the microdeposit.|
+|status     |string<br/>`length<=20`    |This is the status of the microdeposit. Possible values are:<ul><li>SENT</li><li>ERROR</li><li>FAILED</li><li>VALIDATED</li><li>INVALID</li><li>TXN_ERROR</li><li>TXN_FAILED</li></ul>|
+
+```apib
+{
+  "amount":"0.88",
+  "status":"VALIDATED"
+}
+```
+
+<a name="recoveryquestionobject"></a>
+## recoveryQuestion
+
+|Element    |Type                       |Description                        |
+|---        |---                        |---       |
+|questionId |number                     |This is the number that identifies the recovery question. See [Recovery Questions](#recoveryquestionslist) for details.|
+|question   |string<br/>`length<=255`   |This is the question associated with the *questionId*, returned in the response to the Create a User request. See [Recovery Questions](#recoveryquestionslist) for details.|
+|answer     |string<br/>`length<=240`   |This is the user's answer to the recovery question. See [Recovery Questions](#recoveryquestionslist) for details.|
+
+```apib
+{
+  "questionId" : "1",
+  "answer" : "John Michael"
+}
+```
+
+<a name="sepabankaccountobject"></a>
+## SEPA Bank Account
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|id                             |string<br/>`length<=36`    |This is the merchant's SEPA bank account ID returned in the response.|
+|beneficiaryBankCountry         |string<br/>`length=2`      |This is the [country](#sepacountries) of the beneficiary's bank address.|
+|beneficiaryAccountName         |string<br/>`length<=100`   |This is the beneficiary account name.|
+|swiftNumber                    |string<br/>`length=8 or 11`|This is the Swift code of the merchant's bank account.|
+|ibanNumber                     |string<br/>`length=15-32`  |This is the IBAN number of the merchant's bank account.|
+
+```apib
+{
+  "swiftNumber":"85741236",
+  "ibanNumber":"940015210024214",
+  "beneficiaryAccountName":"SwiftBankAccountName",
+  "beneficiaryBankCountry":"GB"
+}
+```
+
+<a name="termsandconditionsobject"></a>
+## Terms and Conditions
+
+|Element    |Type                       |Description                        |
+|---        |---                        |---       |
+|id         |string<br/>`length<=36`    |This is the Terms and Conditions ID returned in the response.|
+|version    |string<br/>`length<=30`    |This is the version of the Terms and Conditions.|
+|acceptanceDate |dateTime               |This is the date and time the terms and conditions were accepted. For example, 2015-06-10T14:08:37Z|
+
+```apib
+{
+  "version": "v1"
+}
+```
+
+
+<a name="usaccountdetailsobject"></a>
+## usAccountDetails
+
+|Element                        |Type                       |Description                        |
+|---                            |---                        |---       |
+|type                           |enum                       |This is the type code of the business. See [Business Type Codes](#businesstypecodes).|
+|description                    |string<br/>`length<=50`    |This is a description of the business.|
+|isCardPresent                  |boolean                    |This indicates whether the customers' cards will be physically present when processing payments.|
+|hasPreviouslyProcessedCards    |boolean                    |This indicates whether the business has previously accepted credit cards.|
+|shipsGoods                     |boolean                    |This indicates whether the business will physically deliver goods.|
+|deliveryTimeRange              |enum                       |This is the time range for the business's order fulfillment. **Note:** This value is required when *shipsGoods* is set to *true*. Possible values are:<ul><li>SHORT (1–7 days)</li><li>MEDIUM (8–14 days)</li><li>LONG (15 days and more)</li></ul>|
+|refundPolicy                   |boolean                    |This indicates whether the business has a refund policy.|
+|refundPolicyDescription        |string<br/>`length<=30`    |This is a description of the business's refund policy. **Note:** This value is required when *refundPolicy* is set to *true*.|
+|federalTaxNumber               |string<br/>`length=9`      |This is the tax identification/registration number of the business.|
+
+```apib
+{
+  "type":"CORP",
+  "description":"Online Company",
+  "isCardPresent":true,
+  "hasPreviouslyProcessedCards":true,
+  "shipsGoods":false,
+  "refundPolicy":true,
+  "refundPolicyDescription":"Full refund available",
+  "federalTaxNumber":"123654789"
+}
+```
+
+<a name="usersobject"></a>
+## Users
+
+|Element    |Type                       |Description                        |
+|---        |---                        |---       |
+|userName   |string<br/>`length=2-31`   |This is the user name that will be configured to access the merchant account in the Merchant Back Office.|
+|password   |string<br/>`length<=17`    |This is the password that the user will use to access the merchant account in the Merchant Back Office.|
+|email      |string<br/>`length<=255`   |This is the email address that will be associated with the user.|
+|recoveryQuestion   |[recoveryQuestion](#recoveryquestionobject) |
+
+```apib
+{
+  "userName":"sam_smith",
+  "password":"Pwd1234",
+  "email":"samsmith@email.com",
+  "recoveryQuestion": {
+    "questionId" : "1",
+    "answer" : "John Michael"
+    }
+}
+```
+
+<a name="wirebankaccountobject"></a>
+## Wire Bank Accounts
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---    |
+|id                 |string<br/>`length<=36`    |This is the merchant's wire bank account ID returned in the response.|
+|accountNumber      |string<br/>`length=2-30`   |This is the merchant's bank account number.|
+|routingNumber      |string<br/>`length=1-12`   |This is the routing number of the merchant's bank account.|
+|sortCode           |string<br/>`length=6`      |This is the 6-digit sort code of the merchant's bank account.|
+|swiftNumber        |string<br/>`length=8 or 11`|This is the Swift code of the merchant's bank account.|
+|ibanNumber         |string<br/>`length=15-32`  |This is the IBAN number of the merchant's bank account.|
+|beneficiaryCountry |string<br/>`length=2`      |This is the country of the beneficiary's address. See [Country Codes](#countrycodes).
+|beneficiaryAccountName |string<br/>`length<=100`    |This is the beneficiary account name.|
+|beneficiaryAddress |string<br/>`length<=100`    |This is the beneficiary's address.|
+|beneficiaryCity    |string<br/>`length<=100`   |This is the beneficiary's city.|
+|beneficiaryRegion  |string<br/>`length<=100`   |This is the beneficiary's region.|
+|beneficiaryPostCode    |string<br/>`length<=100`   |This is the beneficiary's post code.|
+|beneficiaryBankCountry |string<br/>`length=2`  |This is the [country](#countrycodes) of the beneficiary's bank address.|
+|beneficiaryBankName    |string<br/>`length<=100`   |This is the name of the beneficiary's bank.|
+|beneficiaryBankAddress |string<br/>`length<=100`   |This is the street of the beneficiary's bank address.|
+|beneficiaryBankCity    |string<br/>`length<=100`   |This is the city of the beneficiary's bank.|
+|beneficiaryBankRegion  |string<br/>`length<=100`   |This is the region of the beneficiary's bank. |
+|beneficiaryBankPostCode    |string<br/>`length<=100`   |This is the post code of the beneficiary's bank.|
+
+```apib
+{
+  "accountNumber": "6358555211214",
+  "beneficiaryCountry" : "DE",
+  "beneficiaryAccountName" : "GER Test Account 2",
+  "beneficiaryAddress" : "AV. Frankfurt 1",
+  "beneficiaryCity" : "Munich",
+  "beneficiaryRegion" : "Munich",
+  "beneficiaryPostCode" : "02002",
+  "beneficiaryBankCountry" : "DE",
+  "beneficiaryBankName" : "GER Bank 2",
+  "beneficiaryBankAddress" : "Av. Colonia 1",
+  "beneficiaryBankCity" : "Dortmund",
+  "beneficiaryBankRegion" : "Dortmund",
+  "beneficiaryBankPostCode" : "02003",
+  "swiftNumber" : "85774412",
+  "routingNumber" : "328514",
+  "ibanNumber" : "558541"
+}
+```
+
+# Error Summary
+
+Click [here](https://developer.paysafe.com/en/rest-api/partners/account-management/test-and-go-live/account-management-errors/) for a summary and description of errors you might encounter using the Account Management API.
+
+# Appendices
+
+## BACS Countries List
+<a name="bacscountries"></a>
+
+|Country    |Code   |
+|---        |---    |
+|United Kingdom |GB |
+
+## Bank Account Types Required
+<a name="bankaccounttypes"></a>
+
+|Region     |Currency   |Bank Country   |Required Bank Account Type |
+|---        |---        |---            |---    |
+|CA         |Any        |CA             |[EFT](#eftbankaccountobject)    |
+|US         |Any        |US             |[ACH](#achbankaccountobject)    |
+|EU         |EUR        |Within [SEPA country](#sepacountries) list   |[SEPA](#sepabankaccountobject)|
+|EU         |GBP        |GB             |[BAC](#bacsbankaccountobject)S   |
+|EU         |Not covered by other EU options    |Not covered by other EU options    |[WIRE](#wirebankaccountobject)|
+
+## Business Type Codes
+<a name="businesstypecodes"></a>
+
+|Code           |Description   |
+|---            |---        |
+|CHARITY        |Charity |
+|CIC            |Community Interest Company |
+|CORP           |Corporation |
+|LTD            |Limited    |
+|LLC            |Limited Liability Company |
+|LLP            |Limited Liability Partnership |
+|NPCORP         |Non-Profit |
+|PARTNERSHP     |Partnership |
+|PLC            |Public Limited Company |
+|GOV            |Public Sector/Governmental |
+|SOLEPROP       |Sole Proprietorship/Sole Trader |
+|TRUST          |Trust |
+
+## Merchant Category Codes
+<a name="merchantcategorycodes"></a>
+
+### Canada and U.S.
+
+| Code              | Description                    |
+|---                |---                            |
+| ACCT             | Accounting                     |
+| ART              | Artist Supply and Craft Stores |
+| BEAUTY           | Barber & Beauty Shop           |
+| CATERING         | Catering                       |
+| CHARITY          | Charity                        |
+| CLEANING         | Cleaning Services              |
+| CONSULTANT       | Consultant                     |
+| CONTRACTOR       | Trade Contractor               |
+| DENTIST          | Dentistry                      |
+| EDU              | Schools & Education            |
+| FOOD             | Food/Grocery                   |
+| LANDSCAPING      | Landscaping                    |
+| LEGAL            | Legal Services                 |
+| MEDICAL_PRACT    | Medical Practitioner           |
+| MEDICAL_SERV     | Health Services                |
+| MEMBERSHIP       | Membership Org.                |
+| MISC_FOOD_STORES | Misc. Food Stores              |
+| MISC_MERCH       | Misc General Merchandise       |
+| MISC_SERV        | Services                       |
+| MUSIC            | Music/Entertainment            |
+| PC               | Computer Services              |
+| PHOTO_FILM       | Photo/FILM                     |
+| PROF_SERV        | Professional Services          |
+| REAL_ESTATE      | Real Estate                    |
+| RECREATION       | Recreation Services            |
+| REPAIR           | Repair Services                |
+| RESTO            | Restaurant/Bar                 |
+| RETAIL           | Direct Marketing Retail (MOTO) |
+| TAXI             | Taxi/Limo                      |
+| VET              | Veterinary                     |
+| WEB_DEV          | Web Design                     |
+| WEB_HOSTING      | Web Hosting                    |
+
+
+### EU
+
+| Code                | Description                                     |
+|---                    |---                                            |
+| ACCT                | Accounting                                      |
+| ADV                 | Advertising Services                            |
+| ART                 | Artist Supply and Craft Stores                  |
+| BEAUTY              | Barber & Beauty Shop                            |
+| BUS_SERV            | Business Services                               |
+| CATERING            | Catering                                        |
+| CHARITY             | Charity                                         |
+| CLEANING            | Cleaning Services                               |
+| CLUBS               | Clubs, Membership                               |
+| COMPUTERS           | Computers                                       |
+| CONSULTANT          | Consultant                                      |
+| CONTRACTOR          | Trade Contractor                                |
+| COUNSELLING         | Counselling                                     |
+| DANCE_SCHOOL_STUDIO | Dance Hall, School, Studio                      |
+| DENTIST             | Dentistry                                       |
+| DOCTOR              | Doctor                                          |
+| EDU                 | Schools & Education                             |
+| ELECTRO             | Electronic Stores                               |
+| FLORIST             | Florists                                        |
+| FOOD                | Food/Grocery                                    |
+| HEALTH_BEAUTY       | Health & Beauty Spa                             |
+| INS_SALES           | Insurance Sales, Underwriting, & Premiums       |
+| LANDSCAPING         | Landscaping                                     |
+| LEGAL               | Legal Services                                  |
+| MEDICAL_PRACT       | Medical Practitioner                            |
+| MEDICAL_SERV        | Health Services                                 |
+| MEMBERSHIP          | Membership Org.                                 |
+| MEN_WOMEN_CLOTHING  | Men's & Women's Clothing Stores                 |
+| MISC_APP            | Miscellaneous Apparel & Accessory Shops         |
+| MISC_FOOD_STORES    | Misc. Food Stores                               |
+| MISC_HOME           | Miscellaneous Home Furnishing Speciality Stores |
+| MISC_MERCH          | Misc General Merchandise                        |
+| MISC_SERV           | Services                                        |
+| PC                  | Computer Services                               |
+| PHOTO_FILM          | Photo/FILM                                      |
+| PROF_SERV           | Professional Services                           |
+| RAZOR_STORE         | Electric Razor Store                            |
+| REAL_ESTATE         | Real Estate                                     |
+| RECREATION          | Recreation Services                             |
+| RECRE_SPORT_CAMPS   | Recreation & Sporting Camps                     |
+| REPAIR              | Repair Services                                 |
+| RESTO               | Restaurant/Bar                                  |
+| RETAIL              | Direct Marketing Retail (MOTO)                  |
+| SHOE_STORE          | Shoe Stores                                     |
+| SPORTS              | Sports                                          |
+| SPORT_GOODS_STORE   | Sporting Goods Store                            |
+| TAXI                | Taxi/Limo                                       |
+| THEATRE             | Theatre                                         |
+| VET                 | Veterinary                                      |
+| WEB_DEV             | Web Design                                      |
+
+
+## Nationality Codes
+<a name="nationalitycodes"></a>
+
+|  Code |  Description  |
+|---    |---            |
+| AF    | Afghani                                      |
+| AL    | Albanian                                     |
+| DZ    | Algerian                                     |
+| US    | American                                     |
+| AS    | American Samoan                              |
+| AD    | Andorran                                     |
+| AO    | Angolan                                      |
+| AI    | Anguillan                                    |
+| AQ    | Antarctic                                    |
+| AG    | Antiguan                                     |
+| AR    | Argentine                                    |
+| AM    | Armenian                                     |
+| AW    | Arubian                                      |
+| AU    | Australian                                   |
+| AT    | Austrian                                     |
+| AZ    | Azerbaijani                                  |
+| BS    | Bahameese                                    |
+| BH    | Bahrainian                                   |
+| BD    | Bangladeshi                                  |
+| BB    | Barbadian                                    |
+| BL    | Barthélemois                                 |
+| BY    | Belarusian                                   |
+| BE    | Belgian                                      |
+| BZ    | Belizean                                     |
+| BJ    | Beninese                                     |
+| BM    | Bermudan                                     |
+| BT    | Bhutanese                                    |
+| BO    | Bolivian                                     |
+| BA    | Bosnian                                      |
+| BR    | Brazilian                                    |
+| GB    | British                                      |
+| BN    | Bruneian                                     |
+| BG    | Bulgarian                                    |
+| BF    | Burkinabe                                    |
+| BI    | Burundian                                    |
+| KH    | Cambodian                                    |
+| CM    | Cameroonian                                  |
+| CA    | Canadian                                     |
+| CV    | Cape Verdean                                 |
+| KY    | Caymanian                                    |
+| CF    | Central African                              |
+| TD    | Chadian                                      |
+| CL    | Chilean                                      |
+| CN    | Chinese                                      |
+| CX    | Christmas Islander                           |
+| CC    | Cocossian                                    |
+| CO    | Colombian                                    |
+| KM    | Comoran                                      |
+| CG    | Congolese                                    |
+| CD    | Congolese (Democratic Republic of the Congo) |
+| CK    | Cook Islander                                |
+| CR    | Costa Rican                                  |
+| HR    | Croatian                                     |
+| CU    | Cuban                                        |
+| CW    | Curaçaoan                                    |
+| CY    | Cypriot                                      |
+| CZ    | Czech                                        |
+| DK    | Danish                                       |
+| DJ    | Djiboutian                                   |
+| DM    | Dominican (Commonwealth)                     |
+| DO    | Dominican (Republic)                         |
+| NL    | Dutch                                        |
+| EC    | Ecuadorean                                   |
+| EG    | Egyptian                                     |
+| AE    | Emirian                                      |
+| GQ    | Equatorial Guinean                           |
+| ER    | Eritrean                                     |
+| EE    | Estonian                                     |
+| ET    | Ethiopian                                    |
+| FK    | Falkland Islander                            |
+| FO    | Faroese                                      |
+| FJ    | Fijian                                       |
+| PH    | Filipino                                     |
+| FI    | Finnish                                      |
+| FR    | French                                       |
+| GF    | French Guianese                              |
+| PF    | French Polynesian                            |
+| GA    | Gabonese                                     |
+| GM    | Gambian                                      |
+| GE    | Georgian                                     |
+| DE    | German                                       |
+| GH    | Ghanaian                                     |
+| GI    | Gibralterian                                 |
+| GR    | Greek                                        |
+| GL    | Greenlander                                  |
+| GD    | Grenadian                                    |
+| GP    | Guadeloupean                                 |
+| GU    | Guamanian                                    |
+| GT    | Guatemalan                                   |
+| GW    | Guinea-Bissau nationals                      |
+| GN    | Guinean                                      |
+| GY    | Guyanese                                     |
+| HT    | Haitian                                      |
+| HN    | Honduran                                     |
+| HK    | Hong Konger                                  |
+| HU    | Hungarian                                    |
+| KI    | I-Kiribati                                   |
+| IS    | Icelander                                    |
+| IN    | Indian                                       |
+| ID    | Indonesian                                   |
+| IR    | Iranian                                      |
+| IQ    | Iraqi                                        |
+| IE    | Irish                                        |
+| IL    | Israeli                                      |
+| IT    | Italian                                      |
+| CI    | Ivorian                                      |
+| JM    | Jamaican                                     |
+| JP    | Japanese                                     |
+| JO    | Jordanian                                    |
+| KZ    | Kazakhstani                                  |
+| KE    | Kenyan                                       |
+| KN    | Kittian                                      |
+| KW    | Kuwaiti                                      |
+| KG    | Kyrgyzstani                                  |
+| LA    | Laotian                                      |
+| LV    | Latvian                                      |
+| LB    | Lebanese                                     |
+| LR    | Liberian                                     |
+| LY    | Libyan                                       |
+| LI    | Liechtensteiner                              |
+| LT    | Lithunian                                    |
+| LU    | Luxembourger                                 |
+| MO    | Macanese                                     |
+| MK    | Macedonian                                   |
+| YT    | Mahoran                                      |
+| MG    | Malagasy                                     |
+| MW    | Malawian                                     |
+| MY    | Malaysian                                    |
+| MV    | Maldivan                                     |
+| ML    | Malian                                       |
+| MT    | Maltese                                      |
+| IM    | Manx                                         |
+| MH    | Marshallese                                  |
+| MQ    | Martinican                                   |
+| MR    | Mauritanian                                  |
+| MU    | Mauritian                                    |
+| MX    | Mexican                                      |
+| FM    | Micronesian                                  |
+| MD    | Moldovan                                     |
+| MC    | Monacan                                      |
+| MN    | Mongolian                                    |
+| ME    | Montenegrin                                  |
+| MS    | Montserratian                                |
+| MA    | Moroccan                                     |
+| LS    | Mosotho                                      |
+| BW    | Motswana                                     |
+| MZ    | Mozambican                                   |
+| MM    | Myanmarese                                   |
+| NA    | Namibian                                     |
+| NR    | Nauruan                                      |
+| NP    | Nepalese                                     |
+| NC    | New Caledonian                               |
+| NZ    | New Zealander                                |
+| VU    | Ni-Vanuatu                                   |
+| NI    | Nicaraguan                                   |
+| NG    | Nigerian                                     |
+| NE    | Nigerien                                     |
+| NU    | Niuean                                       |
+| NF    | Norfolk Islander                             |
+| KP    | North Korean                                 |
+| MP    | Northern Mariana Islander                    |
+| NO    | Norwegian                                    |
+| OM    | Omani                                        |
+| PK    | Pakistani                                    |
+| PW    | Palauan                                      |
+| PS    | Palestinian                                  |
+| PA    | Panamanian                                   |
+| PG    | Papua New Guinean                            |
+| PY    | Paraguayan                                   |
+| PE    | Peruvian                                     |
+| PN    | Pitcairn Islander                            |
+| PL    | Polish                                       |
+| PT    | Portuguese                                   |
+| PR    | Puerto Rican                                 |
+| QA    | Qatari                                       |
+| RO    | Romanian                                     |
+| RU    | Russian                                      |
+| RW    | Rwandan                                      |
+| SH    | Saint Helenian                               |
+| LC    | Saint Lucian                                 |
+| VC    | Saint Vincentian                             |
+| PM    | Saint-Pierrais                               |
+| SV    | Salvadorean                                  |
+| WS    | Samoan                                       |
+| SM    | Sanmarinese                                  |
+| SA    | Saudi Arabian                                |
+| SN    | Senegalese                                   |
+| RS    | Serbian                                      |
+| SC    | Seychellois                                  |
+| SL    | Sierra Leonean                               |
+| SG    | Singaporean                                  |
+| SK    | Slovakian                                    |
+| SI    | Slovenian                                    |
+| SB    | Solomon Islander                             |
+| SO    | Somali                                       |
+| ZA    | South African                                |
+| KR    | South Korean                                 |
+| ES    | Spanish                                      |
+| LK    | Sri Lankan                                   |
+| SD    | Sudanese                                     |
+| SS    | Sudanese (South Sudan)                       |
+| SR    | Surinamer                                    |
+| SZ    | Swazi                                        |
+| SE    | Swedish                                      |
+| CH    | Swiss                                        |
+| SY    | Syrian                                       |
+| ST    | São Tomean                                   |
+| TW    | Taiwanese                                    |
+| TJ    | Tajikistani                                  |
+| TZ    | Tanzanian                                    |
+| TH    | Thai                                         |
+| TL    | Timorese                                     |
+| TG    | Togolese                                     |
+| TK    | Tokelauan                                    |
+| TO    | Tongan                                       |
+| TT    | Trinidadian                                  |
+| TN    | Tunisian                                     |
+| TR    | Turkish                                      |
+| TM    | Turkmen                                      |
+| TC    | Turks and Caicos Islander                    |
+| TV    | Tuvaluan                                     |
+| UG    | Ugandan                                      |
+| UA    | Ukrainian                                    |
+| UY    | Uruguayan                                    |
+| UZ    | Uzbekistani                                  |
+| VE    | Venezuelan                                   |
+| VN    | Vietnamese                                   |
+| VG    | Virgin Islander (British Virgin Islands)     |
+| WF    | Wallisian                                    |
+| EH    | Western Saharan                              |
+| YE    | Yemeni                                       |
+| ZM    | Zambian                                      |
+| ZW    | Zimbabwean                                   |
+| AX    | Ålandic                                      |
+
+## Recovery Questions
+<a name="recoveryquestionslist"></a>
+
+**Note:** Recovery question answers can contain only the following:<ul><li>Lower case letters</li><li>Upper case letters</li><li>Numbers</li><li>Hyphens</li><li>Spaces</li></ul>Recovery question answers requires at least one digit or one letter.
+
+|  Question ID | Question Text                                                                       |
+|--------------|-------------------------------------------------------------------------------------|
+| 1            | What is the name of your oldest sibling?                                            |
+| 2            | What is the name of your youngest sibling?                                          |
+| 3            | What is the make and model of the first car you owned?                              |
+| 4            | What are the last four digits of your bank account number?                          |
+| 5            | In what city is your bank branch located?”                                          |
+| 6            | What is the name of your first pet?                                                 |
+| 7            | Who is your mobile provider, and what is your mobile number?                        |
+| 8            | What is the sum of your year of birth? (e.g., if YOB=1234, sum=1+2+3+4=10)          |
+| 9            | In what city and year was your business established? (e.g., Manchester 1999)        |
+| 10           | What high school did you graduate from, and in what year? (e.g., Central High 1999) |
+
+## SEPA Countries List
+<a name="sepacountries"></a>
+
+|Country    |Code   |
+|---        |---    |
+|Austria    |AT     |
+|Belgium    |BE     |
+|Bulgaria   |BG     |
+|Croatia    |HR     |
+|Cyprus     |CY     |
+|Czech Republic |CZ |
+|Denmark    |DK     |
+|Estonia    |EE     |
+|Finland    |FI     |
+|France     |FR     |
+|French Guiana  |GF |
+|Germany    |DE     |
+|Gibraltar  |GI     |
+|Greece     |GR     |
+|Guadeloupe |GP     |
+|Guernsey   |GG     |
+|Hungary    |HU     |
+|Iceland    |IS     |
+|Ireland    |IE     |
+|Isle of Man    |IM |
+|Italy      |IT     |
+|Jersey     |JE     |
+|Latvia     |LV     |
+|Liechtenstein  |LI |
+|Lithuania  |LT     |
+|Luxembourg |LU     |
+|Malta      |MT     |
+|Martinique |MQ     |
+|Mayotte    |YT     |
+|Monaco     |MC     |
+|Norway     |NO     |
+|Poland     |PL     |
+|Portugal   |PT     |
+|Reunion    |RE     |
+|Romania    |RO     |
+|Saint Barthélemy   |BL |
+|Saint Martin   |MF |
+|San Marino |SM |
+|Slovakia (Slovak Republic) |SK |
+|Slovenia   |SI |
+|Spain      |ES |
+|St. Pierre and Miquelon    |PM |
+|Sweden     |SE     |
+|Switzerland    |CH     |
+|The Netherlands    |NL |
+|United Kingdom |GB |
+|Åland Islands  |AX |
+
+## Supported Country Codes by Region
+<a name="supportedcountrycodes"></a>
+
+### US
+
+|  Country |  Code  |
+|---    |---        |
+|United States |US |
+
+
+### Canada
+
+|  Country |  Code  |
+|---    |---        |
+|Canada |CA |
+
+
+### EU
+
+| Country                    | Code |
+|---                    |--- |
+| Austria                    | AT   |
+| Belgium                    | BE   |
+| Bulgaria                   | BG   |
+| Cyprus                     | CY   |
+| Czech Republic             | CZ   |
+| Denmark                    | DK   |
+| Estonia                    | EE   |
+| Finland                    | FI   |
+| France                     | FR   |
+| Germany                    | DE   |
+| Gibraltar                  | GI   |
+| Greece                     | GR   |
+| Guernsey                   | GG   |
+| Hungary                    | HU   |
+| Iceland                    | IS   |
+| Ireland                    | IE   |
+| Isle of Man                | IM   |
+| Italy                      | IT   |
+| Jersey                     | JE   |
+| Latvia                     | LV   |
+| Liechtenstein              | LI   |
+| Lithuania                  | LT   |
+| Luxembourg                 | LU   |
+| Malta                      | MT   |
+| Monaco                     | MC   |
+| Norway                     | NO   |
+| Poland                     | PL   |
+| Portugal                   | PT   |
+| Romania                    | RO   |
+| Slovakia (Slovak Republic) | SK   |
+| Slovenia                   | SI   |
+| Spain                      | ES   |
+| Sweden                     | SE   |
+| Switzerland                | CH   |
+| The Netherlands            | NL   |
+| Turkey                     | TR   |
+| United Kingdom             | GB   |
+
+
+## Supported Currency Codes by Region
+<a name="supportedcurrencycodes"></a>
+
+### US
+
+|  Currency |  Code  |
+|---    |---        |
+|US Dollar |USD |
+
+
+### Canada
+
+|  Currency |  Code  |
+|---    |---        |
+|Canadian Dollar    |CAD |
+|US Dollar |USD |
+
+### EU
+
+| Currency           | Code |
+|---                |---    |
+| Australian Dollar  | AUD  |
+| Canadian Dollar    | CAD  |
+| Danish Krone       | DKK  |
+| Euro               | EUR  |
+| Hong Kong Dollar   | HKD  |
+| Japanese Yen       | JPY  |
+| New Zealand Dollar | NZD  |
+| Norwegian Krone    | NOK  |
+| Pound Sterling     | GBP  |
+| Rand               | ZAR  |
+| Swedish Krona      | SEK  |
+| Swiss Franc        | CHF  |
+| US Dollar          | USD  |
+
+
+## Tool Tips
+
+To create the best on-boarding experience, Paysafe suggests that you include some tool tips within your form to help users. The following tool tips are used within our own on-boarding form. 
+
+**User Name**
+<ul><li>Must be from 2 to 64 characters long</li><li>Can contain both alphabetical and numeric characters</li><li>Must contain all lowercase characters</li><li>Can contain the following special characters: period, comma, hyphen, underscore, and parentheses</li></ul>
+
+For example: merchant_com_24
+
+**Password**
+<ul><li>Must be at least 8 characters long</li><li>Must combine both alphabetical and numeric characters (e.g., J8k9b3p)</li><li>Must contain at least one uppercase and one lowercase character</li><li>Must contain at least one special character (e.g., ~¡-ÿ!@#$%^&*(){}`_,+=?;:.[]/\)</li></ul>
+
+For example: Pay5@f3_999
+
+
+# Using the Console Window
+To configure and test the example in the Console window, click **Switch to Console**. 
+In the Console window, you can update the headers, the request body, and parts of the API endpoint. 
+For example, for most requests you must update the endpoint to include your profile ID (returned when you create a profile), which you do by selecting **URI Parameters** and then updating the **profile_id** value. 
+You must also update the Header to include your API Key, which you do by selecting **Headers** and then updating the **Authorization** value. 
+To get your API key User name and Password, log into the Paysafe Back Office and choose **Settings > API Key**. 
+To then generate the API Key, concatenate your User name and Password, separated by a colon, then Base64 encode it, and then prefix it with "Basic ".
+When you are ready to test your example, you can switch between the Production and Mock server environment:
+* Production server – This calls the resource on Paysafe's Test system. 
+* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your profile ID or Test API key for this request.
+
+To call the API resource, click **Call Resource**. The response is displayed in the Console window.
+
+# Plans [/subscriptionsplans]
+<a name="plans"></a>
+
+## Create a Plan [POST /subscriptionsplans]
+
+This is how you submit a plan creation request.
+
++ Request Plan Creation (application/json)
+
+    + Attributes
+        + Include Merchant Name
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant
+        + Include Response Base
+        + Include Merchant Name
+
+# Subscriptions [/subscriptionsplans]
+<a name="subscriptions"></a>
+
+## Create a Subscription [POST /subscriptionsplans/v1/plans/{plan_id}/subscriptions]
+
+This is how you submit a subscription creation request.
+
++ Request Subscription Creation (application/json)
+
+    + Attributes
+        + Include Merchant Name
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant
+        + Include Response Base
+        + Include Merchant Name
+
+# Merchants [/merchants]
+<a name="merchants"></a>
+
+## Update a Merchant [PUT /merchants/{merchant_id}]
+
+This is how you update a merchant.
+
++ Parameters
+
+    + merchant_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the merchant ID returned in the response to the merchant creation request.
+
++ Request Merchant Update (application/json)
+
+    + Attributes
+        + Include Merchant Name
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY        
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant
+        + Include Response Base
+        + Include Merchant Name
+
+## Look Up a Merchant [GET /merchants/{merchant_id}]
+
+This is how you look up a merchant.
+
++ Parameters
+
+    + merchant_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the merchant ID returned in the response to the merchant creation request.
+
++ Request Get Merchant (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant
+        + Include Response Base
+        + Include Merchant Name
+
+# Merchant Accounts [/accounts]
+<a name="merchantaccounts"></a>
+
+## Create a Merchant Account [POST /merchants/{merchant_id}/accounts]
+
+This is how you submit a merchant account creation request.
+
++ Parameters
+
+    + merchant_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the merchant ID returned in the response to the merchant creation request.
+
++ Request Merchant Account Creation (application/json)
+
+    + Attributes
+        + Include Merchant Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account Create
+        + Include Merchant Account Response
+        
+## Create a Merchant Account - Consolidated Call [POST /merchants/{merchant_id}/accounts?operationMode={operation_mode}]
+
+This is how you submit a merchant account creation request that includes the merchant account address.
+
++ Parameters
+
+    + merchant_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the merchant ID returned in the response to the merchant creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including the merchant account address in this request. 
+
++ Request Merchant Account Creation (application/json)
+
+    + Attributes
+        + Include Merchant Account
+        + Include Address Object
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account Create
+        + Include Merchant Account Response
+        + Include Address Object
+
+## Update a Merchant Account - PUT [PUT /accounts/{account_id}]
+
+This is how you update a merchant account with a PUT request.
+
+**Note:** You must provide all the elements of the merchant account that you want to update. Elements not included will be removed from the resulting merchant account.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    
++ Request Merchant Account Update (application/json)    
+
+    + Attributes
+        + Include Merchant Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account
+        + Include Merchant Account Response            
+
+## Update a Merchant Account - Consolidated Call - PUT [PUT /accounts/{account_id}?operationMode={operation_mode}]
+
+This is how you update a merchant account and its associated merchant account address with a PUT request.
+
+**Note:** You must provide all the elements of the merchant account that you want to update. Elements not included will be removed from the resulting merchant account.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including the merchant account address in this request. 
+    
++ Request Merchant Account Update (application/json)    
+
+    + Attributes
+        + Include Merchant Account
+        + Include Address Object
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account
+        + Include Merchant Account Response
+        + Include Address Object
+
+## Update a Merchant Account - PATCH [PATCH /accounts/{account_id}]
+
+This is how you update a merchant account with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the merchant account that you want to update. Elements not included will remain unchanged in the resulting merchant account.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    
++ Request Merchant Account Update (application/json)    
+
+    + Attributes
+        + Include Merchant Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account
+        + Include Merchant Account Response
+
+## Update a Merchant Account - Consolidated - PATCH [PATCH /accounts/{account_id}?operationMode={operation_mode}]
+
+This is how you update a merchant account and its associated merchant account address with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the merchant account that you want to update. Elements not included will remain unchanged in the resulting merchant account.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including the merchant account address in this request.
+    
++ Request Merchant Account Update (application/json)    
+
+    + Attributes
+        + Include Merchant Account
+        + Include Address Object
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account
+        + Include Merchant Account Response
+        + Include Address Object
+
+## Look Up a Merchant Account [GET /accounts/{account_id}]
+
+This is how you look up a merchant account using the ID returned in the response to the account creation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Get Merchant Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account
+        + Include Merchant Account Response
+
+## Look Up a Merchant Account - Consolidated [GET /accounts/{account_id}?operationMode={operation_mode}]
+
+This is how you look up a merchant account using the account ID returned in the response to the account creation request to return the merchant account information along with additional resources that have been added to the account.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including the merchant account address in this request.
+
++ Request Get Merchant Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account Consolidated
+        + Include Merchant Account Response
+        + Include Address Consolidated
+        + Include EFT Bank Account Resource
+        + Include Terms and Conditions Resource
+        + Include Business Owners
+
+## Look Up a Merchant Account Using Merchant External Account ID [GET /accounts/{external_account_id}?searchBy={search_by}]
+
+This is how you look up a merchant account using the external account ID included in the account creation request.  
+
++ Parameters
+
+    + external_account_id:`ext_0914` (string, required) - This is the merchant's external account ID (*externalAccountId*) used in the merchant account creation request.
+    + search_by:`ext` (string, required) - This instructs the operation to look up an external account ID.
+
++ Request Get Merchant Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account ExtID        
+        + Include Merchant Account Response
+
+## Look Up a Merchant Account Using Merchant External Account ID - Consolidated [GET /accounts/{external_account_id}?operationMode={operation_mode}&searchBy={search_by}]
+
+This is how you look up a merchant account using the account ID returned in the response to the account creation request to return the merchant account information along with additional resources that have been added to the account.
+
++ Parameters
+
+    + external_account_id:`ext_0914` (string, required) - This is the merchant's external account ID (*externalAccountId*) used in the merchant account creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including the merchant account address in this request.
+    + search_by:`ext` (string, required) - This instructs the operation to look up an external account ID.
+
++ Request Get Merchant Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account Consolidated
+        + Include Merchant Account Response
+        + Include Address Consolidated
+        + Include EFT Bank Account Resource
+        + Include Terms and Conditions Resource
+        + Include Business Owners
+
+# Merchant Account Addresses [/addresses]
+<a name="merchantaccountaddresses"></a>
+
+## Create a Merchant Account Address [POST /accounts/{account_id}/addresses]
+
+This is how you submit a merchant account creation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant Account Address Creation (application/json)
+
+    + Attributes
+        + Include Address
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Addresses
+        + Include Address
+
+## Update a Merchant Account Address [PUT /addresses/{address_id}]
+
+This is how you update a merchant account address.
+
++ Parameters
+
+    + address_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the address ID returned in the response to the merchant account creation request.
+
++ Request Merchant Update (application/json)
+
+    + Attributes
+        + Include Address
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Addresses
+        + Include Address
+
+## Look Up a Merchant Account Address [GET /addresses/{account_id}]
+
+This is how you look up a merchant account address.
+
++ Parameters
+
+    + account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the address ID returned in the response to the merchant account creation request.
+
++ Request Get Merchant (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Addresses
+        + Include Address
+
+# Business Owners [/businessowners]
+<a name="businessowners"></a>
+
+## Create a Canadian Business Owner [POST /accounts/{account_id}/businessowners]
+<a name="canadianbusinessownersrequest"></a>
+
+This is how you submit a Canadian business owner creation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Canadian Business Owner Creation (application/json)
+
+    + Attributes
+        + Include Canadian Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+
+## Create a US Business Owner [POST /accounts/{account_id}/businessowners]
+<a name="usbusinessownersrequest"></a>
+
+This is how you submit a US business owner creation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request US Business Owner Creation (application/json)
+
+    + Attributes
+        + Include US Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include US Business Owner
+
+## Create a European Business Owner [POST /accounts/{account_id}/businessowners]
+<a name="europeanbusinessownersrequest"></a>
+
+This is how you submit a European business owner creation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request European Business Owner Creation (application/json)
+
+    + Attributes
+        + Include European Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include European Business Owner
+
+## Create a Business Owner - Consolidated [POST /accounts/{account_id}/businessowners?operationMode={operation_mode}]
+
+This is how you submit a business owner creation request that allows you to also include additional objects. This example included here is for a Canadian business owner.
+Depending on your jurisdiction, you can include the following: 
+<ul><li>Current Address</li><li>Previous Address</li><li>Canadian Driving License</li><li>UK Driving License</li><li>International Passport</li><li>European Identity Card</li></ul>
+
+For the business owner creation request, mandatory parameters vary by regions. For details, see: <ul><li>[Create a Canadian Business Owner](#canadianbusinessownersrequest)</li><li>[Create a US Business Owner](#usbusinessownersrequest)</li><li>[Create a European Business Owner](#europeanbusinessownersrequest)</li></ul>
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including the merchant account address in this request.
+
++ Request Business Owner Creation (application/json)
+
+    + Attributes
+        + Include Canadian Business Owner
+        + Include Address Current Object
+        + Include Address Previous Object
+        + Include Canadian Driving License Object
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+        + Include Address Current Object
+        + Include Address Previous Object
+        + Include Canadian Driving License Response Object
+        
+
+## Update a Canadian Business Owner - PUT [PUT /businessowners/{business_owner_id}]
+
+This is how you update a Canadian business owner with a PUT request.
+
+**Note:** You must provide all the elements of the merchant account that you want to update. Elements not included will be removed from the resulting business owner.
+
++ Parameters
+
+    + business_owner_id:`1000789670` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Canadian Business Owner Update (application/json)
+
+    + Attributes
+        + Include Canadian Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+
+## Update a Canadian Business Owner - PATCH [PATCH /businessowners/{business_owner_id}]
+
+This is how you update a Canadian business owner with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the business owner that you want to update. Elements not included will remain unchanged in the resulting business owner.
+
++ Parameters
+
+    + business_owner_id:`1000789670` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Canadian Business Owner Update (application/json)
+
+    + Attributes
+        + Include Canadian Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+
+## Update a US Business Owner - PUT [PUT /businessowners/{business_owner_id}]
+
+This is how you update a US business owner with a PUT request.
+
+**Note:** You must provide all the elements of the merchant account that you want to update. Elements not included will be removed from the resulting business owner.
+
++ Parameters
+
+    + business_owner_id:`1000789670` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request US Business Owner Update (application/json)
+
+    + Attributes
+        + Include US Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include US Business Owner
+
+## Update a US Business Owner - PATCH [PATCH /businessowners/{business_owner_id}]
+
+This is how you update a US business owner with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the business owner that you want to update. Elements not included will remain unchanged in the resulting business owner.
+
++ Parameters
+
+    + business_owner_id:`1000789670` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request US Business Owner Update (application/json)
+
+    + Attributes
+        + Include US Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include US Business Owner
+
+## Update a European Business Owner - PUT [PUT /businessowners/{business_owner_id}]
+
+This is how you update a European business owner with a PUT request.
+
+**Note:** You must provide all the elements of the merchant account that you want to update. Elements not included will be removed from the resulting business owner.
+
++ Parameters
+
+    + business_owner_id:`1000789670` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request European Business Owner Update (application/json)
+
+    + Attributes
+        + Include European Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include European Business Owner
+
+## Update a European Business Owner - PATCH [PATCH /businessowners/{business_owner_id}]
+
+This is how you update a European business owner with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the business owner that you want to update. Elements not included will remain unchanged in the resulting business owner.
+
++ Parameters
+
+    + business_owner_id:`1000789670` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request European Business Owner Update (application/json)
+
+    + Attributes
+        + Include European Business Owner
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include European Business Owner
+
+## Update a Business Owner - Consolidated - PUT [PUT /businessowners/{business_owner_id}?operationMode={operation_mode}]
+
+This is how you update a  business owner and some associated objects with a PUT request. This example is for a Canadian business owner.
+
+Depending on your jurisdiction, you can include the following: 
+<ul><li>Current Address</li><li>Previous Address</li><li>Canadian Driving License</li><li>UK Driving License</li><li>International Passport</li><li>European Identity Card</li></ul>
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the business owner that you want to update. Elements not included will be removed from the resulting business owner.
+
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are including other eligible objects in this request.    
+
++ Request Business Owner Update (application/json)
+
+    + Attributes
+        + Include Canadian Business Owner
+        + Include Address Current Object
+        + Include Address Previous Object
+        + Include Canadian Driving License Object    
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+        + Include Address Current Object
+        + Include Address Previous Object
+        + Include Canadian Driving License Response Object
+
+
+## Look Up a Business Owner [GET /businessowners/{business_owner_id}]
+
+This is how you look up a business owner. This example is for a Canadian business owner.
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Get Business Owner (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+
+## Look Up a Business Owner - Consolidated [GET /businessowners/{business_owner_id}?operationMode={operation_mode}]
+
+This is how you look up a business owner, along with other elements that are associated with the business owner. This example is for a Canadian business owner, since the business owner *id* used in the request comes from the response for a Canadian business owner creation request.
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+    + operation_mode:`consolidated` (string, required) - This indicates that you are looking up other eligible objects in this request.
+
++ Request Get Business Owner (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Business Owners
+        + Include Response Base
+        + Include Canadian Business Owner
+        + Include Business Address Object Consolidated
+        + Include Business Previous Address Object Consolidated
+        + Include Canadian Driving License Response Object
+
+
+## Delete a Business Owner [DELETE /businessowners/{business_owner_id}]
+
+This is how you delete a business owner. 
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Delete Business Owner (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+
+# Business Owner Current Addresses [/currentaddresses]
+<a name="currentaddresses"></a>
+
+## Create a Business Owner Current Address [POST /businessowners/{business_owner_id}/currentaddresses]
+
+This is how you create a business owner current address. 
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Business Owner Current Address Creation (application/json)
+
+    + Attributes
+        + Include Address Current
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Current Addresses
+        + Include Response Base
+        + Include Address Current
+
+## Update a Business Owner Current Address - PATCH [PATCH /currentaddresses/{current_address_id}]
+
+This is how you update a business owner current address with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the current address that you want to update. Elements not included will remain unchanged in the resulting address.
+
++ Parameters
+
+    + current_address_id:`5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the address ID returned in the response to the creation request.
+
++ Request Business Owner Current Address Update (application/json)
+
+    + Attributes
+        + Include Address Current
+        
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Current Addresses
+        + Include Response Base
+        + Include Address Current
+
+## Update a Business Owner Current Address - PUT [PUT /currentaddresses/{current_address_id}]
+
+This is how you update a business owner current address with a PUT request.
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the current address that you want to update. Elements not included will be removed from the resulting address.
+
++ Parameters
+
+    + current_address_id:`5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the address ID returned in the response to the creation request.
+
++ Request Business Owner Current Address Update (application/json)
+
+    + Attributes
+        + Include Address Current
+        
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Current Addresses
+        + Include Response Base
+        + Include Address Current
+
+## Look Up a Business Owner Current Address [GET /currentaddresses/{current_address_id}]
+
+This is how you look up a business owner current address.
+
++ Parameters
+
+    + current_address_id:`5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the address ID returned in the response to the creation request.
+
++ Request Get Business Owner Current Address (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Current Addresses
+        + Include Response Base
+        + Include Address Current
+
+# Business Owner Previous Addresses [/previousaddresses]
+<a name="previousaddresses"></a>
+
+You must provide a business owner previous address **only if**:<ul><li>The business owner has resided at the current address for less than 3 years; **and**</li><li>The business owner address is in either Canada or Europe.</li></ul>
+
+## Create a Business Owner Previous Address [POST /businessowners/{business_owner_id}/previousaddresses]
+
+This is how you create a business owner previous address. 
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Business Owner Previous Address Creation (application/json)
+
+    + Attributes
+        + Include Address Current
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Previous Addresses
+        + Include Response Base
+        + Include Address Current
+
+## Update a Business Owner Previous Address - PATCH [PATCH /previousaddresses/{previous_address_id}]
+
+This is how you update a business owner previous address with a PATCH request.
+
+**Note:** While doing an update via a PATCH operation, you must provide only the elements of the previous address that you want to update. Elements not included will remain unchanged in the resulting address.
+
++ Parameters
+
+    + previous_address_id:`5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the address ID returned in the response to the creation request.
+
++ Request Business Owner Previous Address Update (application/json)
+
+    + Attributes
+        + Include Address Current
+        
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Previous Addresses
+        + Include Response Base
+        + Include Address Current
+
+## Update a Business Owner Previous Address - PUT [PUT /previousaddresses/{previous_address_id}]
+
+This is how you update a business owner current address with a PUT request.
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the current address that you want to update. Elements not included will be removed from the resulting address.
+
++ Parameters
+
+    + previous_address_id:`5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the address ID returned in the response to the creation request.
+
++ Request Business Owner Previous Address Update (application/json)
+
+    + Attributes
+        + Include Address Current
+        
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Previous Addresses
+        + Include Response Base
+        + Include Address Current
+
+## Look Up a Business Owner Previous Address [GET /previousaddresses/{previous_address_id}]
+
+This is how you look up a business owner previous address.
+
++ Parameters
+
+    + previous_address_id:`5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the address ID returned in the response to the creation request.
+
++ Request Get Business Owner Current Address (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Previous Addresses
+        + Include Response Base
+        + Include Address Current
+
+# Canadian Business Owner Driving License [/canadiandrivinglicenses]
+<a name="canadiandrivinglicenses"></a>
+
+## Create a Canadian Business Owner Driving License [POST /businessowners/{business_owner_id}/canadiandrivinglicenses]
+
+This is how you create a Canadian business owner driving license.
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Canadian Business Owner Driving License Creation (application/json)
+
+    + Attributes
+        + Include Canadian Driving License
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Canadian Driving Licenses
+        + Include Response Base
+        + Include Canadian Driving License Response
+
+## Update a Canadian Business Owner Driving License [PUT /canadiandrivinglicenses/{document_id}]
+
+This is how you update a Canadian business owner driving license. 
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the driving license that you want to update. Elements not included will be removed from the resulting license.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the driving license ID returned in the response to the creation request.
+
++ Request Canadian Business Owner Driving License Update (application/json)
+
+    + Attributes
+        + Include Canadian Driving License
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Canadian Driving Licenses
+        + Include Response Base
+        + Include Canadian Driving License Response
+
+## Look Up a Canadian Business Owner Driving License [GET /canadiandrivinglicenses/{document_id}]
+
+This is how you look up a Canadian business owner driving license.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the driving license ID returned in the response to the creation request.
+
++ Request Get Canadian Business Owner Driving License (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Canadian Driving Licenses
+        + Include Response Base
+        + Include Canadian Driving License Response
+
+## Delete a Canadian Business Owner Driving License [DELETE /canadiandrivinglicenses/{document_id}]
+
+This is how you delete a Canadian business owner driving license. 
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the driving license ID returned in the response to the creation request.
+
++ Request Delete Canadian Business Owner Driving License (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# UK Business Owner Driving License [/ukdrivinglicenses]
+<a name="ukdrivinglicenses"></a>
+
+## Create a UK Business Owner Driving License [POST /businessowners/{business_owner_id}/ukdrivinglicenses]
+
+This is how you create a UK business owner driving license.
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request UK Business Owner Driving License Creation (application/json)
+
+    + Attributes
+        + Include UK Driving License
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links UK Driving Licenses
+        + Include Response Base
+        + Include UK Driving License Response
+
+## Update a UK Business Owner Driving License [PUT /ukdrivinglicenses/{document_id}]
+
+This is how you update a UK business owner driving license. 
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the driving license that you want to update. Elements not included will be removed from the resulting license.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the driving license ID returned in the response to the creation request.
+
++ Request UK Business Owner Driving License Update (application/json)
+
+    + Attributes
+        + Include UK Driving License
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links UK Driving Licenses
+        + Include Response Base
+        + Include UK Driving License Response
+
+## Look Up a UK Business Owner Driving License [GET /ukdrivinglicenses/{document_id}]
+
+This is how you look up a UK business owner driving license.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the driving license ID returned in the response to the creation request.
+
++ Request Get UK Business Owner Driving License (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links UK Driving Licenses
+        + Include Response Base
+        + Include UK Driving License Response
+
+## Delete a UK Business Owner Driving License [DELETE /ukdrivinglicenses/{document_id}]
+
+This is how you delete a UK business owner driving license. 
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the driving license ID returned in the response to the creation request.
+
++ Request Delete UK Business Owner Driving License (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# European Business Owner Identity Card [/europeanidentitycards]
+<a name="europeanidentitycards"></a>
+
+## Create a European Business Owner Identity Card [POST /businessowners/{business_owner_id}/europeanidentitycards]
+
+This is how you create a European business owner identity card.
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request European Business Owner Identity Card Creation (application/json)
+
+    + Attributes
+        + Include European Identity Card
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links European Identity Cards
+        + Include Response Base
+        + Include European Identity Card Response
+
+## Update a European Business Owner Identity Card [PUT /europeanidentitycards/{document_id}]
+
+This is how you update a European business owner identity card. 
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the identity card that you want to update. Elements not included will be removed from the resulting identity card.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the identity card ID returned in the response to the creation request.
+
++ Request European Business Owner Identity Card Update (application/json)
+
+    + Attributes
+        + Include European Identity Card
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links European Identity Cards
+        + Include Response Base
+        + Include European Identity Card Response
+
+## Look Up a European Business Owner Identity Card [GET /europeanidentitycards/{document_id}]
+
+This is how you look up a European business owner identity card.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the identity card ID returned in the response to the creation request.
+
++ Request Get European Business Owner Identity Card (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links European Identity Cards
+        + Include Response Base
+        + Include European Identity Card Response
+
+## Delete a European Business Owner Identity Card [DELETE /europeanidentitycards/{document_id}]
+
+This is how you delete a European business owner identity card. 
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the identity card ID returned in the response to the creation request.
+
++ Request Delete European Business Owner Identity Card (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Business Owner International Passport [/internationalpassports]
+<a name="internationalpassports"></a>
+
+## Create a Business Owner International Passport [POST /businessowners/{business_owner_id}/internationalpassports]
+
+This is how you create a business owner international passport.
+
++ Parameters
+
+    + business_owner_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the business owner ID returned in the response to the creation request.
+
++ Request Business Owner International Passport Creation (application/json)
+
+    + Attributes
+        + Include International Passport
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links International Passports
+        + Include Response Base
+        + Include International Passport Response
+
+## Update a Business Owner International Passport [PUT /internationalpassports/{document_id}]
+
+This is how you update a business owner international passport. 
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the international passport that you want to update. Elements not included will be removed from the resulting passport.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the passport ID returned in the response to the creation request.
+
++ Request Business Owner International Passport Update (application/json)
+
+    + Attributes
+        + Include International Passport
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links International Passports
+        + Include Response Base
+        + Include International Passport Response
+
+## Look Up a Business Owner International Passport [GET /internationalpassports/{document_id}]
+
+This is how you look up a business owner international passport.
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the passport ID returned in the response to the creation request.
+
++ Request Get Business Owner International Passport (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links International Passports
+        + Include Response Base
+        + Include International Passport Response
+
+## Delete a Business Owner International Passport [DELETE /internationalpassports/{document_id}]
+
+This is how you delete a business owner international passport. 
+
++ Parameters
+
+    + document_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the passport ID returned in the response to the creation request.
+
++ Request Delete Business Owner International Passport (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Merchant Bank Account Details [/bankaccounts]
+<a name="/bankaccounts"></a>
+
+## Look Up Required Bank Account Details [GET /bankaccounts/metadata?country={country_id}&region={region_id}&currency={currency_id}]
+
+Merchant accounts require different bank account information, depending on various factors, including the region, country, and currency. This is how you look up the banking information required when you add a bank account to a merchant account. 
+
++ Parameters
+
+    + country_id:`GB` (string, required) - This is the [country](#countrycodes) where the bank account is located.
+    + region_id:`EU` (string, required) - This is your merchant's region.
+        - EU
+        - US
+        - CA
+    + currency_id:`GBP` (string, required) - This is the [currency](#currencycodes) of the merchant account.
+
++ Request Look Up Required Bank Account Details (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        
+        + bankType:`WIRE` (string, required) - This is the type of [bank account](#bankaccounttypes).
+        + bankFields (array, required) - This is a list of all available bank fields, indicating whether they are REQUIRED, OPTIONAL, or NOT_APPLICABLE for this bank account type.
+            + (object)
+                + name:`accountNumber`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryAccountName`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryAddress`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryBankAddress`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryBankCity`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryBankCountry`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryBankName`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryBankPostCode`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryBankRegion`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryCity`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryCountry`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryPostCode`
+                + status:`REQUIRED`
+            + (object)
+                + name:`beneficiaryRegion`
+                + status:`REQUIRED`
+            + (object)
+                + name:`ibanNumber`
+                + status:`REQUIRED`
+            + (object)
+                + name:`institutionId`
+                + status:`NOT_APPLICABLE`
+            + (object)
+                + name:`routingNumber`
+                + status:`OPTIONAL`
+            + (object)
+                + name:`sortCode`
+                + status:`OPTIONAL`
+            + (object)
+                + name:`swiftNumber`
+                + status:`REQUIRED`
+            + (object)
+                + name:`transitNumber`
+                + status:`NOT_APPLICABLE`
+        + links (array, required) - This is an array of [links](#linksobject).
+            + (object)
+                + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+                + href:`https://api.test.paysafe.com/accountmanagement/v1/bankaccounts/metadata` (string, required) - This is the URI of the resource.
+
+
+# Merchant ACH Bank Account [/achbankaccounts]
+<a name="/achbankaccounts"></a>
+
+## Create a Merchant ACH Bank Account [POST /accounts/{account_id}/achbankaccounts]
+
+This is how you create a merchant ACH bank account. 
+
+**Note:** The merchant ACH bank account is related directly with the [merchant account](#merchantaccounts) entity, and not with the [merchant](#merchants) entity, since a merchant entity can have multiple merchant accounts assigned to it.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant ACH Bank Account Creation (application/json)
+
+    + Attributes
+        + Include ACH Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links ACH Bank Accounts
+        + Include Response Base
+        + Include ACH Bank Account
+
+## Update a Merchant ACH Bank Account [PUT /achbankaccounts/{bank_account_id}]
+
+This is how you update a merchant ACH bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Merchant ACH Bank Account Update (application/json)
+
+    + Attributes
+        + Include ACH Bank Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links ACH Bank Accounts
+        + Include Response Base
+        + Include ACH Bank Account
+
+## Look Up a Merchant ACH Bank Account [GET /achbankaccounts/{bank_account_id}]
+
+This is how you look up a merchant ACH bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Get Merchant ACH Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links ACH Bank Accounts
+        + Include Response Base
+        + Include ACH Bank Account
+
+## Delete a Merchant ACH Bank Account [DELETE /achbankaccounts/{bank_account_id}]
+
+This is how you delete a merchant ACH bank account. 
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Delete Merchant ACH Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Merchant BACS Bank Account [/bacsbankaccounts]
+<a name="/bacsbankaccounts"></a>
+
+## Create a Merchant BACS Bank Account [POST /accounts/{account_id}/bacsbankaccounts]
+
+This is how you create a merchant BACS bank account. 
+
+**Note:** The merchant BACS bank account is related directly with the [merchant account](#merchantaccounts) entity, and not with the [merchant](#merchants) entity, since a merchant entity can have multiple merchant accounts assigned to it.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant BACS Bank Account Creation (application/json)
+
+    + Attributes
+        + Include BACS Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links BACS Bank Accounts
+        + Include Response Base
+        + Include BACS Bank Account
+
+## Update a Merchant BACS Bank Account [PUT /bacsbankaccounts/{bank_account_id}]
+
+This is how you update a merchant BACS bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Merchant BACS Bank Account Update (application/json)
+
+    + Attributes
+        + Include BACS Bank Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links BACS Bank Accounts
+        + Include Response Base
+        + Include BACS Bank Account
+
+## Look Up a Merchant BACS Bank Account [GET /bacsbankaccounts/{bank_account_id}]
+
+This is how you look up a merchant BACS bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Get Merchant BACS Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links BACS Bank Accounts
+        + Include Response Base
+        + Include BACS Bank Account
+
+## Delete a Merchant BACS Bank Account [DELETE /bacsbankaccounts/{bank_account_id}]
+
+This is how you delete a merchant BACS bank account. 
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Delete Merchant BACS Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Merchant EFT Bank Account [/eftbankaccounts]
+<a name="/eftbankaccounts"></a>
+
+## Create a Merchant EFT Bank Account [POST /accounts/{account_id}/eftbankaccounts]
+
+This is how you create a merchant EFT bank account. 
+
+**Note:** The merchant EFT bank account is related directly with the [merchant account](#merchantaccounts) entity, and not with the [merchant](#merchants) entity, since a merchant entity can have multiple merchant accounts assigned to it.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant EFT Bank Account Creation (application/json)
+
+    + Attributes
+        + Include EFT Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links EFT Bank Accounts
+        + Include Response Base
+        + Include EFT Bank Account
+
+## Update a Merchant EFT Bank Account [PUT /eftbankaccounts/{bank_account_id}]
+
+This is how you update a merchant EFT bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Merchant EFT Bank Account Update (application/json)
+
+    + Attributes
+        + Include EFT Bank Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links EFT Bank Accounts
+        + Include Response Base
+        + Include EFT Bank Account
+
+## Look Up a Merchant EFT Bank Account [GET /eftbankaccounts/{bank_account_id}]
+
+This is how you look up a merchant EFT bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Get Merchant EFT Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links EFT Bank Accounts
+        + Include Response Base
+        + Include EFT Bank Account
+
+## Delete a Merchant EFT Bank Account [DELETE /eftbankaccounts/{bank_account_id}]
+
+This is how you delete a merchant EFT bank account. 
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Delete Merchant EFT Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Merchant SEPA Bank Account [/sepabankaccounts]
+<a name="/sepabankaccounts"></a>
+
+## Create a Merchant SEPA Bank Account [POST /accounts/{account_id}/sepabankaccounts]
+
+This is how you create a merchant SEPA bank account.
+
+**Note:** The merchant SEPA bank account is related directly with the [merchant account](#merchantaccounts) entity, and not with the [merchant](#merchants) entity, since a merchant entity can have multiple merchant accounts assigned to it.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant SEPA Bank Account Creation (application/json)
+
+    + Attributes
+        + Include SEPA Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links SEPA Bank Accounts
+        + Include Response Base
+        + Include SEPA Bank Account
+
+## Update a Merchant SEPA Bank Account [PUT /sepabankaccounts/{bank_account_id}]
+
+This is how you update a merchant SEPA bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Merchant SEPA Bank Account Update (application/json)
+
+    + Attributes
+        + Include SEPA Bank Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links SEPA Bank Accounts
+        + Include Response Base
+        + Include SEPA Bank Account
+
+## Look Up a Merchant SEPA Bank Account [GET /sepabankaccounts/{bank_account_id}]
+
+This is how you look up a merchant SEPA bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Get Merchant SEPA Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links SEPA Bank Accounts
+        + Include Response Base
+        + Include SEPA Bank Account
+
+## Delete a Merchant SEPA Bank Account [DELETE /sepabankaccounts/{bank_account_id}]
+
+This is how you delete a merchant SEPA bank account. 
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Delete Merchant SEPA Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Merchant Wire Bank Account [/wirebankaccounts]
+<a name="/wirebankaccounts"></a>
+
+Paysafe supports three currency/bank combinations for EU-region merchants.
+
+|Currency |  Beneficiary Bank Country    | Bank Account Type |
+|---        |---                            |---        |
+|EUR        |[SEPA Countries](#sepacountries)   |Must Be [SEPA](#sepabankaccounts) Bank Account |
+|GBP        |United Kingdom                     |Must Be [BACS](#bacsbankaccounts) Bank Account |
+|All Others |All Others                         |Must Be Wire Bank Account                       |
+
+## Create a Merchant Wire Bank Account [POST /accounts/{account_id}/wirebankaccounts]
+
+This is how you create a merchant Wire bank account.
+
+**Note:** The merchant Wire bank account is related directly with the [merchant account](#merchantaccounts) entity, and not with the [merchant](#merchants) entity, since a merchant entity can have multiple merchant accounts assigned to it.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant Wire Bank Account Creation (application/json)
+
+    + Attributes
+        + Include Wire Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Wire Bank Accounts
+        + Include Response Base
+        + Include Wire Bank Account
+
+## Update a Merchant Wire Bank Account [PUT /wirebankaccounts/{bank_account_id}]
+
+This is how you update a merchant Wire bank account. 
+
+**Note:** While doing an update via a PUT operation, you must provide all the elements of the bank account that you want to update. Elements not included will be removed from the resulting bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Merchant Wire Bank Account Update (application/json)
+
+    + Attributes
+        + Include Wire Bank Account
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Wire Bank Accounts
+        + Include Response Base
+        + Include Wire Bank Account
+
+## Look Up a Merchant Wire Bank Account [GET /wirebankaccounts/{bank_account_id}]
+
+This is how you look up a merchant Wire bank account.
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Get Merchant Wire Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Wire Bank Accounts
+        + Include Response Base
+        + Include Wire Bank Account
+
+## Delete a Merchant Wire Bank Account [DELETE /wirebankaccounts/{bank_account_id}]
+
+This is how you delete a merchant Wire bank account. 
+
++ Parameters
+
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Delete Merchant Wire Bank Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+# Terms and Conditions [/termsandconditions]
+<a name="termsandconditions"></a>
+
+## Accept the Terms and Conditions [POST /accounts/{account_id}/termsandconditions]
+
+This is how you submit a Terms and Conditions acceptance request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request User Creation (application/json)
+
+    + Attributes
+        + Include Terms and Conditions
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Terms and Conditions
+        + Include Response Base
+        + Include Terms and Conditions Response
+
+## Look Up a Terms and Conditions Acceptance Request [GET /termsandconditions/{terms_id}]
+
+This is how you look up your acceptance of the Terms and Conditions. 
+
++ Parameters
+
+    + terms_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the ID returned in the response to the original acceptance request.
+
++ Request Get Terms and Conditions Acceptance (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Terms and Conditions
+        + Include Response Base
+        + Include Terms and Conditions Response
+
+## Look Up Terms and Conditions as HTML [GET /accounts/{account_id}/termsandconditions?version={termsandconditions_version}]
+
+This is how you look up the Terms and Conditions to view them in HTML format.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+    + termsandconditions_version:`V1` (string, required) - This is version of the Terms and Conditions. 
+
++ Request Get Terms and Conditions (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            <html>
+                <body>
+                HTML Version of Terms and Conditions
+                </body>
+            </html>
+
+# Users [/users]
+<a name="users"></a>
+
+## Create a User [POST /accounts/{account_id}/users]
+
+This is how you submit a user creation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request User Creation (application/json)
+
+    + Attributes
+        + Include User
+        + Include Recovery Question
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Merchant Account
+        + Include User
+        + Include Recovery Question Response
+
+## Look Up a User [GET /accounts/{account_id}/users]
+
+This is how you look up a user associated with the merchant account.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Get Merchant Account (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links User
+        + Include User Response
+
+# Recovery Questions [/recoveryquestions]
+<a name="recoveryquestions"></a>
+
+
+## Look Up Recovery Questions [GET /recoveryquestions]
+
+This is how you look up the recovery questions that can be [presented to your users](#users), which will be used to support password resets in the Merchant Back Office.
+
++ Request Get Recovery Questions (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Recovery Questions
+        + Include Recovery Questions
+
+
+## Look Up Recovery Questions with Locale [GET /recoveryquestions/{locale}]
+
+This is how you look up the recovery questions, using the locale, that can be [presented to your users](users), which will be used to support password resets in the Merchant Back Office. The following locales are supported: <ul><li>en_US (US)</li><li>en_CA (Canadian English)</li><li>fr_CA (Canadian French)</li><li>en_GB (EU)</li></ul>
+
+**Note:** The English version of the recovery questions is returned for all locales except *fr_CA*.
+
++ Parameters
+
+    + locale:`fr_CA` (string, required) - This is the locale for which you want to look up the recovery questions. 
+
++ Request Get Recovery Questions with Locale (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Recovery Questions Locale
+        + Include Recovery Questions French
+
+# Identity Verification [/identity]
+<a name="identity"></a>
+
+## Associate an Identity ID to a Merchant Account [POST /accounts/{account_id}/identity]
+
+This is how you submit a merchant account identity verification request.
+
+**Note:** The *identityId* value used for this request is the *id* value returned in the response from the Paysafe Identity Verification API. See [Business Owner Identity Verification](https://developer.paysafe.com/en/rest-api/partners/account-management/typical-api-calls/business-owner-identity-verification/) for more information.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Identity Verification (application/json)
+
+    + Attributes
+        + Include Identity ID
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Identity ID Response
+
+# Merchant Account Activation [/activation]
+<a name="activation"></a>
+
+## Activate a Merchant Account [POST /accounts/{account_id}/activation]
+
+This is how you submit a merchant account activation request.
+
++ Parameters
+
+    + account_id:`1000789670` (string, required) - This is the merchant account ID returned in the response to the merchant account creation request.
+
++ Request Merchant Account Activation (application/json)
+
+    + Body
+    
+            {
+            }
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Account Activation Response
+
+# Bank Account Validation [/microdeposits]
+<a name="microdeposits"></a>
+
+Before Paysafe can remit funds to a merchant, their bank account information must first be validated to verify that the applicant is in fact the owner of the bank account associated with the merchant account, and that the banking information provided is accurate. The bank account validation method varies by jurisdiction and bank scheme.
+
+|Jurisdiction   |Bank Account Type  |Validation Method      |
+|---            |---                |---                    |
+|UK             |BACS/SEPA/Wire     |<ul><li>Voided Check, or</li><li>Bank Statement, or</li><li>Paying-in Slip, or</li><li>Letter from Bank Confirming Account Name, Account Number, and Sort Code</li></ul> |
+|EU             |SEPA/Wire          |<ul><li>Bank Statement, or</li><li>Letter from Bank Confirming Account Name, IBAN, BIC, and Swift Code</li></ul> |
+|US             |ACH                |<ul><li>Microdeposit, or</li><li>Voided Check, or</li><li>Letter from Bank Confirming Bank Account Details</li></ul> |
+|CA             |EFT                |<ul><li>Microdeposit, or</li><li>Voided Check, or</li><li>Letter from Bank Confirming Bank Account Details</li></ul> |
+For microdeposits, Paysafe will attempt to make a small deposit between 0.01 and 0.99 into the merchant's bank account, using the banking information they provided during sign-up. By identifying this amount and returning it to Paysafe, you validate that the merchant provided accurate bank account data.
+
+**Note:** If the microdeposit validation method fails for some reason, then the merchant must use one of the alternative validation methods.
+
+## Create a Microdeposit [POST /{bank_scheme}/{bank_account_id}/microdeposits]
+
+This is how you create a microdeposit request for an EFT bank account. For microdeposits for the various bank schemes, use one of the following as the value for *bank_scheme* in the request:<ul><li>achbankaccounts</li><li>eftbankaccounts</li></ul>
+
++ Parameters
+
+    + bank_scheme:`eftbankaccounts`(string, required) - This is the bank scheme for which you are creating the microdeposit.
+    + bank_account_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the bank account ID returned in the response to the creation request.
+
++ Request Create Microdeposit (application/json)
+
+    + Body
+    
+            {
+            }
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Microdeposits
+        + Include Response Base
+        + Include Microdeposit Response
+
+## Validate a Microdeposit [POST /microdeposits/{microdeposit_id}/validate]
+
+As a result of a successful microdeposit request, a small deposit (between .01 and .99 of the currency of that account) is made to the bank account. To validate the microdeposit, you must send a microdeposit validation request that contains the exact amount of the microdeposit in the applicant's bank account. This verifies that the applicant is the owner of the bank account associated with the merchant account, and that the banking information provided is accurate.
+
+**Warning:** Only three attempts are permitted for submitting the microdeposit amount. After three failed attempts, the validation is considered as having failed.
+
+This is how you create a microdeposit validation request. 
+
++ Parameters
+
+    + microdeposit_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the microdeposit ID returned in the response to the microdeposit creation request.
+
++ Request Create Microdeposit Validation (application/json)
+
+    + Attributes
+        + Include Microdeposit
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Microdeposits
+        + Include Response Base        
+        + Include Microdeposit Validation
+
+## Look Up a Microdeposit [GET /microdeposits/{microdeposit_id}]
+
+This is how you look up a microdeposit to view its status.
+
++ Parameters
+
+    + microdeposit_id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the microdeposit ID returned in the response to the microdeposit creation request.
+
++ Request Get Microdeposit (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Links Microdeposits
+        + Include Response Base        
+        + Include Microdeposit Response Valid
+
+# Data Structures
+
+## ACH Bank Account
++ accountNumber:`5807560412853954` (string, required) - This is the merchant's bank account number.
++ routingNumber:`854117563` (string, required) - This is the 9-digit routing number of the merchant's bank account.
+
+## Account Activation Response
++ Include Activate Merchant Account Response Object
++ Include Account Address
++ Include Business Owner Details
++ Include Account Activation Bank Object
++ Include Terms and Conditions Activation
++ Include Links Merchant Account
+
+## Account Activation Bank Object
++ bankAccount (object, required) - This is the bank account information associated with the merchant account.
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1`
+        + accountNumber:`5807560412853954`
+        + transitNumber:`52487`
+        + institutionId:`052`
+
+## Account Address
++ accountAddress (object, required) - This is the address associated with the merchant account. 
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the merchant account address was created.
+        + street:`100 Queen Street West`
+        + street2:`Apt. 245`
+        + city:`Toronto`
+        + state:`ON`
+        + country:`CA`
+        + zip:`M5H 2N2`
+
+## Account Details
++ type:`CORP` (enum, optional) - This is the [type code of the business](#businesstypecodes).
++ description:`Fitness` (string, optional) - This is a description of the business.
++ isCardPresent:`false` (boolean, optional) - This indicates whether the customers' cards will be physically present when processing payments.
++ hasPreviouslyProcessedCards:`true` (boolean, optional) - This indicates whether the business has previously accepted credit cards.
++ shipsGoods:`true` (boolean, optional) - This indicates whether the business will physically deliver goods.
++ deliveryTimeRange:SHORT (enum, optional) - This is the [time range](#caaccountdetailsobject) for the business's order fulfillment. **Note:** This value is required when *shipsGoods* is set to *true*.
+    - SHORT
+    - MEDIUM
+    - LONG
++ refundPolicy:`true` (boolean, optional) - This indicates whether the business has a refund policy.
++ refundPolicyDescription:`Timely` (string, optional) - This is a description of the business's refund policy. **Note:** This value is required when *refundPolicy* is set to *true*.
++ federalTaxNumber:`987654321` (string, optional) - This is the tax identification/registration number of the business.
+
+## Activate Merchant Account Response Object
++ account (object, required)
+
+    + Properties
+        + id:`1000789670` (string, required) - This is the account ID returned in the response.
+        + name:`Mega Gym` (string, required) - This is the merchant name.
+        + currency:`CAD` (enum, required) - This is the currency used for transactions on this merchant account. See [Currency Codes](#currencycodes).
+        + region:`CA` (enum, required) - This is the region for the merchant account.
+        + legalEntity:`Mega Gym Corp.` (string, required) - This is the business legal/trading name.
+        + productCode:`GOLD` (string, required) - This is the code of the partner product.
+        + category:`RECREATION` (enum, optional) - This is the [Merchant Category Code](#merchantcategorycodes).
+        + status:`DEFERRED` (enum, required) - This is the [status](#merchantaccountobject) of the merchant account. **Note:** By default, the merchant account is created with the status of DEFERRED.
+            - APPROVED
+            - SUBMITTED
+            - REJECTED
+            - DEFERRED 
+            - ENABLED
+            - RETURNED
+            - WITHDRAWN
+            - PENDING
+        + averageTransactionAmount:`9999` (string, optional) - This is the average transaction amount, in minor units.
+        + url:`www.megagym.com` (string, optional) - This is the website of the business.
+        + phone:`555 888-9999` (string, optional) - This is the customer support phone number of the business.
+        + email:`support@megagym.com` (string, optional) - This is the customer support email address of the business.
+        + yearlyVolumeRange:`MEDIUM` (enum, optional) - This is the estimated yearly volume of the business.
+        + locale:`en_US` (string, optional) - This is the locale used for the merchant account.
+        + userName:`john_smith` (string, optional) - This is the user name that will be configured to access the merchant account in the Merchant Back Office.
+        + amexId:`1234567899` (string, optional) - This is the merchant's American Express ID.
+        + externalAccountId:`C_45678` (string, optional) - This is the external account ID.
+        + merchantDescriptor (object, optional) - This is the merchant [credit card transaction descriptor](#merchantdescriptorobject).
+        + Include Merchant Descriptor
+        + caAccountDetails (object, optional) - These are the merchant account details for the [US](#usaccountdetailsobject)|[CA](#caaccountdetailsobject)|[EU](#euaccountdetailsobject) regions. Only the AccountDetails object that is relevant to the account being created needs to be sent in the request.
+            + Include Account Details
+
+## Address Object
++ address (object, optional) - This is the address.
+
+    + Properties
+        + street:`100 Queen Street West`
+        + street2:`Apt. 245`
+        + city:`Toronto`
+        + state:`ON`
+        + country:`CA`
+        + zip:`M5H 2N2`
+
+## Address Current
++ street:`100 Queen Street West` (string, required) - This is the first line of the street address.
++ street2:`Apt. 245` (string, optional) - This is the second line of the street address.
++ city:`Toronto` (string, required) - This is the city where the address is located.
++ state:`ON` (string, required) - This is the state/province/region of the address. For Canada see [Province Codes](#provincecodes). For US see [State Codes](#statecodes).
++ country:`CA` (string, required) - This is the [country code](#countrycodes) of the address.
++ zip:`M5H 2N2` (string, required) - This is the zip/postal code of the address.
++ yearsAtAddress:`2` (string, required) - This is the number of years the business owner has been living at this address. **Note:** This field is optional for US businesses.
+
+## Address Previous
++ street:`100 Queen Street West` (string, required) - This is the first line of the street address.
++ street2:`Apt. 415` (string, optional) - This is the second line of the street address.
++ city:`Toronto` (string, required) - This is the city where the address is located.
++ state:`ON` (string, required) - This is the state/province/region of the address. For Canada see [Province Codes](#provincecodes). For US see [State Codes](#statecodes).
++ country:`CA` (string, required) - This is the [country code](#countrycodes) of the address.
++ zip:`M5H 2N2` (string, required) - This is the zip/postal code of the address.
++ yearsAtAddress:`2` (string, required) - This is the number of years the business owner has been living at this address. **Note:** This field is optional for US businesses.
+ 
+
+## Address Current Object
++ currentAddress (object, optional) - This is the current address.
+
+    + Properties
+        + street:`100 Queen Street West`
+        + street2:`Apt. 245`
+        + city:`Toronto`
+        + state:`ON`
+        + country:`CA`
+        + zip:`M5H 2N2`
+        + yearsAtAddress:`2`
+
+## Address Previous Object
++ previousAddress (object, optional) - This is the previous address.
+
+    + Properties
+        + street:`100 Queen Street West`
+        + street2:`Apt. 415`
+        + city:`Toronto`
+        + state:`ON`
+        + country:`CA`
+        + zip:`M5H 2N2`
+        + yearsAtAddress:`7`
+
+## Address
++ street:`100 Queen Street West`
++ street2:`Apt. 245`
++ city:`Toronto`
++ state:`ON`
++ country:`CA`
++ zip:`M5H 2N2`
+
+## Address Consolidated
++ address (object, optional) - This is the address.
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1`
+        + street:`100 Queen Street West`
+        + street2:`Apt. 245`
+        + city:`Toronto`
+        + state:`ON`
+        + country:`CA`
+        + zip:`M5H 2N2`
+
+## BACS Bank Account
++ beneficiaryBankCountry:`GB` (string, required) - This is the [country](#bacscountries) of the beneficiary's bank address.
++ beneficiaryAccountName:`Main` (string, required) - This is the beneficiary account name.
++ accountNumber:`94001521` (string, required) - This is the merchant's 8-digit bank account number.
++ sortCode:`857412` (string, required) - This is the 6-digit sort code of the merchant's bank account.
+
+## Bank Account Lookup Response
++ bankType:`WIRE` (string, required) - This is the bank account type to register with the merchant account.
++ bankFields (array, required) - This is a list of fields available for the bank account, and whether they are required for the bank account queried.
+
+    + (object)
+        + Include Bank Fields Account Number
+        + Include Bank Fields Beneficiary Account Name
+
+## Bank Fields Account Number
++ name:accountNumber (string, required) - This is the bank account number. 
++ status:REQUIRED (string, required) - This indicates whether the field is required.
+
+## Bank Fields Beneficiary Account Name
++ name:beneficaryAccountName (string, required) - This is the name of the beneficiary bank account. 
++ status:REQUIRED (string, required) - This indicates whether the field is required.
+
+## Business Owner Details
++ businessOwnerDetails (array, required) - These are details about the business owner.  
+
+    + (object)
+        + Include Business Owner Object
+        + Include Business Address Object
+        + Include Business Previous Address Object
+
+## Business Owner
++ id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the business owner was created. 
++ Include Canadian Business Owner
+
+## Business Owner Object
++ owner (object, required) - These are details about the business owner.
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the business owner was created.
+        + Include Canadian Business Owner
+
+## Business Owners
++ businessOwners (array, optional) - These are details about the business owner.  
+
+    + (object)
+        + Include Business Owner
+        + Include Business Address Object Consolidated
+        + Include Business Previous Address Object Consolidated
+
+## Business Address Object
++ ownerAddress (object, required) - These are details about the business owner current address.
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the business address was created.        
+        + Include Address Current
+
+## Business Address Object Consolidated
++ currentAddress (object, optional) - These are details about the business owner current address.
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the business address was created.        
+        + Include Address Current
+
+## Business Previous Address Object
++ ownerPreviousAddresses (array, required) - These are details about the business owner previous addresses.
+
+    + (object)
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the previous business address was created.
+        + Include Address Previous Object
+
+## Business Previous Address Object Consolidated
++ previousAddress (object, optional) - These are details about the business owner previous address.
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is ID returned when the previous business address was created.
+        + Include Address Previous
+
+## Canadian Business Owner
++ firstName:`James` (string, required) - This is the first name of the business owner.
++ middleName:`Robert` (string, optional) - This is the middle name of the business owner.
++ lastName:`Ronald` (string, required) - This is the last name of the business owner.
++ email:`jamesr@email.com` (string, optional) - This is the email address of the business owner.
++ jobTitle:`CEO` (string, required) - This is the job title of the business owner.
++ phone:`5556667777` (string, required) - This is the phone number of the business owner.
++ dateOfBirth (object, required) - This is the birth date of the business owner.
+    + Include Date
++ ssn:`999888777` (string, optional) - This is the SSN/SIN of the business owner.
+
+## Canadian Driving License 
++ number:`DL987654321` (string, required) - This is the driving license number
++ province:`ON` (string, required) - This is the province that issued the license. See [Province Codes](#provincecodes).
++ issueDate (object, optional) - This is the date the driving license was issued.
+    + Include Date Issue
++ expiryDate (object, optional) - This is the expiration date the driving license.
+    + Include Date Expiry
+
+## Canadian Driving License Response
++ number:`*********21` (string, required) - This is the driving license number.
++ province:`ON` (string, required) - This is the province that issued the license. See [Province Codes](#provincecodes).
++ issueDate (object, optional) - This is the date the driving license was issued.
+    + Include Date Issue
++ expiryDate (object, optional) - This is the expiration date the driving license.
+    + Include Date Expiry
+
+## Canadian Driving License Object
++ canadianDrivingLicense (object, optional) - This is the Canadian driving license.
+
+    + Properties
+        + number:`DL987654321` (string, required) - This is the driving license number
+        + province:`ON` (string, required) - This is the province that issued the license. See [Province Codes](#provincecodes).
+        + issueDate (object, optional) - This is the date the driving license was issued.
+            + Include Date Issue
+        + expiryDate (object, optional) - This is the expiration date the driving license.
+            + Include Date Expiry
+
+## Canadian Driving License Response Object
++ canadianDrivingLicense (object, optional) - This is the Canadian driving license.
+
+    + Properties
+        + number:`*********21` (string, required) - This is the driving license number
+        + province:`ON` (string, required) - This is the province that issued the license. See [Province Codes](#provincecodes).
+        + issueDate (object, optional) - This is the date the driving license was issued.
+            + Include Date Issue
+        + expiryDate (object, optional) - This is the expiration date the driving license.
+            + Include Date Expiry
+
+## Date
++ day:`15` (string, required) - This is the day of the month.
++ month:`9` - This is the  month of the year.
++ year:`1978` - This is the year.
+
+## Date Issue
++ day:`15` (string, required) - This is the day of the month.
++ month:`9` - This is the  month of the year.
++ year:`2016` - This is the year.
+
+## Date Expiry
++ day:`15` (string, required) - This is the day of the month.
++ month:`9` - This is the  month of the year.
++ year:`2021` - This is the year.
+
+## EFT Bank Account
++ accountNumber:`5807560412853954` (string, required) - This is the merchant's bank account number.
++ transitNumber:`52487` (string, required) - This is the 5-digit transit number of the merchant's bank branch.
++ institutionId:`052` (string, required) - This is the 3-digit institution ID of the merchant's bank branch.
+
+## EFT Bank Account Resource
++ eftBankAccountResource (object, optional)
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the merchant's EFT bank account ID returned in the response.
+        + accountNumber:`5807560412853954` (string, required) - This is the merchant's bank account number.
+        + transitNumber:`52487` (string, required) - This is the 5-digit transit number of the merchant's bank branch.
+        + institutionId:`052` (string, required) - This is the 3-digit institution ID of the merchant's bank branch.
+
+## Empty Set
+{
+}
+
+## European Business Owner
++ firstName:`James` (string, required) - This is the first name of the business owner.
++ middleName:`Robert` (string, optional) - This is the middle name of the business owner.
++ lastName:`Ronald` (string, required) - This is the last name of the business owner.
++ previousLastName:`Smith` (string, optional) - This is the previous last name of the business owner.
++ email:`jamesr@email.com` (string, optional) - This is the email address of the business owner.
++ jobTitle:`CEO` (string, required) - This is the job title of the business owner.
++ phone:`5556667777` (string, required) - This is the phone number of the business owner.
++ nationality:`CA` (enum, required) - This is the [nationality code](#nationalitycodes) of the business owner. 
++ percentageOwnership:`75` (number, optional) - This is the percentage of ownership by the business owner.
++ dateOfBirth (object, required) - This is the birth date of the business owner.
+    + Include Date
++ gender:`M` (enum, optional) - This is the gender of the business owner.
+
+## European Identity Card 
++ countryOfIssue:`GB` (string, required) - This is the country in which the identity card was issued. See [Country Codes](#countrycodes).
++ idNumberLine1:`IDGBRAA30003303<<<<<<<<<<<<<<<` (string, required) - This is the first line of the MRZ.
++ idNumberLine2:`7502020M1801019GBR<<<<<<<<<<<0` (string, required) - This is the second line of the MRZ.
++ idNumberLine3:`MCLAREN<<ALBERT<<<<<<<<<<<<<<<` (string, required) - This is the third line of the MRZ.
++ number:`ID123456789` (string, optional) - This is the European identity card number.
++ expiryDate (object, required) - This is the expiration date the driving license.
+    + Include Date Expiry
+
+## European Identity Card Response
++ countryOfIssue:`GB` (string, required) - This is the country in which the identity card was issued. See [Country Codes](#countrycodes).
++ idNumberLine1:`****************************<<` (string, required) - This is the first line of the MRZ.
++ idNumberLine2:`****************************<0` (string, required) - This is the second line of the MRZ.
++ idNumberLine3:`****************************<<` (string, required) - This is the third line of the MRZ.
++ number:`*********89` (string, optional) - This is the European identity card number.
++ expiryDate (object, required) - This is the expiration date the identity card.
+    + Include Date Expiry
+
+## Identity ID
++ identityId:`31380` (number, required) - This is the identity ID (*id*) returned by the identity verification service.
+
+## Identity ID Response
++ identityId:`31380` 
++ Include Links Merchant Account
+
+## International Passport 
++ number:`ID123456789` (string, required) - This is the passport number.
++ countryOfIssue:`GB` (string, required) - This is the country in which the passport was issued. See [Country Codes](#countrycodes).
++ expiryDate (object, required) - This is the expiration date the passport.
+    + Include Date Expiry
++ issueDate (object, required) - This is the issue date the passport.
+    + Include Date Issue
++ passportNumberLine1:`IDGBRAA30003303<<<<<<<<<<<<<<<` (string, optional) - This is the first line of the MRZ.
++ passportNumberLine2:`7502020M1801019GBR<<<<<<<<<<<0` (string, required) - This is the second line of the MRZ.
+
+## International Passport Response
++ number:`*********89` (string, required) - This is the passport number.
++ countryOfIssue:`GB` (string, required) - This is the country in which the passport was issued. See [Country Codes](#countrycodes).
++ expiryDate (object, required) - This is the expiration date the passport.
+    + Include Date Expiry
++ issueDate (object, required) - This is the issue date the passport.
+    + Include Date Issue
++ passportNumberLine1:`*****************************<<` (string, optional) - This is the first line of the MRZ.
++ idNumberLine2:`*****************************<0` (string, required) - This is the second line of the MRZ.
+
+## Links ACH Bank Accounts
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/achbankaccounts/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Addresses
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/addresses/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links BACS Bank Accounts
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/bacsbankaccounts/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Business Owners
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/businessowners/5e3680da-cfac-4917-855a-181c8fe27751` (string, required) - This is the URI of the resource.
+
+## Links Canadian Driving Licenses
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/canadiandrivinglicenses/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links EFT Bank Accounts
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/eftbankaccounts/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links European Identity Cards
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/europeanidentitycards/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Current Addresses
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/currentaddresses/5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the URI of the resource.
+
+## Links International Passports
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/internationalpassports/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Merchant
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/merchants/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+        
+## Links Merchant Account
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/accounts/1000789670` (string, required) - This is the URI of the resource.
+        
+## Links Merchant Account Consolidated
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/accounts/1000789670?operationMode=consolidated` (string, required) - This is the URI of the resource.
+
+## Links Merchant Account Create
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/merchants/8b670bf0-f218-4710-86a9-1b100206e1c1/accounts/1000789670` (string, required) - This is the URI of the resource.
+
+## Links Microdeposits
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/microdeposits/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Previous Addresses
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/previousaddresses/5d9655ef-oiju-1749-b858-323g7ef36365` (string, required) - This is the URI of the resource.
+
+## Links Recovery Questions
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/recoveryquestions` (string, required) - This is the URI of the resource.
+
+## Links Recovery Questions Locale
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/recoveryquestions/fr_CA` (string, required) - This is the URI of the resource.
+
+
+## Links SEPA Bank Accounts
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/sepabankaccounts/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Terms and Conditions
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/termsandconditions/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links UK Driving Licenses
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/ukdrivinglicenses/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links User
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/accounts/1000789670/user` (string, required) - This is the URI of the resource.
+
+## Links Wire Bank Accounts
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/wirebankaccounts/8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the URI of the resource.
+
+## Links Merchant Account ExtID
++ links (array, required) - This is an array of [links](#linksobject).
+    + (object)
+        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + href:`https://api.test.paysafe.com/accountmanagement/v1/accounts/ext_0914?searchBy=ext` (string, required) - This is the URI of the resource.
+        
+## Merchant Account
++ name:`Mega Gym` (string, required) - This is the merchant name.
++ currency:`CAD` (enum, required) - This is the currency used for transactions on this merchant account. See [Currency Codes](#currencycodes).
++ region:`CA` (enum, required) - This is the region for the merchant account.
+    - US
+    - CA
+    - EU
++ legalEntity:`Mega Gym Corp.` (string, required) - This is the business legal/trading name.
++ productCode:`GOLD` (string, required) - This is the code of the partner product.
++ category:`RECREATION` (enum, optional) - This is the [Merchant Category Code](#merchantcategorycodes).
++ averageTransactionAmount:`9999` (string, optional) - This is the average transaction amount, in minor units.
++ url:`www.megagym.com` (string, optional) - This is the website of the business.
++ phone:`555 888-9999` (string, optional) - This is the customer support phone number of the business.
++ email:`support@megagym.com` (string, optional) - This is the customer support email address of the business.
++ yearlyVolumeRange:`MEDIUM` (enum, optional) - This is the estimated [yearly volume](#merchantaccountobject) of the business.
+    - LOW
+    - MEDIUM
+    - HIGH
+    - VERY_HIGH
++ locale:`en_CA` (string, optional) - This is the locale used for the merchant account.
+    - en_CA
+    - en_US
+    - en_GB
+    - fr_CA
++ userName:`john_smith` (string, optional) - This is the user name that will be configured to access the merchant account in the Merchant Back Office.
++ amexId:`1234567899` (string, optional) - This is the merchant's American Express ID.
++ externalAccountId:`C_45678` (string, optional) - This is the external account ID.
++ merchantDescriptor (object, optional) - This is the merchant [credit card transaction descriptor](#merchantdescriptorobject).
+    + Include Merchant Descriptor
++ caAccountDetails (object, optional) - These are the merchant account details for the [US](#usaccountdetailsobject)|[CA](#caaccountdetailsobject)|[EU](#euaccountdetailsobject) regions. Only the AccountDetails object that is relevant to the account being created needs to be sent in the request.
+    + Include Account Details
+    
+## Merchant Account Consolidated
++ name:`Mega Gym` (string, required) - This is the merchant name.
++ currency:`CAD` (enum, required) - This is the currency used for transactions on this merchant account. See [Currency Codes](#currencycodes).
++ region:`CA` (enum, required) - This is the region for the merchant account.
+    - US
+    - CA
+    - EU
++ legalEntity:`Mega Gym Corp.` (string, required) - This is the business legal/trading name.
++ productCode:`GOLD` (string, required) - This is the code of the partner product.
++ category:`RECREATION` (enum, optional) - This is the [Merchant Category Code](#merchantcategorycodes).
++ averageTransactionAmount:`9999` (string, optional) - This is the average transaction amount, in minor units.
++ url:`www.megagym.com` (string, optional) - This is the website of the business.
++ phone:`555 888-9999` (string, optional) - This is the customer support phone number of the business.
++ email:`support@megagym.com` (string, optional) - This is the customer support email address of the business.
++ yearlyVolumeRange:`MEDIUM` (enum, optional) - This is the estimated yearly volume of the business.
+    - LOW
+    - MEDIUM
+    - HIGH
+    - VERY_HIGH
++ locale:`en_US` (string, optional) - This is the locale used for the merchant account.
+    - en_CA
+    - en_US
+    - en_GB
+    - fr_CA
++ userName:`john_smith` (string, optional) - This is the user name that will be configured to access the merchant account in the Merchant Back Office.
++ amexId:`1234567899` (string, optional) - This is the merchant's American Express ID.
++ externalAccountId:`C_45678` (string, optional) - This is the external account ID.
++ merchantDescriptor (object, optional) - This is the merchant [credit card transaction descriptor](#merchantdescriptorobject).
+    + Include Merchant Descriptor
++ caAccountDetails (object, optional) - These are the merchant account details for the [US](#usaccountdetailsobject)|[CA](#caaccountdetailsobject)|[EU](#euaccountdetailsobject) regions. Only the AccountDetails object that is relevant to the account being created needs to be sent in the request.
+    + Include Account Details
+
+## Merchant Account Response
++ id:`1000789670` (string, required) - This is the account ID returned in the response.
++ name:`Mega Gym` (string, required) - This is the merchant name.
++ currency:`CAD` (enum, required) - This is the currency used for transactions on this merchant account. See [Currency Codes](#currencycodes).
++ region:`CA` (enum, required) - This is the region for the merchant account.
++ legalEntity:`Mega Gym Corp.` (string, required) - This is the business legal/trading name.
++ productCode:`GOLD` (string, required) - This is the code of the partner product.
++ category:`RECREATION` (enum, optional) - This is the [Merchant Category Code](#merchantcategorycodes).
++ status:`DEFERRED` (enum, required) - This is the [status](#merchantaccountobject) of the merchant account. **Note:** By default, the merchant account is created with the status of DEFERRED.
+    - APPROVED
+    - SUBMITTED
+    - REJECTED
+    - DEFERRED 
+    - ENABLED
+    - RETURNED
+    - WITHDRAWN
+    - PENDING
++ averageTransactionAmount:`9999` (string, optional) - This is the average transaction amount, in minor units.
++ url:`www.megagym.com` (string, optional) - This is the website of the business.
++ phone:`555 888-9999` (string, optional) - This is the customer support phone number of the business.
++ email:`support@megagym.com` (string, optional) - This is the customer support email address of the business.
++ yearlyVolumeRange:`MEDIUM` (enum, optional) - This is the estimated yearly volume of the business.
++ locale:`en_US` (string, optional) - This is the locale used for the merchant account.
++ userName:`john_smith` (string, optional) - This is the user name that will be configured to access the merchant account in the Merchant Back Office.
++ amexId:`1234567899` (string, optional) - This is the merchant's American Express ID.
++ externalAccountId:`C_45678` (string, optional) - This is the external account ID.
++ merchantDescriptor (object, optional) - This is the merchant [credit card transaction descriptor](#merchantdescriptorobject).
+    + Include Merchant Descriptor
++ caAccountDetails (object, optional) - These are the merchant account details for the [US](#usaccountdetailsobject)|[CA](#caaccountdetailsobject)|[EU](#euaccountdetailsobject) regions. Only the AccountDetails object that is relevant to the account being created needs to be sent in the request.
+    + Include Account Details
+
+## Merchant Descriptor
++ dynamicDescriptor:`megagym` (string, optional) - This text is used in the credit card descriptor.
++ phone:`555 888-9999` (string, optional) - This is the phone number used in the credit card descriptor.
+
+## Merchant Name
++ name:`Mega Gym` (string, required) - This is the merchant name.
+
+## Microdeposit
++ amount:`0.51` (string, required) - This is the amount of the microdeposit made to the bank account.
+
+## Microdeposit Response
++ status:`SENT` (string, required) - This is the status of the microdeposit.
+
+## Microdeposit Response Valid
++ status:`VALIDATED` (string, required) - This is the status of the microdeposit.
+
+## Microdeposit Validation
++ status:`VALIDATED` (string, required) - This is the status of the microdeposit.
++ amount:`0.51` (string, required) - This is the amount of the microdeposit made to the bank account.
+
+## Recovery Question
++ recoveryQuestion (object, optional) - These are some details about the recovery question for the user. The recovery question will be used to support password resets in the Merchant Back Office.
+
+    + Properties
+        + questionId:`1` (number, required) - This is the number that identifies the [recovery question](#recoveryquestionsobject).
+        + answer:`John Michael` (string, required) - This is the user's answer to the [recovery question](#recoveryquestionsobject).
+
+## Recovery Question Response
++ recoveryQuestion (object, optional) - These are some details about the [recovery question](#recoveryquestionsobject) for the user. The recovery question will be used to support password resets in the Merchant Back Office.
+
+    + Properties
+        + questionId:`1` (number, required) - This is the number that identifies the recovery question.
+        + question:`What is the name of your oldest sibling?` - This is the question associated with the *questionId*. 
+        + answer:`************` (string, required) - This is the user's answer to the recovery question.
+
+## Recovery Questions
++ questions (array, required) - These are the recovery questions.
+    + (object)
+        + questionId:`1`
+        + question:`What is the name of your oldest sibling?`
+    + (object)
+        + questionId:`2`
+        + question`What is the name of your youngest sibling?`
+    + (object)
+        + questionId:`3`
+        + question:`What is the make and model of the first car you owned?`
+    + (object)
+        + questionId:`4`
+        + question:`What are the last four digits of your bank account number?`
+    + (object)
+        + questionId:`5`
+        + question:`In what city is your bank branch located?`
+    + (object)
+        + questionId:`6`
+        + question:`What is the name of your first pet?`
+    + (object)
+        + questionId:`7`
+        + question:`Who is your mobile provider, and what is your mobile number?`
+    + (object)
+        + questionId:`8`
+        + question:`What is the sum of your year of birth? (e.g., if YOB=1234, sum=1+2+3+4=10)`
+    + (object)
+        + questionId:`9`
+        + question:`In what city and year was your business established? (e.g., Montreal 1999)`
+    + (object)
+        + questionId:`10
+        + question:`What high school did you graduate from, and in what year? (e.g., Central High 1999)`
+
+
+## Recovery Questions French
++ questions (array, required) - These are the recovery questions.
+    + (object)
+        + questionId:`1`
+        + question:`Parmi vos frères et soeurs, quel est le nom du plus vieux?`
+    + (object)
+        + questionId:`2`
+        + question`Parmi vos frères et soeurs, quel est le nom du plus jeune?`
+    + (object)
+        + questionId:`3`
+        + question:`Quels sont la marque et le modèle de votre première voiture?`
+    + (object)
+        + questionId:`4`
+        + question:`Quels sont les quatre derniers chiffres du numéro de votre compte bancaire?`
+    + (object)
+        + questionId:`5`
+        + question:`Dans quelle ville se trouve votre succursale bancaire?`
+    + (object)
+        + questionId:`6`
+        + question:`Quel est le nom de votre premier animal de compagnie?`
+    + (object)
+        + questionId:`7`
+        + question:`Qui est votre fournisseur de téléphone cellulaire et quel est votre numéro?`
+    + (object)
+        + questionId:`8`
+        + question:`Quelle est la somme des chiffres de votre année de naissance? (p. ex., 1999, alors 1+9+9+9=28)`
+    + (object)
+        + questionId:`9`
+        + question:`Dans quelle ville et en quelle année votre entreprise a-t-elle été fondée? (p. ex., Montreal 1999)`
+    + (object)
+        + questionId:`10
+        + question:`En quelle année et à quelle école avez-vous obtenu votre diplôme d'études secondaires?`
+
+## Response Base
++ id:`8b670bf0-f218-4710-86a9-1b100206e1c1` (string, required) - This is the ID returned in the response.
+
+## Response Base Merchant Account
++ id:`1000789670` (string, required) - This is the account ID returned in the response.
+
+## US Business Owner
++ firstName:`James` (string, required) - This is the first name of the business owner.
++ middleName:`Robert` (string, optional) - This is the middle name of the business owner.
++ lastName:`Ronald` (string, required) - This is the last name of the business owner.
++ email:`jamesr@email.com` (string, optional) - This is the email address of the business owner.
++ jobTitle:`CEO` (string, required) - This is the job title of the business owner.
++ phone:`5556667777` (string, required) - This is the phone number of the business owner.
++ dateOfBirth (object, required) - This is the birth date of the business owner.
+    + Include Date
++ ssn:`999888777` (string, required) - This is the SSN/SIN of the business owner.
+
+## SEPA Bank Account
++ beneficiaryBankCountry:`GB` (string, required) - This is the [country](#sepacountries) of the beneficiary's bank address.
++ beneficiaryAccountName:`Main` (string, required) - This is the beneficiary account name.
++ swiftNumber:`857412369` (string, required) - This is the swift number of the merchant's bank account.
++ ibanNumber:`94001521002421` (string, required) - This is the IBAN number of the merchant's bank account.
+
+## Terms and Conditions
++ version:`V1` (string, required) - This is the version of the Terms and Conditions.
+
+## Terms and Conditions Activation
++ termCondition (object, required)
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1`
+        + version:`V1` (string, required) - This is the version of the Terms and Conditions, received from your account manager.
+        + acceptanceDate:`2015-06-10T14:08:37Z` (string, required) - This is the date and time the terms and conditions were accepted.
+
+## Terms and Conditions HTML
++ HTML version of the Terms and Conditions:`HTML` - This is the full text of the Terms and Conditions in HTML format.
+
+## Terms and Conditions Response
++ version:`V1` (string, required) - This is the version of the Terms and Conditions, received from your account manager.
++ acceptanceDate:`2015-06-10T14:08:37Z` (string, required) - This is the date and time the terms and conditions were accepted.
+
+## Terms and Conditions Resource
++ termConditionResource (object, optional)
+
+    + Properties
+        + id:`8b670bf0-f218-4710-86a9-1b100206e1c1`
+        + version:`V1` (string, required) - This is the version of the Terms and Conditions, received from your account manager.
+        + acceptanceDate:`2015-06-10T14:08:37Z` (string, required) - This is the date and time the terms and conditions were accepted.
+        
+
+## UK Driving License 
++ number:`SMITH411015R99AB` (string, required) - This is the driving license number
++ postCode:`BA133BN` (string, required) - This is the post code from the driving license. Ideally it should be the same as the business owner address.
++ issueDate (object, optional) - This is the date the driving license was issued.
+    + Include Date Issue
++ expiryDate (object, optional) - This is the expiration date the driving license.
+    + Include Date Expiry
+
+## UK Driving License Response
++ number:`*********AB` (string, required) - This is the driving license number
++ postCode:`BA133BN` (string, required) - This is the post code from the driving license. Ideally it should be the same as the business owner address.
++ issueDate (object, optional) - This is the date the driving license was issued.
+    + Include Date Issue
++ expiryDate (object, optional) - This is the expiration date the driving license.
+    + Include Date Expiry
+
+## User
++ userName:`john_smith` (string, required) - This is the user name that will be configured to access the merchant account in the Merchant Back Office.
++ password:`Pwd1234!` (string, required) - This is the password that the user will use to access the merchant account in the Merchant Back Office.
++ email:`johnsmith@email.com` (string, required) - This is the email address that will be associated with the user.
+
+## User Response
++ userName:`john_smith` (string, required) - This is the user name that will be configured to access the merchant account in the Merchant Back Office.
+
+## Wire Bank Account
++ accountNumber:`6358555211214` (string, required) - This is the merchant's bank account number.
++ routingNumber:`1328514` (string, optional) - This is the routing number or the bank code of the merchant's bank account.
++ sortCode:`857412` (string, optional) - This is the 6-digit sort code of the merchant's bank account.
++ swiftNumber:`85774412` (string, required) - This is the swift number of the merchant's bank account.
++ ibanNumber:`558541` (string, optional) - This is the IBAN number of the merchant's bank account. **Note:** This field is required when *beneficiaryBankCountry* is  within our [SEPA supported countries list](#sepacountries).
++ beneficiaryCountry:`GB` (string, required) - This is the [country](#countrycodes) of the beneficiary's address. 
++ beneficiaryAccountName:`Main Account` (string, required) - This is the beneficiary account name.
++ beneficiaryAddress:`99 Spalding Green` (string, required) - This is the beneficiary's address.
++ beneficiaryCity:`London` (string, required) - This is the beneficiary's city.
++ beneficiaryRegion:`London` (string, required) - This is the beneficiary's region, state, or province.
++ beneficiaryPostCode:`E15 1AA` (string, required) - This is the beneficiary's post code.
++ beneficiaryBankCountry:`GB` (string, required) - This is the [country](#countrycodes) of the beneficiary's bank address.
++ beneficiaryBankName:`First Royal` (string, required) - This is the name of the beneficiary's bank.
++ beneficiaryBankAddress:`12 Field Rd.` (string, required) - This is the street of the beneficiary's bank address.
++ beneficiaryBankCity:`London` (string, required) - This is the city of the beneficiary's bank.
++ beneficiaryBankRegion:`London` (string, required) - This is the region, state, or province of the beneficiary's bank.
++ beneficiaryBankPostCode:`A13 1BB` (string, required) - This is the post code of the beneficiary's bank.
