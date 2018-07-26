@@ -629,8 +629,29 @@ This is how you look up a plan using the ID returned in the response to the orig
             
 + Response 200 (application/json)
 
-    + Attributes    
-        + Include Plan Response
+    + Body
+
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "5000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31",
+                "status": "ACTIVE",
+                "creationTime": "2017-02-14T15:12:18Z",
+                "lastUpdatedTime": "2014-04-14T15:12:18Z",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                }]
+            }
 
 ## Look Up All Plans Belonging to a Merchant [GET /plans]
 <a name="getplansmerchant" title="Look Up All Plans Belonging to a Merchant"></a>
@@ -645,8 +666,54 @@ This is how you look up a all plans belonging to a single merchant.
             
 + Response 200 (application/json)
 
-    + Attributes    
-        + Include Plan Response All Plans
+    + Body
+
+            {
+                "plans": [{
+                        "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                        "version": 1,
+                        "name": "Gold",
+                        "description": "Gold plan for Elite members",
+                        "amount": 5000,
+                        "currencyCode": "USD",
+                        "billingCycle": {
+                            "frequency": "MONTHLY"
+                        },
+                        "interval": "1",
+                        "startDate": "2018-02-01",
+                        "endDate": "2018-12-31",
+                        "status": "ACTIVE",
+                        "creationTime": "2018-01-14T15:12:18Z",
+                        "lastUpdatedTime": "2018-01-14T15:12:18Z",
+                        "links": [{
+                            "rel": "self",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                        }]
+                    },
+                    {
+                        "id": "e067d83f-add7-4b6b-8884-dfa8693ee14r",
+                        "version": 1,
+                        "name": "Silver",
+                        "description": "Silver plan for senior members",
+                        "amount": 4000,
+                        "currencyCode": "USD",
+                        "billingCycle": {
+                            "frequency": "MONTHLY"
+                        },
+                        "interval": "1",
+                        "startDate": "2018-02-15",
+                        "endDate": "2018-12-15",
+                        "status": "ACTIVE",
+                        "creationTime": "2018-01-14T15:12:18Z",
+                        "lastUpdatedTime": "2018-01-14T15:12:18Z",
+                        "links": [{
+                            "rel": "self",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r"
+                        }]
+                    }
+                ]
+            }
+
 
 ## Update a Plan - PUT [PUT /plans/{plan_id}]
 <a name="updateplan" title="Update a Plan - PUT"></a>
@@ -835,6 +902,14 @@ This is how you look up a plan with resource expansion.
 
     Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
     You may also see links for any call to action flows.
+
+## Meta
++ `meta` (object, required) - This defines the number of records per page
+
+    + Properties
+        + `numberOfRecords`:`10` (number, required) - This is the number of transfers in the transaction.
+        + `limit`:`2` (number, required) - This is the number of records to be returned per page. The default is 10 and the maximum is 100.
+        + `page`:`1` (number, required) - This is the number of pages to display.
 
 ## Plan
 + `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
