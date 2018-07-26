@@ -812,11 +812,13 @@ This is how you look up a plan with resource expansion.
 # Data Structures
 
 ## Billing Cycle
-+ frequency:`MONTHLY` (string, required) - This is the billing frequency for the plan.
-    - DAILY
-    - MONTHLY
-    - YEARLY
-+ interval:`1` (string, required) - This is the number of time units between each subscription payment. For example, to create a weekly plan, set *frequency* to DAILY and *interval* to 7.
+
++ `billingCycle` (object, required) - This defines the billing cycle for the plan and subscription.
+    + frequency:`MONTHLY` (enum, required) - Combine this value with the *interval* element to specify how often a subscription should be billed.
+        - DAILY
+        - MONTHLY
+        - YEARLY
++ interval:`1` (string, required) - Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7.
 
 ## Date of Birth
 + year:`1980`
@@ -837,9 +839,11 @@ This is how you look up a plan with resource expansion.
 ## Plan
 + `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
     _length<=36_
+    
     _Read Only_
 + `version`:`1` (number) - This is the version of the plan.
     _max=4_
+    
     _Read Only_
 + `name`:`Gold` (string, required) - This is merchant's name for the plan.
     _length=4-50_
@@ -856,9 +860,11 @@ This is how you look up a plan with resource expansion.
     _YYYY-MM-DD_
 + `creationTime`:`2018-02-14T15:12:18Z` (string) - This is the date and time the plan was created.
     _UTC formatted date_
+    
     _Read Only_
 + `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) This is the date and time the plan was last updated.
     _UTC formatted date_
+    
     _Read Only_
 + status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
