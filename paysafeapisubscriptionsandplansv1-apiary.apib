@@ -3,6 +3,10 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
 
 # Paysafe Subscriptions and Plans 
 
+**QUESTIONS**
+ - Is [profile object](#profileobject) still being used? I think this is left over from previous iteration. This applies also to [dateofbirth object](#dateofbirthobject).
+ - Is the request to [look up a subscription with resource expansion](#getsubscriptionresources) still viable? I don't see it in Confluence.
+
 # Release Notes
 
 | Version   | Date          | Details |
@@ -556,19 +560,57 @@ This call returns a status of READY if the API is available.
 
 This is how you submit a plan creation request.
 
++ Attributes
+    + Include Plan
+    + Include links
+
 + Request Plan Creation (application/json)
 
-    + Attributes
-        + Include Plan
-        
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
 
+    + Body
+
+            {
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "5000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31"
+            }
+
 + Response 200 (application/json)
 
-    + Attributes
-        + Include Plan Response
+    + Body
+
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "5000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31",
+                "status": "ACTIVE",
+                "creationTime": "2017-02-14T15:12:18Z",
+                "lastUpdatedTime": "2014-04-14T15:12:18Z",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                }]
+            }
+
 
 ## Look Up a Plan [GET /plans/{plan_id}]
 <a name="getplan" title="Look Up a Plan"></a>
@@ -781,31 +823,72 @@ This is how you look up a plan with resource expansion.
 + month:`12`
 + day:`25`
 
+
+## `link`
++ rel: self 
++ href: `https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
+
+## `links`
++ links (array[link]) - This is an array of links related to the resource.  
+
+    Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
+    You may also see links for any call to action flows.
+
 ## Plan
-+ name:`Gold` (string, required) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan.
-+ amount:`5000` (string, required) - This is the amount of the plan, in minor units. 
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
-+ billingCycle (object, required) - This is the billing cycle of the plan.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
++ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
+    _length<=36_
+    _Read Only_
++ `version`:`1` (number) - This is the version of the plan.
+    _max=4_
+    _Read Only_
++ `name`:`Gold` (string, required) - This is merchant's name for the plan.
+    _length=4-50_
++ `description`:`Gold plan for Elite members` (string) - This is a short description of the plan.
+    _length<=255_
++ `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
+    _max=99999999999_
++ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
+    _length=3_
++ Include Billing Cycle
++ `startDate`:`2017-01-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
+    _YYYY-MM-DD_
++ `endDate`:`2017-12-31` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
+    _YYYY-MM-DD_
++ `creationTime`:`2018-02-14T15:12:18Z` (string) - This is the date and time the plan was created.
+    _UTC formatted date_
+    _Read Only_
++ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) This is the date and time the plan was last updated.
+    _UTC formatted date_
+    _Read Only_
++ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
+
+    + Members
+        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.
+        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some parameters can be changed.
+        + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
 ## Plan 2
-+ name:`Silver` (string, required) - This is merchant's name for the plan.
-+ description:`Silver plan for senior members` (string, optional) - This is a short description of the plan.
-+ amount:`4000` (string, required) - This is the amount of the plan, in minor units. 
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
-+ billingCycle (object, required) - This is the billing cycle of the plan.
-    + Include Billing Cycle
-+ startDate:`2017-01-15` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-15` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
++ `name`:`Silver` (string, required) - This is merchant's name for the plan.
+    _length=4-50_
++ `description`:`Silver plan for senior members` (string) - This is a short description of the plan.
+    _length<=255_
++ `amount`:`4000` (number, required) - This is the amount of the plan, in minor units. 
+    _max=99999999999_
++ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
+    _length=3_
++ Include Billing Cycle
++ `startDate`:`2017-01-15` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
+    _YYYY-MM-DD_
++ `endDate`:`2017-12-15` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
+    
++ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
+
+    + Members
+        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.
+        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some parameters can be changed.
+        + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
 ## Plan Response
 + id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
