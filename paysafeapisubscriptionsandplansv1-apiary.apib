@@ -783,9 +783,7 @@ Click on **Look Up All Plans Belonging to a Merchant** above to see how to look 
 
 Click on **Update a Plan - PUT** above to see how to update a plan with a PUT request.
 
-All parameters can be updated when a plan has the status *INITIAL*. 
-
-**Note:**  Only the following parameters can be updated when a plan has the status *ACTIVE*:
+**Note:** All parameters can be updated when a plan has the status *INITIAL*. However, only the following parameters can be updated when a plan has the status *ACTIVE*:
  - name
  - description
  - endDate
@@ -860,7 +858,7 @@ Click on **Update a Plan - PATCH** above to see how to update a plan with a PATC
  - currencyCode
  - startDate
 
-For the *status* parameter:
+In addition, for the *status* parameter:
  - INITIAL status can be changed only to ACTIVE
  - ACTIVE status can be changed only to INACTIVE 
 
@@ -914,10 +912,10 @@ For the *status* parameter:
                 }]
             }
 
-## Activate a Plan - PATCH [PATCH /plans/{plan_id}]
+## Activate a Plan [PATCH /plans/{plan_id}]
 <a name="activateplanpatch" title="Activate a Plan - PATCH"></a>
 
-Click on **Activate a Plan - PATCH** above to see how to activate a plan with a PATCH request.
+Click on **Activate a Plan** above to see how to activate a plan with a PATCH request.
 
 + Attributes
     + Include Plan
