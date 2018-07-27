@@ -5,6 +5,10 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
 
 **QUESTIONS**
  - Is [profile object](#profileobject) still being used? I think this is left over from previous iteration. This applies also to [dateofbirth object](#dateofbirthobject).
+ - What would the payload be for the request to copy an existing plan with no changes? An empty payload? {}?
+ - status for Subscriptions defined as string, whereas defined as enum for Plans.
+ - The endDate for the subscriptions says that if not provided, it will continue indefinitely. Wouldn't this be constrained by the endDate of the plan ID?
+ - If itemQuantity in subscription is, e.g., 2, does that mean the subscription will charge 2x the *amount* field in the plan for each billing cycle?
 
 # Release Notes
 
@@ -77,7 +81,7 @@ In the case where an API GET request returns multiple results, Paysafe returns t
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
 
-You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+You must not include any of the characters in the following table as values in any of your request elements. If you do, your request will result in an error.
 
 |    Character    |    HEX    |    Description                     |
 |-----------------|-----------|------------------------------------|
@@ -275,7 +279,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |---                |---        |---                                |
 |code               |string     |The error code. Also shown in the X-Application-Status-Code response header.            |
 |message            |string     |A description of the error.                 |
-|details            |string array     |Details of any parameter value errors (optional).       |
+|details            |string array     |Details of any element value errors (optional).       |
 |links              |link array     |One or more rel/href pairs, where rel is "errorinfo", and href is the Developer Center URL containing a description of the error.|
 
 ```apib
@@ -331,7 +335,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |billingCycle                   |[billingCycle](#billingcycleobject)    |These are details of the billing cycle.    |
 |startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts. **Note:** This defaults to the current date. |
 |endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
-|status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific parameters can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The the plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
+|status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific elements can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The the plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
 |error                          |[error](#errorobject)      |These are details if an error occurs. |
 |creationTime                   |UTC formatted date         |This is the date and time the plan was created.|
 |lastUpdatedTime                |UTC formatted date         |This is the date and time the plan was last updated. |
@@ -783,13 +787,13 @@ Click on **Look Up All Plans Belonging to a Merchant** above to see how to look 
 
 Click on **Update a Plan - PUT** above to see how to update a plan with a PUT request.
 
-**Note:** All parameters can be updated when a plan has the status *INITIAL*. However, only the following parameters can be updated when a plan has the status *ACTIVE*:
+**Note:** All elements can be updated when a plan has the status *INITIAL*. However, only the following elements can be updated when a plan has the status *ACTIVE*:
  - name
  - description
  - endDate
  - status (for ACTIVE plan, status can be changed only to INACTIVE)
 
-Parameters that are part of an existing plan that are not included in the update PUT request will be set to null or to the default value if it has one.
+Elements that are part of an existing plan that are not included in the update PUT request will be set to null or to the default value if it has one.
 
 + Attributes
     + Include Plan
@@ -858,7 +862,7 @@ Click on **Update a Plan - PATCH** above to see how to update a plan with a PATC
  - currencyCode
  - startDate
 
-In addition, for the *status* parameter:
+In addition, for the *status* element:
  - INITIAL status can be changed only to ACTIVE
  - ACTIVE status can be changed only to INACTIVE 
 
@@ -989,18 +993,34 @@ Click on **Delete a Plan** above to see how to delete a plan.
 
 This is how you submit a subscription creation request.
 
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
 + Parameters
 
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
 
 + Request Subscription Creation (application/json)
-
-    + Attributes
-        + Include Subscription
         
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "paymentDescriptor": "800-555-1212",
+                "merchantRefNum": "sub-1",
+                "dupCheck": true,
+                "itemQuantity": 2,
+                "status": "ACTIVE",
+                "startDate": "2018-10-10",
+                "endDate": "2018-12-31"
+            }
+
 
 + Response 200 (application/json)
 
@@ -1076,6 +1096,16 @@ This is how you look up a plan with resource expansion.
     Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
     You may also see links for any call to action flows.
 
+## `link subscription`
++ rel: self 
++ href: `https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/e067d83f-add7-4b6b-8884-dfa8693dde1f`
+
+## `links subscription`
++ links (array[link subscription]) - This is an array of links related to the resource.  
+
+    Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
+    You may also see links for any call to action flows.
+
 ## Meta
 + `meta` (object, required) - This defines the number of records per page
 
@@ -1117,8 +1147,8 @@ This is how you look up a plan with resource expansion.
 + status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
     + Members
-        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.
-        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some parameters can be changed.
+        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
         + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
         + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
@@ -1155,8 +1185,8 @@ This is how you look up a plan with resource expansion.
 + status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
     + Members
-        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.
-        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some parameters can be changed.
+        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
         + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
         + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
@@ -1177,8 +1207,8 @@ This is how you look up a plan with resource expansion.
 + status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
     + Members
-        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.
-        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some parameters can be changed.
+        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
         + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
         + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
@@ -1301,15 +1331,50 @@ This is how you look up a plan with resource expansion.
 + paymentToken:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
 
 ## Subscription
-+ accountId:`1000055555` (string, required) - This is the merchant account that is used to process this subscription.
-+ paymentToken:`CNjEzMTM4NDg1` (string, required) - This is the [card payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/cards/create-a-card) or the [bank account payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/eft-bank-accounts/create-an-eft-bank-account) to be used for billing the customer.
-+ merchantRefNum:`Sub19C24` (string, required) - This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.
-+ paymentDescriptor:`800-555-2222` (string, optional) - This is a descriptor that will appear on the consumer's credit card or bank account statement. It will be passed to the card payment's *merchantDescriptor.dynamicDescriptor* element or to the bank payment's *paymentDescriptor* element.
-+ dupCheck:`true` (boolean, optional) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days. **Note:** This value defaults to *true*.
-+ itemQuantity:`2` (string, optional) - The number of items in the subscription.
-+ status:`ACTIVE` (string, optional) - This is the [status of the subscription](#subscriptionobject).
-+ startDate:`2017-01-01` (string, optional) - This is the date the subscription starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the subscription ends.
++ `id`:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string) - This is the unique subscription ID.
+    _length<=36_
+    
+    _Read Only_
++ `accountId`:`1000055555` (string, required) - This is the merchant account that is used to process this subscription. **Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account.
+    _length<=36_
++ `paymentToken`:`CNjEzMTM4NDg1` (string, required) - This is the [card payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/cards/create-a-card) or the [bank account payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/ach-bank-accounts/create-an-ach-bank-account) to be used for billing the customer.
+    _length<=50_
++ `merchantRefNum`:`Sub19C24` (string, required) - This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.
+    _length<=255_
++ `paymentDescriptor`:`800-555-2222` (string) - This is a descriptor that will appear on the consumer's credit card or bank account statement. It will be passed to the card payment's *merchantDescriptor.dynamicDescriptor* element or to the bank payment's *paymentDescriptor* element.
+    _length<=12_
++ `dupCheck`:`true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.
+    + Default: true
++ `itemQuantity`:`2` (string) - The number of items in the subscription.
+    _min=1_
++ `status`:`ACTIVE` (enum) - This is the [status of the subscription](#subscriptionobject). **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified.
+
+    + Members
+        + ACTIVE - The subscription is generating regular billings.
+        + CANCELLED - The subscription has been cancelled, so no billings are generated.
+        + EXPIRED - The subscription has reached the end date.
+        + PAST_DUE - One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.
+        + SUSPENDED – The subscription is temporarily not generating billings.
++ `effectiveCancellationDate`:`20186-12-31 (string) - This is the date the subscription cancellation takes effect. This will be in the future if the payment for the current billing cycle has already been created.
+    _Read Only_
++ `reasonForCancellation`:`Not required` (string) - This is the reason for cancelling the subscription.
+    _length<=255_
++ `startDate`:`2017-01-01` (string, optional) - This is the date the subscription starts. **Note:** If not provided, the start date of the plan is used unless it is in the past, in which case the current date is used.
+    _YYYY-MM-DD_
++ `endDate`:`2017-12-31` (string, optional) - This is the date the subscription ends. **Note:** If not provided, the subscription will continue indefinitely.
+    _YYYY-MM-DD_
++ `creationTime`:`2017-02-14T15:12:18Z` (string) - This is the date and time the subscription was created.
+    _UTC formatted date_
+    
+    _Read Only_
++ `billingPeriodStartDate`:`2017-01-01` (string) - This is the date the billing period starts.
+    _YYYY-MM-DD_
+    
+    _Read Only_
++ billingPeriodEndDate:`2017-12-31` (string, optional) - This is the date the billing period ends.
+    _YYYY-MM-DD_
+    
+    _Read Only_
 
 ## Subscription Response
 + id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID.
