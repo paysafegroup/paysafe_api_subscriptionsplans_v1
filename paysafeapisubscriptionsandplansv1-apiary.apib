@@ -5,7 +5,6 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
 
 **QUESTIONS**
  - Is [profile object](#profileobject) still being used? I think this is left over from previous iteration. This applies also to [dateofbirth object](#dateofbirthobject).
- - Is the request to [look up a subscription with resource expansion](#getsubscriptionresources) still viable? I don't see it in Confluence.
 
 # Release Notes
 
@@ -558,7 +557,7 @@ This call returns a status of READY if the API is available.
 ## Create a Plan [POST /plans]
 <a name="createplan" title="Create a Plan"></a>
 
-This is how you submit a plan creation request.
+Click on **Create a Plan** above to see how to create a plan.
 
 + Attributes
     + Include Plan
@@ -600,11 +599,11 @@ This is how you submit a plan creation request.
                     "frequency": "MONTHLY",
                     "interval": "1"
                 },
-                "startDate": "2017-03-01",
-                "endDate": "2018-03-31",
-                "status": "ACTIVE",
-                "creationTime": "2017-02-14T15:12:18Z",
-                "lastUpdatedTime": "2014-04-14T15:12:18Z",
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
                 "links": [{
                     "rel": "self",
                     "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
@@ -612,10 +611,69 @@ This is how you submit a plan creation request.
             }
 
 
+## Create a New Version of a Plan [POST /plans/{plan_id}/newversion]
+<a name="createnewplanversion" title="Create a New Version of a Plan"></a>
+
+Click on **Create a New Version of a Plan** above to see how to create a new version of an existing plan.
+
+This request creates a new plan using the values from an existing plan, while incrementing the version. If any plan attributes are provided in the request, those values will be used in place of the ones from the plan being copied.
+
+**Note:** 
+ - You can create a new version of a plan **only if** the plan you are copying has the status of INITIAL or ACTIVE. 
+ - If you provide a name that is different from the name of the plan you are copying, the *version* will be set to 1.
+ - If you do not want an *endDate* for the new plan, then you must update the plan (PUT) after the new version is created. Otherwise, the value of the copied plan will be inherited.
+ - The *status* defaults to INITIAL when copying a plan. The only valid values are INITIAL and ACTIVE.
+
++ Attributes
+    + Include Plan
+    + Include links
+
++ Parameters
+
+    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID of the plan you want to copy, returned in the response to the original plan creation request.
+
++ Request Plan Creation (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "amount": "8000"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "rtr7d83f-add7-4b6b-8884-dfa8693ddrtr",
+                "version": 1,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "8000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/rtr7d83f-add7-4b6b-8884-dfa8693ddrtr"
+                }]
+            }
+
 ## Look Up a Plan [GET /plans/{plan_id}]
 <a name="getplan" title="Look Up a Plan"></a>
 
-This is how you look up a plan using the ID returned in the response to the original request.
+Click on **Look Up a Plan** above to see how to look up a plan using the ID returned in the response to the original request.
 
 + Parameters
 
@@ -642,11 +700,11 @@ This is how you look up a plan using the ID returned in the response to the orig
                     "frequency": "MONTHLY",
                     "interval": "1"
                 },
-                "startDate": "2017-03-01",
-                "endDate": "2018-03-31",
-                "status": "ACTIVE",
-                "creationTime": "2017-02-14T15:12:18Z",
-                "lastUpdatedTime": "2014-04-14T15:12:18Z",
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
                 "links": [{
                     "rel": "self",
                     "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
@@ -656,7 +714,7 @@ This is how you look up a plan using the ID returned in the response to the orig
 ## Look Up All Plans Belonging to a Merchant [GET /plans]
 <a name="getplansmerchant" title="Look Up All Plans Belonging to a Merchant"></a>
 
-This is how you look up a all plans belonging to a single merchant.
+Click on **Look Up All Plans Belonging to a Merchant** above to see how to look up a all plans belonging to a single merchant.
 
 + Request Get Plan (application/json)
     
@@ -711,66 +769,104 @@ This is how you look up a all plans belonging to a single merchant.
                             "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r"
                         }]
                     }
-                ]
+                ],
+                "_meta": {
+                    "numberOfRecords": 2,
+                    "limit": 2,
+                    "page": 1
+                }
             }
 
 
 ## Update a Plan - PUT [PUT /plans/{plan_id}]
 <a name="updateplan" title="Update a Plan - PUT"></a>
 
-This is how you update a plan with a PUT request. For example, you can change the plan status from *INITIAL* to *ACTIVE*.
+Click on **Update a Plan - PUT** above to see how to update a plan with a PUT request.
 
-**Note:** All parameters can be updated when a plan is in the *INITIAL* status. Elements that are part of an existing plan that are not included in the update request will be set to null or to the default value if it has one.
+All parameters can be updated when a plan has the status *INITIAL*. 
 
-+ Parameters
+**Note:**  Only the following parameters can be updated when a plan has the status *ACTIVE*:
+ - name
+ - description
+ - endDate
+ - status (for ACTIVE plan, status can be changed only to INACTIVE)
 
-    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
-    
-+ Request Plan Update (application/json)    
+Parameters that are part of an existing plan that are not included in the update PUT request will be set to null or to the default value if it has one.
 
-    + Attributes
-        + Include Plan Update
-
-    + Headers
-    
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
-
-+ Response 200 (application/json)
-
-    + Attributes
-        + Include Plan Update Response
-
-## Update an Active Plan - PUT [PUT /plans/{plan_id}]
-<a name="updateplanactive" title="Update an Active Plan"></a>
-
-This is how you update an active plan with a PUT request.
-
-**Note:** Only a subset of parameters can be updated once a plan is in *ACTIVE* status. Elements that are part of an existing plan that are not included in the update request will be set to null or to the default value if it has one.
++ Attributes
+    + Include Plan
+    + Include links
 
 + Parameters
 
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
     
-+ Request Plan Update (application/json)    
++ Request Update a Plan with Status INITIAL (application/json)    
 
-    + Attributes
-        + Include Plan Update Active
 
     + Headers
     
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "7500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31"
+            }
 
 + Response 200 (application/json)
 
-    + Attributes
-        + Include Plan Update Response
+    + Body
+
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "7500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31",
+                "status": "ACTIVE",
+                "creationTime": "2017-02-14T15:12:18Z",
+                "lastUpdatedTime": "2017-02-15T15:12:18Z",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                }]
+            }
+
 
 ## Update a Plan - PATCH [PATCH /plans/{plan_id}]
 <a name="updateplanpatch" title="Update a Plan - PATCH"></a>
 
-This is how you update a plan with a PATCH request. For example, you can change the plan status from *INITIAL* to *ACTIVE*.
+Click on **Update a Plan - PATCH** above to see how to update a plan with a PATCH request.
 
-**Note:** All parameters can be updated when a plan is in the *INITIAL* status. 
+**Note:**  The following parameters can be updated only when a plan has the status *INITIAL*:
+ - amount
+ - currencyCode
+ - startDate
+
+For the *status* parameter:
+ - INITIAL status can be changed only to ACTIVE
+ - ACTIVE status can be changed only to INACTIVE 
+
++ Attributes
+    + Include Plan
+    + Include links
 
 + Parameters
 
@@ -778,29 +874,108 @@ This is how you update a plan with a PATCH request. For example, you can change 
     
 + Request Plan Update (application/json)    
 
-    + Attributes
-        + Include Plan Update PATCH
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+
+    + Body
+
+            {
+                "amount": "8500",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "2"
+                }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "8500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "2"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31",
+                "status": "INITIAL",
+                "creationTime": "2017-02-14T15:12:18Z",
+                "lastUpdatedTime": "2017-02-15T15:12:18Z",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                }]
+            }
+
+## Activate a Plan - PATCH [PATCH /plans/{plan_id}]
+<a name="activateplanpatch" title="Activate a Plan - PATCH"></a>
+
+Click on **Activate a Plan - PATCH** above to see how to activate a plan with a PATCH request.
+
++ Attributes
+    + Include Plan
+    + Include links
+
++ Parameters
+
+    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
+    
++ Request Plan Update (application/json)    
 
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
 
+    + Body
+
+            {
+                "status": "ACTIVE"
+            }
+
 + Response 200 (application/json)
 
-    + Attributes
-        + Include Plan Update Response
+    + Body
+
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "8500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "2"
+                },
+                "startDate": "2017-03-01",
+                "endDate": "2018-03-31",
+                "status": "ACTIVE",
+                "creationTime": "2017-02-14T15:12:18Z",
+                "lastUpdatedTime": "2017-02-15T15:12:18Z",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                }]
+            }
 
 ## Delete a Plan [DELETE /plans/{plan_id}]
 <a name="deleteplan" title="Delete a Plan"></a>
 
-This is how you delete a plan.
+Click on **Delete a Plan** above to see how to delete a plan.
 
-**Note:** You can delete a plan only if it does not have any subscriptions assigned to it, regardless of the status. Therefore, the primary usage of the DELETE operation is for a merchant who made an error during plan creation and does not want to keep it.
+**Note:** You can delete a plan **only if** it does not have any subscriptions assigned to it, regardless of the plan's status. Therefore, the primary usage of the DELETE operation is for a merchant who made an error when creating the plan and does not want to keep it. 
 
 + Parameters
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
 
-+ Request Delete a Profile (application/json)
++ Request Delete a Plan (application/json)
 
     + Headers        
 
@@ -949,6 +1124,44 @@ This is how you look up a plan with resource expansion.
         + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
         + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
+## Plan Update
++ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
+    _length<=36_
+    
+    _Read Only_
++ `version`:`1` (number) - This is the version of the plan.
+    _max=4_
+    
+    _Read Only_
++ `name`:`Gold` (string, required) - This is merchant's name for the plan.
+    _length=4-50_
++ `description`:`Gold plan for Elite members` (string) - This is a short description of the plan.
+    _length<=255_
++ `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
+    _max=99999999999_
++ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
+    _length=3_
++ Include Billing Cycle
++ `startDate`:`2017-01-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
+    _YYYY-MM-DD_
++ `endDate`:`2017-12-31` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
+    _YYYY-MM-DD_
++ `creationTime`:`2018-02-14T15:12:18Z` (string) - This is the date and time the plan was created.
+    _UTC formatted date_
+    
+    _Read Only_
++ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) This is the date and time the plan was last updated.
+    _UTC formatted date_
+    
+    _Read Only_
++ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
+
+    + Members
+        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.
+        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some parameters can be changed.
+        + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+
 ## Plan 2
 + `name`:`Silver` (string, required) - This is merchant's name for the plan.
     _length=4-50_
@@ -1012,7 +1225,7 @@ This is how you look up a plan with resource expansion.
                 + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
                 + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r` (string, required) - This is the URI of the resource.
 
-## Plan Update
+## Plan Update Old
 + name:`Gold` (string, required) - This is merchant's name for the plan.
 + description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan. **Note:** You cannot modify this field in the update request.
 + amount:`5500` (string, required) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field in the update request.
