@@ -6,6 +6,7 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
 **QUESTIONS**
  - Is [profile object](#profileobject) still being used? I think this is left over from previous iteration. This applies also to [dateofbirth object](#dateofbirthobject).
  - What would the payload be for the request to copy an existing plan with no changes? An empty payload? {}?
+ - Related ... for creating a new plan, Confluence says they have to update the plan with a new endDate if they do not want the endDate in the existing plan. Why wouldn't they just include the new endDate in the new plan request?
  - status for Subscriptions defined as string, whereas defined as enum for Plans.
  - The endDate for the subscriptions says that if not provided, it will continue indefinitely. Wouldn't this be constrained by the endDate of the plan ID?
  - If itemQuantity in subscription is, e.g., 2, does that mean the subscription will charge 2x the *amount* field in the plan for each billing cycle?
@@ -620,12 +621,12 @@ Click on **Create a Plan** above to see how to create a plan.
 
 Click on **Create a New Version of a Plan** above to see how to create a new version of an existing plan.
 
-This request creates a new plan using the values from an existing plan, while incrementing the version. If any plan attributes are provided in the request, those values will be used in place of the ones from the plan being copied.
+This request creates a new plan by copying an existing plan, with all its values, while incrementing the version. If you provide any plan attributes in the request to the *newversion* endpoint, those values will be used in place of the ones from the plan being copied.
 
-**Note:** 
+**Note:** There are a few restrictions when creating a new version of an existing plan:
  - You can create a new version of a plan **only if** the plan you are copying has the status of INITIAL or ACTIVE. 
  - If you provide a name that is different from the name of the plan you are copying, the *version* will be set to 1.
- - If you do not want an *endDate* for the new plan, then you must update the plan (PUT) after the new version is created. Otherwise, the value of the copied plan will be inherited.
+ - If the plan you are copying has an *endDate* that you do not want for the new version, then you must update the plan (PUT) after the new version is created. Otherwise, the value of the copied plan will be inherited.
  - The *status* defaults to INITIAL when copying a plan. The only valid values are INITIAL and ACTIVE.
 
 + Attributes
