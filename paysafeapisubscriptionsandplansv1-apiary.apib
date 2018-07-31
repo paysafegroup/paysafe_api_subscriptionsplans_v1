@@ -13,6 +13,9 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
  - In the standard create subscription call in Confluence, the response has expandables for plan and profile. Is this correct? (See, for example, looking up a subscription with resource expansion.)
  - Are we not following standard procedures for error codes? E.g., I see "PLAN-SUBSCRIPTION-1" as an error code in Confluence, as opposed to our standard convention for numbering errors for the RESTful APIs.
  - Does the *schedule* array only occur in the response to a subscription lookup request, but not in the response to the subscription creation request? (That is what is currently in Confluence.)
+ - Should the note about nullable fields be more or less the same for both PUTs (plans and subscriptions)? They appear different.
+ - Should there be a note about nullable fields for the subscription PATCH  request (as there is for plan PATCH)?
+ - What is the significance of mentioning the update takes effect immediately for only some of the subscription PATCH elements? What happens with other elements?
  - Link from **Errors** section has to be updated once it is created in Flare for Getting Started section.
 
 # Release Notes
@@ -862,7 +865,7 @@ Elements that are part of an existing plan that are not included in the update P
 
 Click on **Update a Plan - PATCH** above to see how to update a plan with a PATCH request.
 
-**Note:**  The following parameters can be updated only when a plan has the status *INITIAL*:
+**Note:**  The following elements can be updated only when a plan has the status *INITIAL*:
  - amount
  - currencyCode
  - startDate
@@ -1630,7 +1633,7 @@ Click on **Look Up All Subscriptions Belonging to a Merchant** above to see how 
                 ]
             }
 
-## Update a Subscription - PUT [PUT /plans/{subscription_id}]
+## Update a Subscription - PUT [PUT /subscriptions/{subscription_id}]
 <a name="updatesubscription" title="Update a Subscription - PUT"></a>
 
 Click on **Update a Subscription - PUT** above to see how to update a subscription with a PUT request.
@@ -1693,6 +1696,147 @@ Any updatable nullable field will be set to null if not included in the request.
                     "profile": "https://api.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
                 }
             }
+
+## Update a Subscription - PATCH [PATCH /subscriptions/{subscription_id}]
+<a name="updatesubscriptionpatch" title="Update a Subscription - PATCH"></a>
+
+Click on **Update a Subscription - PATCH** above to see how to update a subscription with a PATCH request.
+
+**Note:** The following subscription elements can be updated with a PATCH request:
+ - accountId - The change takes effect immediately.
+ - paymentToken - The change takes effect immediately.
+ - paymentDescriptor
+ - itemQuantity - The change takes effect on the next billing cycle. For example, if a subscription is billed at the first day of the cycle and this value is changed in the middle of the current cycle, it will take effect on the next payment, since that is at the first day of the next cycle. 
+ - startDate - If a billing cycle has already started (the current start date is in the past) this cannot be changed.
+ - endDate
+ - status - The status can be changed only to **CANCELLED** or **SUSPENDED**.
+ - reasonForCancellation - This can be specified only when the status is being changed to **CANCELLED**.
+ - reasonForSuspension - This can be specified only when the status is being changed to **SUSPENDED**.
+
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
++ Parameters
+
+    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+    
++ Request Update a Subscription (application/json)    
+
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "endDate": "2018-12-31"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                "merchantRefNum": "sub-1",
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "itemQuantity": 1,
+                "status": "ACTIVE",
+                "creationTime": "2015-10-10T12:12:18Z",
+                "startDate": "2017-10-10",
+                "endDate": "2018-12-31",
+                "billingPeriodStartDate": "2017-10-10",
+                "billingPeriodEndDate": "2018-11-09",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
+                }],
+                "_expandable": {
+                    "plan": "https://api.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                    "profile": "https://api.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
+                }
+            }
+
+## Cancel a Subscription [PATCH /subscriptions/{subscription_id}]
+<a name="cancelsubscription" title="Cancel a Subscription - PATCH"></a>
+
+Click on **Cancel a Subscription** above to see how to cancel a subscription with a PATCH request.
+
+**Note:** 
+ - The *status* element is required and must be set to CANCELLED. 
+ - The *reasonForCancellation* element is optional.
+
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
++ Parameters
+
+    + subscription_id:`82522762-fb59-42b8-886d-0a74ab8d239b` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+    
++ Request Update a Subscription (application/json)    
+
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "status": "CANCELLED",
+                "reasonForCancellation": "Switched to different plan"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "82522762-fb59-42b8-886d-0a74ab8d239b",
+                "creationTime": "2018-06-23T18:03:03Z",
+                "lastUpdatedTime": "2018-09-01T18:08:47Z",
+                "startDate": "2018-06-01",
+                "accountId": "1001354030",
+                "paymentToken": "Ds56kChFBCrNmKU",
+                "merchantRefNum": "Ref123",
+                "itemQuantity": 1,
+                "billingPeriodStartDate": "2018-06-01",
+                "billingPeriodEndDate": "2019-06-30",
+                "effectiveCancellationDate": "2018-09-21",
+                "reasonForCancellation": "Switched to different plan",
+                "dupCheck": true,
+                "status": "CANCELLED",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/82522762-fb59-42b8-886d-0a74ab8d239b"
+                }],
+                "_expandable": {
+                    "plan": "https://api.paysafe.com/subscriptionsplans/v1/plans/ca0fbdef-0903-4375-ba19-f6a376c9051c",
+                    "profile": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                }
+            }
+
+## Delete a Subscription [DELETE /subscriptions/{subscription_id}]
+<a name="deletesubscription" title="Delete a Subscription"></a>
+
+Click on **Delete a Subscription** above to see how to delete a subscription.
+
+**Note:** You can delete a subscription **only if** its related schedule does not have any invoices or payments linked to it, regardless of the status. Therefore, the primary usage of the DELETE operation is for a merchant who made a mistake when creating the subscription and does not want to keep it.
+
++ Parameters
+    + subsciption_id:`82522762-fb59-42b8-886d-0a74ab8d239b` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+
++ Request Delete a Subscription (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
 
 # Data Structures
 
@@ -2138,6 +2282,15 @@ Any updatable nullable field will be set to null if not included in the request.
     _Read Only_
     + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
     + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
+
+## Subscription Cancel
+
++ `status`:`CANCELLED` (enum, required) - This is the [status of the subscription](#subscriptionobject). **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified.
+
+    + Members
+        + CANCELLED - The subscription has been cancelled, so no billings are generated.
++ `reasonForCancellation`:`Subscription not wanted` (string) - This is the reason for cancelling the subscription.
+    _length<=255_
 
 ## Subscription Response
 + id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID.
