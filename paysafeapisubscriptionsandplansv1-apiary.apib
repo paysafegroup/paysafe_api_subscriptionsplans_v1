@@ -1088,6 +1088,7 @@ Click on **Create a Subscription** above to see how to submit a subscription cre
                 "itemQuantity": 2,
                 "status": "ACTIVE",
                 "creationTime": "2015-10-10T12:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
                 "startDate": "2018-10-10",
                 "endDate": "2018-12-31",
                 "billingPeriodStartDate": "2018-10-10",
@@ -1123,27 +1124,40 @@ Click on **Look Up a Subscription** above to see how to look up a subscription u
 
     + Body
 
-            {
-                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
-                "version": 1,
-                "name": "Gold",
-                "description": "Gold plan for Elite members",
-                "amount": "5000",
-                "currencyCode": "USD",
-                "billingCycle": {
-                    "frequency": "MONTHLY",
-                    "interval": "1"
-                },
-                "startDate": "2018-03-01",
-                "endDate": "2019-03-31",
-                "status": "INITIAL",
-                "creationTime": "2018-02-14T15:12:18Z",
-                "lastUpdatedTime": "2018-02-14T15:12:18Z",
-                "links": [{
-                    "rel": "self",
-                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
-                }]
-            }
+                       {
+                           "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                           "creationTime": "2018-02-14T15:12:18Z",
+                           "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                           "startDate": "2018-03-01",
+                           "endDate": "2019-03-31",
+                           "accountId": "88919000",
+                           "paymentToken": "CNjEzMTM4NDg1",
+                           "merchantRefNum": "sub-1",
+                           "itemQuantity": 2,
+                           "billingPeriodStartDate": "2018-10-10",
+                           "billingPeriodEndDate": "2018-11-09",
+                           "dupCheck": true,
+                           "reAttemptPayment": true,
+                           "paymentDescriptor": "800-555-1212",
+                           "links": [{
+                               "rel": "self",
+                               "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                           }],
+                           "status": "ACTIVE",
+                           "schedule": {
+                               "nextPayment": {
+                                   "amount": 5000,
+                                   "accountId": "1001058570",
+                                   "paymentToken": "CQ8tfGj6bSgU6gO",
+                                   "paymentMethod": "CC",
+                                   "paymentDate": "2018-10-10"
+                               }
+                           },
+                           "_expandable": {
+                               "plan": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968",
+                               "profile": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214"
+                           }
+                       }
 
 ## Look Up a Subscription with Resource Expansion [GET /subscriptions/{subscription_id}?expand={expand_elements}]
 <a name="getsubscriptionresources" title="Look Up a Subscription with Resource Expansion"></a>
@@ -1167,74 +1181,83 @@ Click on **Look Up a Subscription with Resource Expansion** above to see how to 
 
             {
                 "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                "creationTime": "2018-08-01T13:06:42Z",
+                "lastUpdatedTime": "2018-08-01T13:06:42Z",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31",
+                "accountId": "1001058570",
+                "paymentToken": "CQ8tfGj6bSgU6gO",
                 "merchantRefNum": "sub-1",
-                "accountId": "88919000",
-                "paymentToken": "CNjEzMTM4NDg1",
-                "itemQuantity": 1,
-                "status": "SUSPENDED",
-                "dupCheck": true,
-                "creationTime": "2017-10-10T12:12:18Z",
-                "startDate": "2017-10-10",
-                "billingPeriodStartDate": "2017-10-10",
+                "itemQuantity": 2,
+                "billingPeriodStartDate": "2018-10-10",
                 "billingPeriodEndDate": "2018-11-09",
+                "dupCheck": true,
+                "reAttemptPayment": true,
+                "paymentDescriptor": "800-555-1212",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3{?expand}"
+                }],
+                "status": "ACTIVE",
                 "plan": {
-                    "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
-                    "name": "Gold",
+                    "id": "a7046016-902e-4113-9ee3-bb7c54a1e968",
+                    "creationTime": "2018-08-01T12:57:35Z",
+                    "lastUpdatedTime": "2018-08-01T13:05:29Z",
+                    "startDate": "2018-09-01",
+                    "endDate": "2019-03-31",
+                    "name": "Gold Star Redux",
                     "version": 1,
+                    "description": "Gold plan for Elite members",
                     "amount": 5000,
-                    "currencyCode": "USD",
+                    "currencyCode": "CAD",
                     "billingCycle": {
                         "frequency": "MONTHLY",
                         "interval": 1
                     },
-                    "status": "ACTIVE",
-                    "creationTime": "2014-04-14T15:12:18Z",
-                    "lastUpdatedTime": "2015-01-10T10:10:00Z"
+                    "links": [{
+                            "rel": "self",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968"
+                        },
+                        {
+                            "rel": "subscriptions",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968/subscriptions"
+                        }
+                    ],
+                    "status": "ACTIVE"
                 },
                 "profile": {
-                    "id": "a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1",
-                    "status": "ACTIVE",
-                    "merchantCustomerId": "john.smith1400783052032",
+                    "id": "5248c1f8-dcce-4b14-a7ee-121542a86214",
+                    "merchantCustomerId": "mycustomerID2233",
                     "locale": "en_US",
-                    "firstName": "John",
-                    "middleName": "James",
+                    "firstName": "Jane",
+                    "middleName": "Joan",
                     "lastName": "Smith",
+                    "paymentToken": "PFAImkWKRphYQQK",
                     "dateOfBirth": {
-                        "year": 1990,
-                        "month": 12,
-                        "day": 29
+                        "year": 1984,
+                        "month": 10,
+                        "day": 24
                     },
-                    "gender": "M",
-                    "paymentToken": "Pzb8AstnaGug5Y4"
+                    "ip": "192.0.126.111",
+                    "gender": "F",
+                    "nationality": "Canadian",
+                    "phone": "777-444-4444",
+                    "cellPhone": "777-555-3333",
+                    "email": "jane.smith@email.com",
+                    "status": "ACTIVE"
                 },
                 "schedule": {
-                    "previousPayment": {
-                        "status": "FAILED",
-                        "amount": "5000",
-                        "paymentDate": "2016-10-10",
-                        "accountId": "88919000",
-                        "paymentToken": "CNjEzMTM4NDg1",
-                        "paymentMethod": "CC",
-                        "error": {
-                            "code": "3022",
-                            "message": "The card has been declined due to insufficient funds."
-                        }
-                    },
                     "nextPayment": {
-                        "amount": "5000",
-                        "paymentDate": "2016-11-10",
-                        "accountId": "88919000",
-                        "paymentToken": "CNjEzMTM4NDg1",
-                        "paymentMethod": "CC"
+                        "amount": 5000,
+                        "accountId": "1001058570",
+                        "paymentToken": "CQ8tfGj6bSgU6gO",
+                        "paymentMethod": "CC",
+                        "paymentDate": "2018-10-10"
                     }
                 },
-                "links": [{
-                    "rel": "self",
-                    "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
-                }],
                 "_expandable": {
-                    "plan": "https://api.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f",
-                    "profile": "https://api.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
+                    "plan": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968",
+                    "profile": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214"
                 }
             }
 
@@ -1965,7 +1988,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _UTC formatted date_
     
     _Read Only_
-+ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) This is the date and time the plan was last updated.
++ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the plan was last updated.
     _UTC formatted date_
     
     _Read Only_
@@ -2007,7 +2030,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
             _UTC formatted date_
     
             _Read Only_
-        + `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) This is the date and time the plan was last updated.
+        + `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the plan was last updated.
             _UTC formatted date_
     
             _Read Only_
@@ -2045,7 +2068,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _UTC formatted date_
     
     _Read Only_
-+ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) This is the date and time the plan was last updated.
++ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the plan was last updated.
     _UTC formatted date_
     
     _Read Only_
@@ -2305,6 +2328,10 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + `reasonForCancellation`:`Subscription not wanted` (string) - This is the reason for cancelling the subscription.
     _length<=255_
 + `creationTime`:`2017-02-14T15:12:18Z` (string) - This is the date and time the subscription was created.
+    _UTC formatted date_
+    
+    _Read Only_
++ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the subscription was last updated.
     _UTC formatted date_
     
     _Read Only_
