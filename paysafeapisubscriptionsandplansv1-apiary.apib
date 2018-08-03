@@ -2103,24 +2103,24 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 ## Billing Cycle
 
 + `billingCycle` (object, required) - This defines the billing cycle for the plan and subscription.
-    + frequency:`MONTHLY` (enum, required) - Combine this value with the *interval* element to specify how often a subscription should be billed.
+    + `frequency`:`MONTHLY` (enum, required) - Combine this value with the *interval* element to specify how often a subscription should be billed.
         - DAILY
         - MONTHLY
         - YEARLY
-    + interval:`1` (string, required) - Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7.
+    + `interval`:`1` (string, required) - Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7.
 
 ## Date of Birth
-+ year:`1980`
-+ month:`12`
-+ day:`25`
++ `year`:`1980`
++ `month`:`12`
++ `day`:`25`
 
 
 ## `link`
-+ rel: self 
-+ href: `https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
++ `rel`: `self` 
++ `href`: `https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
 
 ## `links`
-+ links (array[link]) - This is an array of links related to the resource.  
++ `links` (array[link]) - This is an array of links related to the resource.  
 
     Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
     You may also see links for any call to action flows.
@@ -2136,15 +2136,16 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     You may also see links for any call to action flows.
 
 ## Meta
-+ `meta` (object, required) - This defines the number of records per page
++ `meta` (object) - This defines the number of records per page
+    _Read Only_
 
     + Properties
-        + `numberOfRecords`:`10` (number, required) - This is the number of transfers in the transaction.
+        + `numberOfRecords`:`10` (number, required) - This is the number of records in the request.
         + `limit`:`2` (number, required) - This is the number of records to be returned per page. The default is 10 and the maximum is 100.
         + `page`:`1` (number, required) - This is the number of pages to display.
 
 ## Next Payment
-+ nextPayment (object) - These are [details about the next payment](#nextpaymentobject) in the subscription schedule.
++ `nextPayment` (object) - These are [details about the next payment](#nextpaymentobject) in the subscription schedule.
     _Read Only_
     
     + Properties
@@ -2191,6 +2192,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
         + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
         + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
++ Include Meta        
 
 ## Plan Object
 + `plan` (object) - This is the plan information associated with the subscription.
@@ -2226,171 +2228,13 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
             _UTC formatted date_
     
             _Read Only_
-        + status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
+        + `status`:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
             + Members
                 + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
                 + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
                 + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
                 + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-
-## Plan Update
-+ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
-    _length<=36_
-    
-    _Read Only_
-+ `version`:`1` (number) - This is the version of the plan.
-    _max=4_
-    
-    _Read Only_
-+ `name`:`Gold` (string, required) - This is merchant's name for the plan.
-    _length=4-50_
-+ `description`:`Gold plan for Elite members` (string) - This is a short description of the plan.
-    _length<=255_
-+ `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
-    _max=99999999999_
-+ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
-    _length=3_
-+ Include Billing Cycle
-+ `startDate`:`2017-01-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
-    _YYYY-MM-DD_
-+ `endDate`:`2017-12-31` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
-    _YYYY-MM-DD_
-+ `creationTime`:`2018-02-14T15:12:18Z` (string) - This is the date and time the plan was created.
-    _UTC formatted date_
-    
-    _Read Only_
-+ `lastUpdatedTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the plan was last updated.
-    _UTC formatted date_
-    
-    _Read Only_
-+ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
-
-    + Members
-        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
-        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
-        + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-        + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-
-## Plan 2
-+ `name`:`Silver` (string, required) - This is merchant's name for the plan.
-    _length=4-50_
-+ `description`:`Silver plan for senior members` (string) - This is a short description of the plan.
-    _length<=255_
-+ `amount`:`4000` (number, required) - This is the amount of the plan, in minor units. 
-    _max=99999999999_
-+ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
-    _length=3_
-+ Include Billing Cycle
-+ `startDate`:`2017-01-15` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
-    _YYYY-MM-DD_
-+ `endDate`:`2017-12-15` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
-    
-+ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
-
-    + Members
-        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
-        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
-        + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-        + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-
-## Plan Response
-+ id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-+ version:`1` (number, required) - This is the version of the plan.
-+ Include Plan
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-+ lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the URI of the resource.
-
-## Plan Response Expansion
-+ id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-+ version:`1` (number, required) - This is the version of the plan.
-+ Include Plan
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-+ lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-
-## Plan Response All Plans
-+ plans (array, required) - This is an array of plans.
-    + (object)
-        + id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-        + version:`1` (number, required) - This is the version of the plan.
-        + Include Plan
-        + creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-        + lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-        + links (array, required) - This is an array of [links](#linksobject).
-            + (object)
-                + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-                + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the URI of the resource.
-    + (object)
-        + id:`e067d83f-add7-4b6b-8884-dfa8693ee14r` (string, required) - This is the unique plan ID.
-        + version:`1` (number, required) - This is the version of the plan.
-        + Include Plan 2
-        + creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-        + lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-        + links (array, required) - This is an array of [links](#linksobject).
-            + (object)
-                + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-                + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r` (string, required) - This is the URI of the resource.
-
-## Plan Update Old
-+ name:`Gold` (string, required) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan. **Note:** You cannot modify this field in the update request.
-+ amount:`5500` (string, required) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field in the update request.
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD. **Note:** You cannot modify this field in the update request.
-+ billingCycle (object, required) - This is the billing cycle of the plan. **Note:** You cannot modify this field in the update request.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts. **Note:** You cannot modify this field in the update request.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (enum, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
-
-## Plan Update Response
-+ id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-+ version:`1` (number, required) - This is the version of the plan.
-+ Include Plan Update
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-+ lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the URI of the resource.
-
-## Plan Update Active
-+ name:`Gold` (string, required) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan.
-+ amount:`5500` (string, required) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field once the plan is in *ACTIVE* status.
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD. **Note:** You cannot modify this field once the plan is in *ACTIVE* status.
-+ billingCycle (object, required) - This is the billing cycle of the plan. **Note:** You cannot modify these fields once the plan is in *ACTIVE* status.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (enum, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
-
-## Plan Update PATCH
-+ name:`Gold` (string, optional) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan.
-+ amount:`5500` (string, optional) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field in the update request.
-+ currencyCode:`USD` (string, optional) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD. **Note:** You cannot modify this field in the update request.
-+ billingCycle (object, optional) - This is the billing cycle of the plan. **Note:** You cannot modify this field in the update request.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (enum, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
-
 
 ## Previous Payment
 + previousPayment (object) - These are [details about the previous payment](#previouspaymentobject) in the subscription schedule.
@@ -2563,91 +2407,6 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _Read Only_
     + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
     + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
-
-## Subscription Cancel
-
-+ `status`:`CANCELLED` (enum, required) - This is the [status of the subscription](#subscriptionobject). **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified.
-
-    + Members
-        + CANCELLED - The subscription has been cancelled, so no billings are generated.
-+ `reasonForCancellation`:`Subscription not wanted` (string) - This is the reason for cancelling the subscription.
-    _length<=255_
-
-## Subscription Response
-+ id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID.
-+ Include Subscription
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the subscription was created.
-+ billingPeriodStartDate:`2017-01-01` (string, optional) - This is the date the billing period starts.
-+ billingPeriodEndDate:`2017-12-31` (string, optional) - This is the date the billing period ends.
-+ schedule (object, optional)  
-    + previousPayment (object, optional) - These are [details about the previous payment](#previouspaymentobject) in the subscription schedule.
-            _Read Only_
-        + `amount`:`4999` - This is the amount of the payment, in minor units.
-        + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
-        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + `paymentMethod`:`CC` - This is the payment method used for the payment.
-        + `paymentDate`:`2017-10-01` - This is the payment date.
-        + `status`:`FAILED` - This is the status of the payment.
-    + retryPayment (object, optional) - These are [details about the payment retry](#retrypaymentobject) in the case where a payment has failed in the subscription schedule.
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-06` - This is the payment retry date.
-    + nextPayment (object, optional) - These are [details about the next payment](#nextpaymentobject) in the subscription schedule.
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-11-01` - This is the next payment date.
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
-+ _expandable (object, required) - This displays expandable resources.
-    + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
-    + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
-
-## Subscription Response Expansion
-+ id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID.
-+ Include Subscription
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the subscription was created.
-+ billingPeriodStartDate:`2017-01-01` (string, optional) - This is the date the billing period starts.
-+ billingPeriodEndDate:`2017-12-31` (string, optional) - This is the date the billing period ends.
-+ schedule (object, optional)  
-    + previousPayment (object, optional) - These are [details about the previous payment](#previouspaymentobject).
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-01` - This is the payment date.
-        + status:`FAILED` - This is the status of the payment.
-    + retryPayment (object, optional) - These are [details about the payment retry](#retrypaymentobject) in the case where a payment has failed.
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-06` - This is the payment retry date.
-    + nextPayment (object, optional) - These are [details about the next payment](#nextpaymentobject).
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-11-01` - This is the next payment date.
-+ plan (object, required) - These are details about the plan.
-    + Include Plan Response Expansion
-+ profile (object, required) - These are details about the customer profile.
-    + Include Profile
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
-+ _expandable (object, required) - This displays expandable resources.
-    + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
-    + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
-
-
-
 
 ## Empty Set
 {
