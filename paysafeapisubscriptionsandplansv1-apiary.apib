@@ -1,14 +1,15 @@
 FORMAT: 1A
-HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
+HOST: https://api.test.paysafe.com/subscriptionsplans/
 
 # Paysafe Subscriptions and Plans 
 
 **QUESTIONS & COMMENTS**
- - The endDate for the subscriptions says that if not provided, it will continue indefinitely. Wouldn't this be constrained by the endDate of the plan ID?
  - If itemQuantity in subscription is, e.g., 2, does that mean the subscription will charge 2x the *amount* field in the plan for each billing cycle?
  - I tried to update a Plan with status of Active. Instead of getting error "PLAN-SUBSCRIPTION-1 Plan not modifiable", I got error 5068 "Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected."
  - Related, I could not reproduce the errors, so can someone confirm the HTTP Status Codes?
  - I could not **DELETE** a new subscription in the Test environment. Get Gateway Error 1007 "Error calling Future Payments". 
+ - I am getting an Invalid Credentials error when I try the monitor request: "curl -X GET https://api.test.paysafe.com/subscriptionsplans/monitor"
+ - Make sure all dates in examples make sense (startDate, endDate, createdDate, etc.)
 
 # Release Notes
 
@@ -246,7 +247,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |Element                        |Type                       |Description                        |
 |---                            |---                        |---       |
 |frequency                      |enum                       |Combine this value with the *interval* element to specify how often a subscription should be billed. <ul><li>DAILY</li><li>MONTHLY</li><li>YEARLY</li></ul>|
-|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, *frequency* to DAILY and *interval* to 7. </br>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not currently supported. |
+|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7. </br>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not currently supported. |
 
 ```apib
     {
@@ -330,14 +331,14 @@ The Paysafe Test environment can be used to test applications without actually r
 |---                            |---                        |---       |
 |id                             |string<br/>`length<=36`    |This is the unique plan ID returned in the response.|
 |name                           |string<br/>`length=4-50`   |This is the plan name. |
-|version                        |number<br/>`max=4`         |The plan version, returned in the response. |
+|version                        |number<br/>`max=4`         |This is the plan version, returned in the response. |
 |description                    |string<br/>`length<=255`   |This is a description of the plan. |
 |amount                         |number<br/>`max=99999999999`   |This is the amount of the payment, in minor units. |
 |currencyCode                   |string<br/>`length=3`      |This is the currency used for the plan amounts, e.g., USD or CAD. See [Currency Codes](#currencycodes)|
 |billingCycle                   |[billingCycle](#billingcycleobject)    |These are details of the billing cycle.    |
 |startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts. **Note:** This defaults to the current date. |
 |endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
-|status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific elements can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The the plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
+|status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific elements can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
 |error                          |[error](#errorobject)      |These are details if an error occurs. |
 |creationTime                   |UTC formatted date         |This is the date and time the plan was created.|
 |lastUpdatedTime                |UTC formatted date         |This is the date and time the plan was last updated. |
@@ -609,7 +610,7 @@ This call returns a status of READY if the API is available.
 # Plans [/plans]
 <a name="plans" title="Plans"></a>
 
-## Create a Plan [POST /plans]
+## Create a Plan [POST /v1/plans]
 <a name="createplan" title="Create a Plan"></a>
 
 Click on **Create a Plan** above to see how to create a plan.
@@ -666,7 +667,7 @@ Click on **Create a Plan** above to see how to create a plan.
             }
 
 
-## Create a New Version of a Plan [POST /plans/{plan_id}/newversion]
+## Create a New Version of a Plan [POST /v1/plans/{plan_id}/newversion]
 <a name="createnewplanversion" title="Create a New Version of a Plan"></a>
 
 Click on **Create a New Version of a Plan** above to see how to create a new version of an existing plan.
@@ -781,7 +782,7 @@ This request creates a new plan by copying an existing plan, with all its values
                 ]
             }
 
-## Look Up a Plan [GET /plans/{plan_id}]
+## Look Up a Plan [GET /v1/plans/{plan_id}]
 <a name="getplan" title="Look Up a Plan"></a>
 
 Click on **Look Up a Plan** above to see how to look up a plan using the ID returned in the response to the original request.
@@ -827,7 +828,7 @@ Click on **Look Up a Plan** above to see how to look up a plan using the ID retu
                 ]
             }
 
-## Look Up All Plans Belonging to a Merchant [GET /plans]
+## Look Up All Plans Belonging to a Merchant [GET /v1/plans]
 <a name="getplansmerchant" title="Look Up All Plans Belonging to a Merchant"></a>
 
 Click on **Look Up All Plans Belonging to a Merchant** above to see how to look up a all plans belonging to a single merchant.
@@ -904,7 +905,7 @@ Click on **Look Up All Plans Belonging to a Merchant** above to see how to look 
              }
 
 
-## Update a Plan - PUT [PUT /plans/{plan_id}]
+## Update a Plan - PUT [PUT /v1/plans/{plan_id}]
 <a name="updateplan" title="Update a Plan - PUT"></a>
 
 Click on **Update a Plan - PUT** above to see how to update a plan with a PUT request.
@@ -980,7 +981,7 @@ Click on **Update a Plan - PUT** above to see how to update a plan with a PUT re
             }
 
 
-## Update a Plan - PATCH [PATCH /plans/{plan_id}]
+## Update a Plan - PATCH [PATCH /v1/plans/{plan_id}]
 <a name="updateplanpatch" title="Update a Plan - PATCH"></a>
 
 Click on **Update a Plan - PATCH** above to see how to update a plan with a PATCH request.
@@ -1049,7 +1050,7 @@ In addition, for the *status* element:
                 ]
             }
 
-## Activate a Plan [PATCH /plans/{plan_id}]
+## Activate a Plan [PATCH /v1/plans/{plan_id}]
 <a name="activateplanpatch" title="Activate a Plan - PATCH"></a>
 
 Click on **Activate a Plan** above to see how to activate a plan with a PATCH request.
@@ -1105,7 +1106,7 @@ Click on **Activate a Plan** above to see how to activate a plan with a PATCH re
                 ]
             }
 
-## Delete a Plan [DELETE /plans/{plan_id}]
+## Delete a Plan [DELETE /v1/plans/{plan_id}]
 <a name="deleteplan" title="Delete a Plan"></a>
 
 Click on **Delete a Plan** above to see how to delete a plan.
@@ -1126,12 +1127,12 @@ Click on **Delete a Plan** above to see how to delete a plan.
 # Subscriptions [/subscriptions]
 <a name="subscriptions" title="Subscriptions"></a>
 
-## Create a Subscription [POST /plans/{plan_id}/subscriptions]
+## Create a Subscription [POST /v1/plans/{plan_id}/subscriptions]
 <a name="createsubscription" title="Create a Subscription"></a>
 
 Click on **Create a Subscription** above to see how to submit a subscription creation request.
 
-**Note:** The plan used to create a subscription **must** have a status of **ACTIVE**.
+**Note:** The plan used to create a subscription **must** have a status of **ACTIVE**. If the plan *endDate* has passed, it will have the status of **EXPIRED** and can no longer be used to create a subscription.
 
 + Attributes
     + Include Subscription
@@ -1192,7 +1193,7 @@ Click on **Create a Subscription** above to see how to submit a subscription cre
             }
 
 
-## Look Up a Subscription [GET /subscriptions/{subscription_id}]
+## Look Up a Subscription [GET /v1/subscriptions/{subscription_id}]
 <a name="getsubscription" title="Look Up a Subscription"></a>
 
 Click on **Look Up a Subscription** above to see how to look up a subscription using the ID returned in the response to the original request.
@@ -1246,7 +1247,7 @@ Click on **Look Up a Subscription** above to see how to look up a subscription u
                            }
                        }
 
-## Look Up a Subscription with Resource Expansion [GET /subscriptions/{subscription_id}?expand={expand_elements}]
+## Look Up a Subscription with Resource Expansion [GET /v1/subscriptions/{subscription_id}?expand={expand_elements}]
 <a name="getsubscriptionresources" title="Look Up a Subscription with Resource Expansion"></a>
 
 Click on **Look Up a Subscription with Resource Expansion** above to see how to look up a subscription with resource expansion to include the *plan* and *profile* objects related to this subscription.
@@ -1348,7 +1349,7 @@ Click on **Look Up a Subscription with Resource Expansion** above to see how to 
                 }
             }
 
-## Look Up a Subscription Using a Merchant Reference Number [GET /subscriptions?merchantRefNum={merchantRefNum}&limit={limit}]
+## Look Up a Subscription Using a Merchant Reference Number [GET /v1/subscriptions?merchantRefNum={merchantRefNum}&limit={limit}]
 <a name="getsubscriptionmerchantrefnum" title="Look Up a Subscription Using a Merchant Reference Number"></a>
 
 Click on **Look Up a Subscription Using a Merchant Reference Number** above to see how to look up subscriptions using the merchant reference number used in the subscription creation request(s).
@@ -1508,7 +1509,7 @@ Click on **Look Up a Subscription Using a Merchant Reference Number** above to s
                 ]
             }
 
-## Look Up a Subscription Using a Profile ID [GET /subscriptions?profileId={profile_id}&limit={limit}]
+## Look Up a Subscription Using a Profile ID [GET /v1/subscriptions?profileId={profile_id}&limit={limit}]
 <a name="getsubscriptionmerchantrefnum" title="Look Up a Subscription Using a Merchant Reference Number"></a>
 
 Click on **Look Up a Subscription Using a Profile ID** above to see how to look up subscriptions using the merchant reference number used in the subscription creation request(s).
@@ -1579,7 +1580,7 @@ Click on **Look Up a Subscription Using a Profile ID** above to see how to look 
                 }
             }
 
-## Look Up All Subscriptions Associated with a Plan [GET /plans/{plan_id}/subscriptions]
+## Look Up All Subscriptions Associated with a Plan [GET /v1/plans/{plan_id}/subscriptions]
 <a name="getallsubscription" title="Look Up All Subscriptions Associated with a Plan"></a>
 
 Click on **Look Up All Subscriptions Associated with a Plan** above to see how to return a list of all subscriptions associated with a specific plan. 
@@ -1689,7 +1690,7 @@ Click on **Look Up All Subscriptions Associated with a Plan** above to see how t
                 }
             }
 
-## Look Up All Subscriptions Belonging to a Merchant [GET /subscriptions]
+## Look Up All Subscriptions Belonging to a Merchant [GET /v1/subscriptions]
 <a name="getsubscriptionsmerchant" title="Look Up All Subscriptions Belonging to a Merchant"></a>
 
 Click on **Look Up All Subscriptions Belonging to a Merchant** above to see how to look up a all subscriptions belonging to a single merchant.
@@ -1883,7 +1884,7 @@ Click on **Look Up All Subscriptions Belonging to a Merchant** above to see how 
                 ]
             }
 
-## Update a Subscription - PUT [PUT /subscriptions/{subscription_id}]
+## Update a Subscription - PUT [PUT /v1/subscriptions/{subscription_id}]
 <a name="updatesubscription" title="Update a Subscription - PUT"></a>
 
 Click on **Update a Subscription - PUT** above to see how to update a subscription with a PUT request.
@@ -1950,7 +1951,7 @@ Click on **Update a Subscription - PUT** above to see how to update a subscripti
                 }
             }
 
-## Update a Subscription - PATCH [PATCH /subscriptions/{subscription_id}]
+## Update a Subscription - PATCH [PATCH /v1/subscriptions/{subscription_id}]
 <a name="updatesubscriptionpatch" title="Update a Subscription - PATCH"></a>
 
 Click on **Update a Subscription - PATCH** above to see how to update a subscription with a PATCH request.
@@ -2017,7 +2018,7 @@ Click on **Update a Subscription - PATCH** above to see how to update a subscrip
                 }
             }
 
-## Cancel a Subscription [PATCH /subscriptions/{subscription_id}]
+## Cancel a Subscription [PATCH /v1/subscriptions/{subscription_id}]
 <a name="cancelsubscription" title="Cancel a Subscription - PATCH"></a>
 
 Click on **Cancel a Subscription** above to see how to cancel a subscription with a PATCH request.
@@ -2080,7 +2081,7 @@ Click on **Cancel a Subscription** above to see how to cancel a subscription wit
                 }
             }
 
-## Delete a Subscription [DELETE /subscriptions/{subscription_id}]
+## Delete a Subscription [DELETE /v1/subscriptions/{subscription_id}]
 <a name="deletesubscription" title="Delete a Subscription"></a>
 
 Click on **Delete a Subscription** above to see how to delete a subscription.
@@ -2126,11 +2127,11 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     You may also see links for any call to action flows.
 
 ## `link subscription`
-+ rel: self 
-+ href: `https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/e067d83f-add7-4b6b-8884-dfa8693dde1f`
++ `rel`: `self`
++ `href`: `https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/e067d83f-add7-4b6b-8884-dfa8693dde1f`
 
 ## `links subscription`
-+ links (array[link subscription]) - This is an array of links related to the resource.  
++ `links` (array[link subscription]) - This is an array of links related to the resource.  
 
     Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
     You may also see links for any call to action flows.
@@ -2140,9 +2141,9 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _Read Only_
 
     + Properties
-        + `numberOfRecords`:`10` (number, required) - This is the number of records in the request.
-        + `limit`:`2` (number, required) - This is the number of records to be returned per page. The default is 10 and the maximum is 100.
-        + `page`:`1` (number, required) - This is the number of pages to display.
+        + `numberOfRecords`:`10` (number) - This is the number of records in the request.
+        + `limit`:`2` (number) - This is the number of records to be returned per page. The default is 10 and the maximum is 100.
+        + `page`:`1` (number) - This is the number of pages to display.
 
 ## Next Payment
 + `nextPayment` (object) - These are [details about the next payment](#nextpaymentobject) in the subscription schedule.
@@ -2153,6 +2154,11 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
         + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
         + `paymentMethod`:`CC` - This is the payment method used for the payment.
+            - `CC` - credit card
+            - `DD_ACH`  - ACH bank account
+            - `DD_EFT` - EFT bank account
+            - `DD_BACS` - BACS bank account
+            - `DD_SEPA` - SEPA bank account        
         + `paymentDate`:`2017-11-01` - This is the payment date.
 
 ## Plan
@@ -2188,10 +2194,10 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
     + Members
-        + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
-        + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
-        + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-        + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + `INITIAL` - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+        + `ACTIVE` - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
+        + `INACTIVE` - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + `EXPIRED` - The plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 + Include Meta        
 
 ## Plan Object
@@ -2231,10 +2237,10 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + `status`:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
             + Members
-                + INITIAL - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
-                + ACTIVE - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
-                + INACTIVE - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
-                + EXPIRED - The the plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+                + `INITIAL` - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+                + `ACTIVE` - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
+                + `INACTIVE` - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+                + `EXPIRED` - The plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
 ## Previous Payment
 + previousPayment (object) - These are [details about the previous payment](#previouspaymentobject) in the subscription schedule.
@@ -2248,47 +2254,47 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
             _length<=50_
         + `paymentMethod`:`CC` (enum) - This is the payment method used for the payment. This is the payment method used for the payment. 
-            - CC - credit card
-            - DD_ACH  - ACH bank account
-            - DD_EFT - EFT bank account
-            - DD_BACS - BACS bank account
-            - DD_SEPA - SEPA bank account
+            - `CC` - credit card
+            - `DD_ACH`  - ACH bank account
+            - `DD_EFT` - EFT bank account
+            - `DD_BACS` - BACS bank account
+            - `DD_SEPA` - SEPA bank account
         + `paymentDate`:`2017-10-01` (string) - This is the payment date.
             _YYYY-MM-DD_
         + `status`:`FAILED` (enum) - This is the status of the payment.
-            - PENDING – The payment has not been completed yet.
-            - COMPLETED – The payment was successful.
-            - HELD – The payment request was made but was not sent to the gateway due to a risk rule.
-            - CANCELLED – The payment was cancelled.
-            - FAILED – The payment request received an error or was declined.
+            - `PENDING` - The payment has not been completed yet.
+            - `COMPLETED` - The payment was successful.
+            - `HELD` - The payment request was made but was not sent to the gateway due to a risk rule.
+            - `CANCELLED` - The payment was cancelled.
+            - `FAILED` - The payment request received an error or was declined.
 
 ## Profile
-+ id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the ID returned in the profile creation response.
-+ status:`ACTIVE` (enum, required) - This is the status of the customer profile.
-    - INITIAL
-    - ACTIVE
-+ merchantCustomerId:`john.smith1400783052032` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
-+ locale:`en_US` (enum, required) - This indicates the language of the profile.
-    - en_US
-    - fr_CA
-    - en_GB
-+ firstName:`John` (string, optional) - This is the customer’s first name.
-+ middleName:`James` (string, optional) - This is the customer's middle name.
-+ lastName:`Smith` (string, optional) - This is the customer’s last name.
-+ paymentToken:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
-+ dateOfBirth (object, optional) - This is the customer's date of birth.
++ `id`:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the ID returned in the profile creation response.
++ `status`:`ACTIVE` (enum, required) - This is the status of the customer profile.
+    - `INITIAL`
+    - `ACTIVE`
++ `merchantCustomerId`:`john.smith1400783052032` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
++ `locale`:`en_US` (enum, required) - This indicates the language of the profile.
+    - `en_US`
+    - `fr_CA`
+    - `en_GB`
++ `firstName`:`John` (string, optional) - This is the customer’s first name.
++ `middleName`:`James` (string, optional) - This is the customer's middle name.
++ `lastName`:`Smith` (string, optional) - This is the customer’s last name.
++ `paymentToken`:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
++ `dateOfBirth` (object, optional) - This is the customer's date of birth.
     + Include Date of Birth
-+ ip:`192.0.126.111` (string, optional) - This is the customer’s IP address.
-+ gender:`M` (enum, optional) - This is the customer’s gender.
-    - M
-    - F
-+ nationality:`Canadian` (string) - This is the customer’s nationality.
++ `ip`:`192.0.126.111` (string, optional) - This is the customer’s IP address.
++ `gender`:`M` (enum, optional) - This is the customer’s gender.
+    - `M`
+    - `F`
++ `nationality`:`Canadian` (string) - This is the customer’s nationality.
     _length<=30_
-+ email:`jane.smith@email.com` (string) - This is the customer's email address.
++ `email`:`jane.smith@email.com` (string) - This is the customer's email address.
     _length<=255_
-+ phone:`777-444-4444` (string) - This is the customer's phone number.
++ `phone`:`777-444-4444` (string) - This is the customer's phone number.
     _length<=40_
-+ cellPhone:`777-555-3333` (string) - This is the customer's cell phone number.
++ `cellPhone`:`777-555-3333` (string) - This is the customer's cell phone number.
     _length<=40_
 
 
@@ -2297,36 +2303,36 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _Read Only_
 
     + Properties
-        + id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string) - This is the ID returned in the profile creation response.
-        + status:`ACTIVE` (enum) - This is the status of the customer profile.
-            - INITIAL
-            - ACTIVE
-        + merchantCustomerId:`john.smith1400783052032` (string) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
-        + locale:`en_US` (enum) - This indicates the language of the profile.
-            - en_US
-            - fr_CA
-            - en_GB
-        + firstName:`John` (string) - This is the customer’s first name.
-        + middleName:`James` (string) - This is the customer's middle name.
-        + lastName:`Smith` (string) - This is the customer’s last name.
-        + dateOfBirth (object) - This is the customer's date of birth.
+        + `id`:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string) - This is the ID returned in the profile creation response.
+        + `status`:`ACTIVE` (enum) - This is the status of the customer profile.
+            - `INITIAL`
+            - `ACTIVE`
+        + `merchantCustomerId`:`john.smith1400783052032` (string) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
+        + `locale`:`en_US` (enum) - This indicates the language of the profile.
+            - `en_US`
+            - `fr_CA`
+            - `en_GB`
+        + `firstName`:`John` (string) - This is the customer’s first name.
+        + `middleName`:`James` (string) - This is the customer's middle name.
+        + `lastName`:`Smith` (string) - This is the customer’s last name.
+        + `dateOfBirth` (object) - This is the customer's date of birth.
             + Include Date of Birth
-        + ip:`192.0.126.111` (string) - This is the customer’s IP address.
-        + gender:`M` (enum) - This is the customer’s gender.
-            - M
-            - F
-        + paymentToken:`CNjEzMTM4NDg1` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
-        + nationality:`Canadian` (string) - This is the customer’s nationality.
+        + `ip`:`192.0.126.111` (string) - This is the customer’s IP address.
+        + `gender`:`M` (enum) - This is the customer’s gender.
+            - `M
+            - `F`
+        + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
+        + `nationality`:`Canadian` (string) - This is the customer’s nationality.
             _length<=30_
-        + email:`jane.smith@email.com` (string) - This is the customer's email address.
+        + `email`:`jane.smith@email.com` (string) - This is the customer's email address.
             _length<=255_
-        + phone:`777-444-4444` (string) - This is the customer's phone number.
+        + `phone`:`777-444-4444` (string) - This is the customer's phone number.
             _length<=40_
-        + cellPhone:`777-555-3333` (string) - This is the customer's cell phone number.
+        + `cellPhone`:`777-555-3333` (string) - This is the customer's cell phone number.
             _length<=40_
 
 ## Retry Payment
-+ retryPayment (object) - These are [details about the payment retry](#retrypaymentobject) in the case where a failed payment has to be retried.
++ `retryPayment` (object) - These are [details about the payment retry](#retrypaymentobject) in the case where a failed payment has to be retried.
     _Read Only_
     
     + Properties
@@ -2334,10 +2340,15 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
         + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
         + `paymentMethod`:`CC` - This is the payment method used for the payment.
+            - `CC` - credit card
+            - `DD_ACH`  - ACH bank account
+            - `DD_EFT` - EFT bank account
+            - `DD_BACS` - BACS bank account
+            - `DD_SEPA` - SEPA bank account
         + `paymentDate`:`2017-10-01` - This is the payment date.
 
 ## Schedule
-+ schedule (object) - These are [details about the subscription payment schedule](#scheduleobject).
++ `schedule` (object) - These are [details about the subscription payment schedule](#scheduleobject).
     _Read Only_
     
     + Properties
@@ -2369,11 +2380,12 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + `status`:`ACTIVE` (enum) - This is the [status of the subscription](#subscriptionobject). **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified.
 
     + Members
-        + ACTIVE - The subscription is generating regular billings.
-        + CANCELLED - The subscription has been cancelled, so no billings are generated.
-        + EXPIRED - The subscription has reached the end date.
-        + PAST_DUE - One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.
-        + SUSPENDED – The subscription is temporarily not generating billings.
+        + `ACTIVE` - The subscription is generating regular billings.
+        + `CANCELLED` - The subscription has been cancelled, so no billings are generated.
+        + `EXPIRED` - The subscription has reached the end date.
+        + `PAST_DUE` - One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.
+        + `SUSPENDED` - The subscription is temporarily not generating billings.
+
 + `effectiveCancellationDate`:`2018-12-31` (string) - This is the date the subscription cancellation takes effect. This will be in the future if the payment for the current billing cycle has already been created.
     _YYYY-MM-DD_
     
@@ -2401,13 +2413,9 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + Include Schedule
 + links (array, required) - This is an array of [links](#linksobject).
     + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
+        + `rel`:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
+        + `href`:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
 + _expandable (object, required) - This displays expandable resources.
     _Read Only_
-    + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
-    + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
-
-## Empty Set
-{
-}
+    + `plan`:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
+    + `profile`: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
