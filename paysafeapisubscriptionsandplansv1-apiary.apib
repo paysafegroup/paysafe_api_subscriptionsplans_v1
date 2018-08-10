@@ -9,7 +9,6 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/
  - Related, I could not reproduce the errors, so can someone confirm the HTTP Status Codes?
  - I could not **DELETE** a new subscription in the Test environment. Get Gateway Error 1007 "Error calling Future Payments". 
  - I am getting an **Invalid Credentials** error when I try the monitor request: "curl -X GET https://api.test.paysafe.com/subscriptionsplans/monitor" 
- - **Note**: When I create a subscription with an endDate of 2019-12-31, the billingPeriodEndDate in the response is set to 2018-11-09.
  - When I look up a subscription, the response has schedule.nextPayment object; but should this also be returned when you create the schedule?
  - In a request to view all plans belonging to a merchant, is there a way to filter results, e.g., specify a status? E.g., they want to list all active plans? Same for subscriptions?
  - How close to the nextPayment date can you cancel a subscription?
