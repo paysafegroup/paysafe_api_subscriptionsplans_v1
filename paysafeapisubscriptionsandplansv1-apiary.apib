@@ -10,7 +10,10 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/
  - I could not **DELETE** a new subscription in the Test environment. Get Gateway Error 1007 "Error calling Future Payments". 
  - I am getting an **Invalid Credentials** error when I try the monitor request: "curl -X GET https://api.test.paysafe.com/subscriptionsplans/monitor" 
  - **Note**: When I create a subscription with an endDate of 2019-12-31, the billingPeriodEndDate in the response is set to 2018-11-09.
- - In request to Get Subscription by Profile ID, where do the startDate and endDate values come from in the href for the self link? They are not the same as the values in the response payload.
+ - When I look up a subscription, the response has schedule.nextPayment object; but should this also be returned when you create the schedule?
+ - In a request to view all plans belonging to a merchant, is there a way to filter results, e.g., specify a status? E.g., they want to list all active plans? Same for subscriptions?
+ - How close to the nextPayment date can you cancel a subscription?
+ - Are payments that result from this API identified as such in the back office Activity Reports?
 
 # Release Notes
 
@@ -971,7 +974,7 @@ Click on **Update a Plan - PUT** above to see how to update a plan with a PUT re
                 },
                 "startDate": "2018-03-01",
                 "endDate": "2019-03-31",
-                "status": "ACTIVE",
+                "status": "INITIAL",
                 "creationTime": "2018-02-14T15:12:18Z",
                 "lastUpdatedTime": "2019-02-15T15:12:18Z",
                 "links": [{
@@ -2400,11 +2403,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + Include Plan Object
 + Include Profile Object
 + Include Schedule
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + `rel`:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + `href`:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
-+ _expandable (object, required) - This displays expandable resources.
++ _expandable (object) - This displays expandable resources.
     _Read Only_
     + `plan`:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
     + `profile`: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
