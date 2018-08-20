@@ -664,9 +664,14 @@ Click on **Create a Plan** above to see how to create a plan.
                 "creationTime": "2018-02-14T15:12:18Z",
                 "lastUpdatedTime": "2018-02-14T15:12:18Z",
                 "links": [{
-                    "rel": "self",
-                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
-                }]
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                    }
+                ]
             }
 
 
@@ -920,7 +925,6 @@ Click on **Update a Plan - PUT** above to see how to update a plan with a PUT re
 **Note:** All elements can be updated when a plan has the status *INITIAL*. However, only the following elements can be updated when a plan has the status *ACTIVE*:
  - name
  - description
- - billingCycle
  - endDate
  - status (for ACTIVE plan, status can be changed only to INACTIVE)
 
