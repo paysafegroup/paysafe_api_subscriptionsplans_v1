@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: https://api.test.paysafe.com/subscriptionsplans/
 
-# Paysafe Subscriptions API 
+# Paysafe Subscriptions API
 
 **QUESTIONS & COMMENTS**
  - If itemQuantity in subscription is, e.g., 2, does that mean the subscription will charge 2x the *amount* field in the plan for each billing cycle?
@@ -25,7 +25,7 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/
 
 # Overview
 
-The Paysafe Subscriptions and Plans API allows merchants 
+The Paysafe Subscriptions Plans API allows merchants 
 
 
 <a name="apikey" title="Authentication"></a>
@@ -105,7 +105,7 @@ You must not include any of the characters in the following table as values in a
 
 # API 
 
-The Subscriptions and Plans API allows merchants to set up subscription plans for repeat payments using the REST protocol. The protocol uses JSON for all requests and responses.
+The Subscriptions API allows merchants to set up subscription plans for repeat payments using the REST protocol. The protocol uses JSON for all requests and responses.
 
 The following request types are supported:
 
@@ -141,7 +141,7 @@ The following request types are supported:
 
 # Getting Started
 
-Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions and Plans API.
+Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions API.
 
 # Testing Instructions
 
@@ -565,8 +565,8 @@ The Paysafe Test environment can be used to test applications without actually r
 |405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
 
-<a name="subsplanserrors" title="Subscriptions and Plans Errors"></a>
-## Subscriptions and Plans Errors
+<a name="subsplanserrors" title="Subscriptions Errors"></a>
+## Subscriptions Errors
 |HTTP Status Code       |Error Code                   |Description|
 |---------------------  |-----------------------------|-----------------------------------------------------------------------------------------|
 | 400                   | PLAN-SUBSCRIPTION-1         | Plan not modifiable. The plan cannot be modified as it is not in INITIAL status.                             |
