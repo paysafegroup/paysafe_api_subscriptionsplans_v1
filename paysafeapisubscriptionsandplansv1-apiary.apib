@@ -4,16 +4,7 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/
 # Paysafe Subscriptions API
 
 **QUESTIONS & COMMENTS**
- - If itemQuantity in subscription is, e.g., 2, does that mean the subscription will charge 2x the *amount* field in the plan for each billing cycle?
  - I tried to update a Plan with status of Active. Instead of getting error "PLAN-SUBSCRIPTION-1 Plan not modifiable", I got error 5068 "Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected."
- - Related, I could not reproduce the errors, so can someone confirm the HTTP Status Codes?
- - I could not **DELETE** a new subscription in the Test environment. Get Gateway Error 1007 "Error calling Future Payments". 
- - I am getting an **Invalid Credentials** error when I try the monitor request: "curl -X GET https://api.test.paysafe.com/subscriptionsplans/monitor" 
- - When I look up a subscription, the response has schedule.nextPayment object; but should this also be returned when you create the schedule?
- - In a request to view all plans belonging to a merchant, is there a way to filter results, e.g., specify a status? E.g., they want to list all active plans? Same for subscriptions?
- - How close to the nextPayment date can you cancel a subscription?
- - Are payments that result from this API identified as such in the back office Activity Reports?
- - Some subscription responses get this href link for the profile: https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214. I need to know what it will be in Prod.
 
 
 
@@ -600,18 +591,6 @@ To call the API resource, click **Call Resource**. The response is displayed in 
 <li><a href="http://community.paysafe.com/spaces/10/index.html" target="_blank">Paysafe Blog</a></li>
 </ul>
 
-## Verify That the Service Is Accessible [GET /monitor]
-<a name="verifyservice" title="Verify Service"></a>
-
-This call returns a status of READY if the API is available.
-
-+ Response 200 (application/json)
-
-  + Body
-
-            {
-                "status" : "READY"
-            }
 
 # Plans [/plans]
 <a name="plans" title="Plans"></a>
@@ -2018,6 +1997,9 @@ Click on **Update a Subscription - PATCH** above to see how to update a subscrip
 
 ## Cancel a Subscription [PATCH /v1/subscriptions/{subscription_id}]
 <a name="cancelsubscription" title="Cancel a Subscription - PATCH"></a>
+
+You can cancel a subscription at any time. However, if you cancel a subscription on the day of the *nextPayment* date, that payment will be processed, and the subscription will be canceled for all subsequent payments. 
+You can see the next payment date for a subscription by processing a [GET request on that subscription](#getsubscription).
 
 Click on **Cancel a Subscription** above to see how to cancel a subscription with a PATCH request.
 
