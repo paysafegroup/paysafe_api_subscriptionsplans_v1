@@ -1,18 +1,17 @@
 FORMAT: 1A
 HOST: https://api.test.paysafe.com/subscriptionsplans/
 
-# Paysafe Subscriptions API
+# Paysafe Subscriptions APIe
 
-**QUESTIONS & COMMENTS**
- - I tried to update a Plan with status of Active. Instead of getting error "PLAN-SUBSCRIPTION-1 Plan not modifiable", I got error 5068 "Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected."
-
-
+# Notes
+ - need more details surrounding when retryPayment is invoked and when? How many?
+ - How/when is FUTURE-PAYMENTS-1 thrown?
 
 # Release Notes
 
 | Version   | Date          | Details |
 |---        |---            |---      |
-| 1.0       | August 2018 | <ul><li>Document release</li></ul>|
+| 1.0       | October 2018  | <ul><li>Document release</li></ul>|
 
 # Overview
 
@@ -50,7 +49,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com//subscriptionsplans/v1/plans`
+`https://api.test.paysafe.com/subscriptionsplans/v1/plans`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -121,6 +120,7 @@ The following request types are supported:
 |/subscriptionsplans/v1/plans/{plan_id}                 |Delete a Plan                          |DELETE |
 |/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Create a Subscription                  |POST   |
 |/subscriptionsplans/v1/subscriptions/{subscription_id} |Look Up a Subscription                 |GET    |
+|/subscriptionsplans/v1/subscriptions?{merchantRefNum}  |Look Up a Subscription Using Merchant Reference Number |GET    |
 |/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Look Up All Subscriptions for a Plan   |GET    |
 |/subscriptionsplans/v1/subscriptions                   |Look Up All Subscriptions for a Merchant |GET    |
 |/subscriptionsplans/v1/subscriptions/{subscription_id} |Update a Subscription                  |PUT    |
@@ -236,6 +236,19 @@ The Paysafe Test environment can be used to test applications without actually r
 |Viet Nam Dong  |VND  |
 
 
+# Notifications
+
+You can configure webhook notification events for your account(s) from the merchant back office.  A webhook allows you to define an HTTP callback that will be posted to when
+an event occurs that you would like to be notified of.  This would typically include the creation of a subscription or a successful payment coming as the result of a subscription. 
+
+Notifications are configured by logging into the merchant back office and navigating to the **Settings > Notifications** section.
+
+
+**Note:** Access to this function is dependent upon your user account privileges.  If you are unable to access this function please contact your account manager.
+
+
+See [Webhooks](https://developer.paysafe.com/en/rest-api/subscriptions/webhooks/) for more information about webhooks for this API.
+
 # Complex JSON Objects
 
 <a name="billingcycleobject" title="billingCycle Object"></a>
@@ -244,14 +257,14 @@ The Paysafe Test environment can be used to test applications without actually r
 |Element                        |Type                       |Description                        |
 |---                            |---                        |---       |
 |frequency                      |enum                       |Combine this value with the *interval* element to specify how often a subscription should be billed. <ul><li>DAILY</li><li>MONTHLY</li><li>YEARLY</li></ul>|
-|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7. </br>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not currently supported. |
+|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7.<br/>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not currently supported.|
 
 ```apib
     {
-    "billingCycle": {
-        "frequency": "DAILY",
-        "interval": "7"
-    }
+        "billingCycle": {
+            "frequency": "DAILY",
+            "interval": "7"
+        }
     }
 ```
 
@@ -333,8 +346,8 @@ The Paysafe Test environment can be used to test applications without actually r
 |amount                         |number<br/>`max=99999999999`   |This is the amount of the payment, in minor units. |
 |currencyCode                   |string<br/>`length=3`      |This is the currency used for the plan amounts, e.g., USD or CAD. See [Currency Codes](#currencycodes)|
 |billingCycle                   |[billingCycle](#billingcycleobject)    |These are details of the billing cycle.    |
-|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts. **Note:** This defaults to the current date. |
-|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
+|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts.<br/>**Note:** This defaults to the current date. |
+|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends.<br/>**Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
 |status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific elements can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
 |error                          |[error](#errorobject)      |These are details if an error occurs. |
 |creationTime                   |UTC formatted date         |This is the date and time the plan was created.|
@@ -375,7 +388,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |email              |string<br/>`length<=255`           |           |This is the customer's email address.|
 |phone              |string<br/>`length<=40`            |           |This is the customer's phone number.|
 |cellPhone          |string<br/>`length<=40`            |           |This is the customer's cell phone number.|
-|paymentToken       |string><br/>`length<=50`           |           |This is a token generated by Paysafe that represents the customer and returned in the response to the profile request.|
+|paymentToken       |string><br/>`length<=50`           |           |This is a token generated by Paysafe that represents the customer and returned in the response to the profile request.<br/>**Note:** This is **not** the *paymentToken* you use when [creating a subscription](#createsubscription).|
 
 
 ```apib
@@ -477,13 +490,13 @@ The Paysafe Test environment can be used to test applications without actually r
 |Element                        |Type                       |Description                        |
 |---                            |---                        |---       |
 |id                             |string<br/>`length<=36`    |This is the unique subscription ID returned in the response.|
-|accountId                      |string<br/>`length<=36`    |This is the merchant account that is used to process this subscription. **Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account. |
-|paymentToken                   |string<br/>`length<=50`    |This is the [card payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/cards/create-a-card) or the [bank account payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/eft-bank-accounts/create-an-eft-bank-account) to be used for billing the customer. |
+|accountId                      |string<br/>`length<=36`    |This is the merchant account that is used to process this subscription.<br/>**Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account. |
+|paymentToken                   |string<br/>`length<=50`    |This is the [card payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/cards/create-a-card) or the [bank account payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/eft-bank-accounts/create-an-eft-bank-account) to be used for billing the customer.<br/>**Note:** Do **not** use the *paymentToken* found in the [consumer's profile](#profileobject) in the Customer Vault.|
 |paymentDescriptor              |string<br/>`length<=12`    |This is a descriptor that will appear on the consumer's credit card or bank account statement. It will be passed to the card payment's *merchantDescriptor.dynamicDescriptor* element or to the bank payment's  *paymentDescriptor* element.|
 |merchantRefNum                 |string<br/>`length<=255`   |This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.|
-|itemQuantity                   |number<br/>`min=1`         |This is the number of items in the subscription. E.g., if set to 2, the consumer would be charged two times the *amount* value specified in the *plan* at each billing period.|
-|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the subscription starts. **Note:**  This defaults to the current date. |
-|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the subscription ends. **Note:** If not provided, the subscription will continue indefinitely. |
+|itemQuantity                   |number                     |This is the number of items in the subscription. E.g., if set to 2, the consumer would be charged two times the *amount* value specified in the *plan* at each billing period.<br/>**Note:** This defaults to 1.|
+|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the subscription starts.<br/>**Note:**  This defaults to the current date. |
+|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the subscription ends.<br/>**Note:** If not provided, the subscription will continue indefinitely. |
 |billingPeriodStartDate         |string<br/>`YYYY-MM-DD`    |This is the date the billing period starts, returned in the response. |
 |billingPeriodEndDate           |string<br/>`YYYY-MM-DD`    |This is the date the billing period ends, returned in the request response.|
 |plan                           |[plan](#planobject)        |This is the full plan information, returned in the request response. |
@@ -491,7 +504,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |dupCheck                       |boolean                    |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
 |reAttemptPayment               |boolean                    |In the case of a payment failure, this automatically retries the payment one time. <br/>**Note:** This value defaults to *true*. <br>Currently, this is supported for credit card payments only. For Direct Debit payments, the standard representment process will apply, if configured for your merchant account and supported by your bank scheme. For more information, contact your account manager.|
 |reasonForSuspension            |string<br/>`length<=255`   |This is the reason for suspending the subscription. If it is suspended automatically by Paysafe due to payment failure, this value will be set to "Subscription suspended due to failed payment". |
-|status                         |enum                       |This is the status of the subscription. **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified. <ul><li>ACTIVE &ndash; The subscription is generating regular billings.</li><li>CANCELLED &ndash; The subscription has been cancelled, so no billings are  generated.</li><li>EXPIRED &ndash; The subscription has reached the end date.</li><li>PAST_DUE &ndash; One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.</li><li>SUSPENDED &ndash; The subscription is temporarily not generating billings.</li></ul> |
+|status                         |enum                       |This is the status of the subscription.<br/>**Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified. <ul><li>ACTIVE &ndash; The subscription is generating regular billings.</li><li>CANCELLED &ndash; The subscription has been cancelled, so no billings are  generated.</li><li>EXPIRED &ndash; The subscription has reached the end date.</li><li>PAST_DUE &ndash; One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.</li><li>SUSPENDED &ndash; The subscription is temporarily not generating billings.</li></ul> |
 |effectiveCancellationDate      |string<br/>`YYYY-MM-DD`    |This is the date the subscription cancellation takes effect, returned in the response. This will be in the future if the payment for the current billing cycle has already been created. |
 |reasonForCancellation          |string<br/>`length<=255`   |This is the reason for cancelling the subscription.|
 |schedule                       |[schedule](#scheduleobject)    |These are schedule details. |
@@ -571,24 +584,23 @@ The Paysafe Test environment can be used to test applications without actually r
 # Using the Console Window
 To configure and test the example in the Console window, click **Switch to Console**. 
 In the Console window, you can update the headers, the request body, and parts of the API endpoint. 
-For example, for most requests you must update the endpoint to include your profile ID (returned when you create a profile), which you do by selecting **URI Parameters** and then updating the **profile_id** value. 
+For example, for some requests you must update the endpoint to include a plan (returned when you create a plan), which you do by selecting **URI Parameters** and then updating the **plan_id** value. 
 You must also update the Header to include your API Key, which you do by selecting **Headers** and then updating the **Authorization** value. 
 To get your API key User name and Password, log into the Paysafe Back Office and choose **Settings > API Key**. 
 To then generate the API Key, concatenate your User name and Password, separated by a colon, then Base64 encode it, and then prefix it with "Basic ".
 When you are ready to test your example, you can switch between the Production and Mock server environment:
 * Production server – This calls the resource on Paysafe's Test system. 
-* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your profile ID or Test API key for this request.
+* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use Test API key for this request.
 
 To call the API resource, click **Call Resource**. The response is displayed in the Console window.
 
 # Legal and Community
 <ul>
-<li><a href="https://www.paysafe.com/privacy-policy/" target="_blank">Privacy Policy</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/privacy-policy/" target="_blank">Privacy Policy</a></li>
 <li><a href="https://developer.paysafe.com/en/resources-and-support/terms-of-use/" target="_blank">Terms of Use</a></li>
-<li><a href="http://www.paysafe.com/regulatory-disclosure/" target="_blank">Regulatory Disclosures</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/regulatory-disclosures/" target="_blank">Regulatory Disclosures</a></li>
 <li><a href="http://community.paysafe.com/spaces/11/index.html" target="_blank">FAQs</a></li>
 <li><a href="http://community.paysafe.com/index.html" target="_blank">Community</a></li>
-<li><a href="http://community.paysafe.com/spaces/10/index.html" target="_blank">Paysafe Blog</a></li>
 </ul>
 
 
@@ -1501,7 +1513,7 @@ Click on **Look Up a Subscription Using a Profile ID** above to see how to look 
 
 + Parameters
 
-    + profile_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the profile ID from which the *paymentToken* was taken to use in the subscription payment.
+    + profile_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the profile ID from which the *paymentToken* (representing the card or bank account) was taken to use in the subscription payment.
     + limit:`2` (string, optional) - This is the total number of records to return. Default value is 10. Max value is 50.
 
 + Request Look Up a Subscription Using a Profile ID (application/json)
@@ -1866,12 +1878,31 @@ Click on **Look Up All Subscriptions Belonging to a Merchant** above to see how 
 
 Click on **Update a Subscription - PUT** above to see how to update a subscription with a PUT request.
 
-**Note:** Subscriptions can be updated only if they are have the following status:
+**Notes:**
+
+Subscriptions can be updated only if they are have the following status:
  - ACTIVE
  - SUSPENDED
  - PAST_DUE
 
-**Note:** Any nullable element that is part of an existing subscription that is not included in the update PUT request will be set to null or to the default value if it has one.
+The following subscription elements can be updated with a PUT request:
+ - accountId
+ - paymentToken
+ - paymentDescriptor
+ - itemQuantity - The change takes effect on the next billing cycle. For example, if a subscription is billed at the first day of the cycle and this value is changed in the middle of the current cycle, it will take effect on the next payment, since that is at the first day of the next cycle. 
+ - startDate - If a billing cycle has already started (the current start date is in the past) this cannot be changed.
+ - endDate
+ - status - The status can be changed only to **CANCELLED** or **SUSPENDED**.
+ - reasonForCancellation - This can be specified only when the status is being changed to **CANCELLED**.
+
+The following elements are **required** when updating a subscription with a PUT request.
+ - merchantRefNum
+ - accountId
+ - paymentToken
+ - itemQuantity
+ - startDate
+
+Any nullable element that is part of an existing subscription that is not included in the update PUT request will be set to null or to the default value if it has one.
 
 + Attributes
     + Include Subscription
@@ -2142,11 +2173,11 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + `paymentDate`:`2017-11-01` - This is the payment date.
 
 ## Plan
-+ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
++ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID, returned in the response.
     _length<=36_
     
     _Read Only_
-+ `version`:`1` (number) - This is the version of the plan.
++ `version`:`1` (number) - This is the version of the plan, returned in the response.
     _max=4_
     
     _Read Only_
@@ -2156,7 +2187,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _length<=255_
 + `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
     _max=99999999999_
-+ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
++ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencycodes) for the plan amounts, e.g., USD or CAD.
     _length=3_
 + Include Billing Cycle
 + `startDate`:`2018-10-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
@@ -2185,7 +2216,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _length<=36_
     
     _Read Only_
-+ `version`:`1` (number) - This is the version of the plan.
++ `version`:`1` (number) - This is the version of the plan, returned in the response.
     _max=4_
     
     _Read Only_
@@ -2195,7 +2226,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _length<=255_
 + `amount`:`5000` (number) - This is the amount of the plan, in minor units. 
     _max=99999999999_
-+ `currencyCode`:`USD` (string) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
++ `currencyCode`:`USD` (string) - This is [the currency used](#currencycodes) for the plan amounts, e.g., USD or CAD.
     _length=3_
 + Include Billing Cycle
 + `startDate`:`2018-10-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
@@ -2227,7 +2258,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
             _length<=36_
     
             _Read Only_
-        + `version`:`1` (number) - This is the version of the plan.
+        + `version`:`1` (number) - This is the version of the plan, returned in the response.
             _max=4_
     
             _Read Only_
@@ -2237,7 +2268,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
             _length<=255_
         + `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
             _max=99999999999_
-        + `currencyCode`:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
+        + `currencyCode`:`USD` (string, required) - This is [the currency used](#currencycodes) for the plan amounts, e.g., USD or CAD.
             _length=3_
         + Include Billing Cycle
         + `startDate`:`2018-10-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
@@ -2317,7 +2348,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 
 
 ## Profile Object
-+ `profile` (object) - This is the profile information associated with the subscription.
++ `profile` (object) - This is the profile information associated with the subscription, returned in the response.
     _Read Only_
 
     + Properties
@@ -2339,7 +2370,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + `gender`:`M` (enum) - This is the customer’s gender.
             - `M
             - `F`
-        + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
+        + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request. **Note:** This is **not** the *paymentToken* you use when creating a subscription.
         + `nationality`:`Canadian` (string) - This is the customer’s nationality.
             _length<=30_
         + `email`:`jane.smith@email.com` (string) - This is the customer's email address.
@@ -2375,7 +2406,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
         + Include Next Payment
 
 ## Subscription
-+ `id`:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string) - This is the unique subscription ID.
++ `id`:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string) - This is the unique subscription ID, returned in the response.
     _length<=36_
     
     _Read Only_
@@ -2390,7 +2421,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + `dupCheck`:`true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.
     + Default: true
 + `itemQuantity`:`2` (string) - The number of items in the subscription. E.g., if set to 2, the consumer would be charged two times the *amount* value [specified in the plan](#createplan) at each billing period.
-    _min=1_
+    + Default: 1
 + `startDate`:`2018-10-01` (string) - This is the date the subscription starts. **Note:** This defaults to the current date.
     _YYYY-MM-DD_
 + `endDate`:`2019-12-31` (string) - This is the date the subscription ends. **Note:** If not provided, the subscription will continue indefinitely.
