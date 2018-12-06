@@ -1,9 +1,11 @@
 FORMAT: 1A
 HOST: https://api.test.paysafe.com/subscriptionsplans/
 
-# Paysafe Subscriptions APIe
+# Paysafe Subscriptions API
 
 # Notes
+ - why are we mentioning load-balancing master accounts when describing the accountId in Creating a Subscription (Flare files)?
+ - On the "Subscriptions Errors" Flare page, the example (taken from Postman) does not conform to the error that is supposed to be returned, which is PLAN-SUBSCRIPTION-1. Also, format does not have href link to error in Dev Center (as other APIs have).
  - need more details surrounding when retryPayment is invoked and when? How many?
  - How/when is FUTURE-PAYMENTS-1 thrown?
 
@@ -11,11 +13,13 @@ HOST: https://api.test.paysafe.com/subscriptionsplans/
 
 | Version   | Date          | Details |
 |---        |---            |---      |
-| 1.0       | October 2018  | <ul><li>Document release</li></ul>|
+| 1.0       | December 2018 | <ul><li>Document release</li></ul>|
 
 # Overview
 
-The Paysafe Subscriptions Plans API allows merchants 
+The Paysafe Subscriptions API provides merchants with the perfect scheduled billing solution that they can use in combination with Paysafe's Card Payments, Direct Debit, and Customer Vault APIs to process repeat payments for their consumers.
+
+[Click here to see an overview](https://developer.paysafe.com/en/rest-api/subscriptions/getting-started/introduction-to-subscriptions/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
@@ -132,7 +136,7 @@ The following request types are supported:
 
 # Getting Started
 
-Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions API.
+[Click here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions API.
 
 # Testing Instructions
 
@@ -320,7 +324,7 @@ See [Webhooks](https://developer.paysafe.com/en/rest-api/subscriptions/webhooks/
 |---                            |---                        |---       |
 |amount                         |number                     |This is the amount of the payment, in minor units. |
 |accountId                      |string<br/>`length<=36`    |This is the merchant account that is used to process the payment.|
-|paymentToken                   |string<br/>`length<=50`    |This is the payment token used for the payment. |
+|paymentToken                   |string<br/>`length<=50`    |This is the payment token used for the payment.<br/>**Note:** You must ensure the payment token is valid and active, otherwise the scheduled payment request will fail. |
 |paymentMethod                  |enum                       |This is the payment method used for the payment. <ul><li>CC &ndash; credit card</li><li>DD_ACH &ndash; ACH bank account</li><li>DD_EFT &ndash; EFT bank account</li><li>DD_BACS &ndash; BACS bank account</li><li>DD_SEPA &ndash; SEPA bank account</li></ul>|
 |paymentDate                    |YYYY-MM-DD                 |This is the next scheduled payment date. |
 
@@ -441,7 +445,7 @@ See [Webhooks](https://developer.paysafe.com/en/rest-api/subscriptions/webhooks/
 |---                            |---                        |---       |
 |amount                         |number                     |This is the amount of the payment, in minor units. |
 |accountId                      |string<br/>`length<=36`    |This is the merchant account that is used to process the payment.|
-|paymentToken                   |string<br/>`length<=50`    |This is the payment token used for the payment. |
+|paymentToken                   |string<br/>`length<=50`    |This is the payment token used for the payment. <br/>**Note:** You must ensure the payment token is valid and active, otherwise the scheduled payment request will fail.|
 |paymentMethod                  |enum                       |This is the payment method used for the payment. <ul><li>CC &ndash; credit card</li><li>DD_ACH &ndash; ACH bank account</li><li>DD_EFT &ndash; EFT bank account</li><li>DD_BACS &ndash; BACS bank account</li><li>DD_SEPA &ndash; SEPA bank account</li></ul>|
 |paymentDate                    |YYYY-MM-DD                 |This is the date to retry the payment.|
 
@@ -1513,7 +1517,7 @@ Click on **Look Up a Subscription Using a Profile ID** above to see how to look 
 
 + Parameters
 
-    + profile_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the profile ID from which the *paymentToken* (representing the card or bank account) was taken to use in the subscription payment.
+    + profile_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the ID of the profile from which the *paymentToken* (representing the card or bank account) was taken to use in the subscription payment.
     + limit:`2` (string, optional) - This is the total number of records to return. Default value is 10. Max value is 50.
 
 + Request Look Up a Subscription Using a Profile ID (application/json)
@@ -2163,7 +2167,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     + Properties
         + `amount`:`4999` - This is the amount of the payment, in minor units.
         + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
-        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
+        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment. You must ensure the payment token is valid and active, otherwise the scheduled payment request will fail.
         + `paymentMethod`:`CC` - This is the payment method used for the payment.
             - `CC` - credit card
             - `DD_ACH`  - ACH bank account
@@ -2330,7 +2334,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
 + `firstName`:`John` (string, optional) - This is the customer’s first name.
 + `middleName`:`James` (string, optional) - This is the customer's middle name.
 + `lastName`:`Smith` (string, optional) - This is the customer’s last name.
-+ `paymentToken`:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
++ `paymentToken`:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request. **Note:** This is **not** the *paymentToken* you use when creating a subscription.
 + `dateOfBirth` (object, optional) - This is the customer's date of birth.
     + Include Date of Birth
 + `ip`:`192.0.126.111` (string, optional) - This is the customer’s IP address.
@@ -2387,7 +2391,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     + Properties
         + `amount`:`4999` - This is the amount of the payment, in minor units.
         + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
-        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
+        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment. **Note:** You must ensure the payment token is valid and active, otherwise the scheduled payment request will fail.
         + `paymentMethod`:`CC` - This is the payment method used for the payment.
             - `CC` - credit card
             - `DD_ACH`  - ACH bank account
@@ -2412,7 +2416,7 @@ Click on **Delete a Subscription** above to see how to delete a subscription.
     _Read Only_
 + `accountId`:`1000055555` (string, required) - This is the merchant account that is used to process this subscription. **Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account.
     _length<=36_
-+ `paymentToken`:`CNjEzMTM4NDg1` (string, required) - This is the [card payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/cards/create-a-card) or the [bank account payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/ach-bank-accounts/create-an-ach-bank-account) to be used for billing the customer.
++ `paymentToken`:`CNjEzMTM4NDg1` (string, required) - This is the [card payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/cards/create-a-card) or the [bank account payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/ach-bank-accounts/create-an-ach-bank-account) to be used for billing the customer. You must ensure the payment token is valid and active, otherwise the scheduled payment request will fail.
     _length<=50_
 + `merchantRefNum`:`Sub19C24` (string, required) - This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.
     _length<=255_
