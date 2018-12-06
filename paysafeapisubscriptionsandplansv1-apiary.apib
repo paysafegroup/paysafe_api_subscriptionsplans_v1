@@ -1,17 +1,21 @@
 FORMAT: 1A
-HOST: https://api.test.paysafe.com/subscriptionsplans/v1/
+HOST: https://api.test.paysafe.com/subscriptionsplans/
 
-# Paysafe Subscriptions and Plans 
+# Paysafe Subscriptions APIe
+
+# Notes
+ - need more details surrounding when retryPayment is invoked and when? How many?
+ - How/when is FUTURE-PAYMENTS-1 thrown?
 
 # Release Notes
 
 | Version   | Date          | Details |
 |---        |---            |---      |
-| 1.0       | August 2018 | <ul><li>Document release</li></ul>|
+| 1.0       | October 2018  | <ul><li>Document release</li></ul>|
 
 # Overview
 
-The Paysafe Subscriptions and Plans API allows merchants 
+The Paysafe Subscriptions Plans API allows merchants 
 
 
 <a name="apikey" title="Authentication"></a>
@@ -45,7 +49,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com//subscriptionsplans/v1/plans`
+`https://api.test.paysafe.com/subscriptionsplans/v1/plans`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -74,7 +78,7 @@ In the case where an API GET request returns multiple results, Paysafe returns t
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
 
-You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+You must not include any of the characters in the following table as values in any of your request elements. If you do, your request will result in an error.
 
 |    Character    |    HEX    |    Description                     |
 |-----------------|-----------|------------------------------------|
@@ -91,7 +95,7 @@ You must not include any of the characters in the following table as values in a
 
 # API 
 
-The Subscriptions and Plans API allows merchants to set up subscription plans for repeat payments using the REST protocol. The protocol uses JSON for all requests and responses.
+The Subscriptions API allows merchants to set up subscription plans for repeat payments using the REST protocol. The protocol uses JSON for all requests and responses.
 
 The following request types are supported:
 
@@ -107,15 +111,18 @@ The following request types are supported:
 |Endpoint URL                                           |Description                            |Action |
 |---                                                    |---                                    |---    |
 |/subscriptionsplans/v1/plans                           |Create a Plan                          |POST   |
+|/subscriptionsplans/v1/plans/{plan_id}/newversion      |Create a New Version of a Plan         |POST   |
 |/subscriptionsplans/v1/plans/{plan_id}                 |Look Up a Plan                         |GET    |
-|/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Look Up Subscriptions for a Plan       |GET    |
+|/subscriptionsplans/v1/plans                           |Look Up All Plans for a Merchant       |GET    |
 |/subscriptionsplans/v1/plans/{plan_id}                 |Update a Plan                          |PUT    |
 |/subscriptionsplans/v1/plans/{plan_id}                 |Update a Plan                          |PATCH  |
 |/subscriptionsplans/v1/plans/{plan_id}                 |Activate a Plan                        |PATCH  |
 |/subscriptionsplans/v1/plans/{plan_id}                 |Delete a Plan                          |DELETE |
 |/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Create a Subscription                  |POST   |
 |/subscriptionsplans/v1/subscriptions/{subscription_id} |Look Up a Subscription                 |GET    |
-|/subscriptionsplans/v1/subscriptions                   |Look Up Subscriptions for a Merchant   |GET    |
+|/subscriptionsplans/v1/subscriptions?{merchantRefNum}  |Look Up a Subscription Using Merchant Reference Number |GET    |
+|/subscriptionsplans/v1/plans/{plan_id}/subscriptions   |Look Up All Subscriptions for a Plan   |GET    |
+|/subscriptionsplans/v1/subscriptions                   |Look Up All Subscriptions for a Merchant |GET    |
 |/subscriptionsplans/v1/subscriptions/{subscription_id} |Update a Subscription                  |PUT    |
 |/subscriptionsplans/v1/subscriptions/{subscription_id} |Update a Subscription                  |PATCH  |
 |/subscriptionsplans/v1/subscriptions/{subscription_id} |Cancel a Subscription                  |PATCH  |
@@ -125,7 +132,7 @@ The following request types are supported:
 
 # Getting Started
 
-Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions and Plans API.
+Click [here](https://developer.paysafe.com/en/rest-api/subscriptions/typical-api-calls/) for details of some common scenarios for creating plans and subscriptions with the Subscriptions API.
 
 # Testing Instructions
 
@@ -229,6 +236,19 @@ The Paysafe Test environment can be used to test applications without actually r
 |Viet Nam Dong  |VND  |
 
 
+# Notifications
+
+You can configure webhook notification events for your account(s) from the merchant back office.  A webhook allows you to define an HTTP callback that will be posted to when
+an event occurs that you would like to be notified of.  This would typically include the creation of a subscription or a successful payment coming as the result of a subscription. 
+
+Notifications are configured by logging into the merchant back office and navigating to the **Settings > Notifications** section.
+
+
+**Note:** Access to this function is dependent upon your user account privileges.  If you are unable to access this function please contact your account manager.
+
+
+See [Webhooks](https://developer.paysafe.com/en/rest-api/subscriptions/webhooks/) for more information about webhooks for this API.
+
 # Complex JSON Objects
 
 <a name="billingcycleobject" title="billingCycle Object"></a>
@@ -237,14 +257,14 @@ The Paysafe Test environment can be used to test applications without actually r
 |Element                        |Type                       |Description                        |
 |---                            |---                        |---       |
 |frequency                      |enum                       |Combine this value with the *interval* element to specify how often a subscription should be billed. <ul><li>DAILY</li><li>MONTHLY</li><li>YEARLY</li></ul>|
-|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, *frequency* to DAILY and *interval* to 7. </br>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not currently supported. |
+|interval                       |number<br/>`max=999`       |Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7.<br/>**Note:** Semi-weekly (twice a week) and semi-monthly (twice a month) plans are not currently supported.|
 
 ```apib
     {
-    "billingCycle": {
-        "frequency": "DAILY",
-        "interval": "7"
-    }
+        "billingCycle": {
+            "frequency": "DAILY",
+            "interval": "7"
+        }
     }
 ```
 
@@ -272,7 +292,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |---                |---        |---                                |
 |code               |string     |The error code. Also shown in the X-Application-Status-Code response header.            |
 |message            |string     |A description of the error.                 |
-|details            |string array     |Details of any parameter value errors (optional).       |
+|details            |string array     |Details of any element value errors (optional).       |
 |links              |link array     |One or more rel/href pairs, where rel is "errorinfo", and href is the Developer Center URL containing a description of the error.|
 
 ```apib
@@ -321,14 +341,14 @@ The Paysafe Test environment can be used to test applications without actually r
 |---                            |---                        |---       |
 |id                             |string<br/>`length<=36`    |This is the unique plan ID returned in the response.|
 |name                           |string<br/>`length=4-50`   |This is the plan name. |
-|version                        |number<br/>`max=4`         |The plan version, returned in the response. |
+|version                        |number<br/>`max=4`         |This is the plan version, returned in the response. |
 |description                    |string<br/>`length<=255`   |This is a description of the plan. |
 |amount                         |number<br/>`max=99999999999`   |This is the amount of the payment, in minor units. |
 |currencyCode                   |string<br/>`length=3`      |This is the currency used for the plan amounts, e.g., USD or CAD. See [Currency Codes](#currencycodes)|
 |billingCycle                   |[billingCycle](#billingcycleobject)    |These are details of the billing cycle.    |
-|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts. **Note:** This defaults to the current date. |
-|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
-|status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All parameters can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific parameters can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The the plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
+|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the plan starts.<br/>**Note:** This defaults to the current date. |
+|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the plan ends.<br/>**Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue. |
+|status                         |enum                       |This is the status of the plan.<ul><li>INITIAL &ndash; The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.</li><li>ACTIVE &ndash; The plan can be used to create subscriptions. Once a plan is active, only specific elements can be changed.</li><li>INACTIVE &ndash; The plan can not be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled. The plan can no longer be updated.</li><li>EXPIRED &ndash; The plan *endDate* is now in the past. The plan can no longer be used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled, but the plan can no longer be updated.</li></ul>|
 |error                          |[error](#errorobject)      |These are details if an error occurs. |
 |creationTime                   |UTC formatted date         |This is the date and time the plan was created.|
 |lastUpdatedTime                |UTC formatted date         |This is the date and time the plan was last updated. |
@@ -344,8 +364,8 @@ The Paysafe Test environment can be used to test applications without actually r
     "frequency": "DAILY",
     "interval": 7
   },
-  "startDate": "2017-09-01",
-  "endDate": "2018-08-31"
+  "startDate": "2018-09-01",
+  "endDate": "2019-08-31"
 }  
 ```
 
@@ -368,7 +388,7 @@ The Paysafe Test environment can be used to test applications without actually r
 |email              |string<br/>`length<=255`           |           |This is the customer's email address.|
 |phone              |string<br/>`length<=40`            |           |This is the customer's phone number.|
 |cellPhone          |string<br/>`length<=40`            |           |This is the customer's cell phone number.|
-|paymentToken       |string><br/>`length<=50`           |           |This is a token generated by Paysafe that represents the customer and returned in the response to the profile request.|
+|paymentToken       |string><br/>`length<=50`           |           |This is a token generated by Paysafe that represents the customer and returned in the response to the profile request.<br/>**Note:** This is **not** the *paymentToken* you use when [creating a subscription](#createsubscription).|
 
 
 ```apib
@@ -470,21 +490,21 @@ The Paysafe Test environment can be used to test applications without actually r
 |Element                        |Type                       |Description                        |
 |---                            |---                        |---       |
 |id                             |string<br/>`length<=36`    |This is the unique subscription ID returned in the response.|
-|accountId                      |string<br/>`length<=36`    |This is the merchant account that is used to process this subscription. **Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account. |
-|paymentToken                   |string<br/>`length<=50`    |This is the [card payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/cards/create-a-card) or the [bank account payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/eft-bank-accounts/create-an-eft-bank-account) to be used for billing the customer. |
+|accountId                      |string<br/>`length<=36`    |This is the merchant account that is used to process this subscription.<br/>**Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account. |
+|paymentToken                   |string<br/>`length<=50`    |This is the [card payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/cards/create-a-card) or the [bank account payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/eft-bank-accounts/create-an-eft-bank-account) to be used for billing the customer.<br/>**Note:** Do **not** use the *paymentToken* found in the [consumer's profile](#profileobject) in the Customer Vault.|
 |paymentDescriptor              |string<br/>`length<=12`    |This is a descriptor that will appear on the consumer's credit card or bank account statement. It will be passed to the card payment's *merchantDescriptor.dynamicDescriptor* element or to the bank payment's  *paymentDescriptor* element.|
-|itemQuantity                   |number<br/>`min=1`         |This is the number of items in the subscription.|
-|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the subscription starts. **Note:**  If not provided, the start date of the plan is used unless it is in the past, in which case the current date is used.|
-|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the subscription ends. **Note:** If not provided, the subscription will continue indefinitely. |
+|merchantRefNum                 |string<br/>`length<=255`   |This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.|
+|itemQuantity                   |number                     |This is the number of items in the subscription. E.g., if set to 2, the consumer would be charged two times the *amount* value specified in the *plan* at each billing period.<br/>**Note:** This defaults to 1.|
+|startDate                      |string<br/>`YYYY-MM-DD`    |This is the date the subscription starts.<br/>**Note:**  This defaults to the current date. |
+|endDate                        |string<br/>`YYYY-MM-DD`    |This is the date the subscription ends.<br/>**Note:** If not provided, the subscription will continue indefinitely. |
 |billingPeriodStartDate         |string<br/>`YYYY-MM-DD`    |This is the date the billing period starts, returned in the response. |
 |billingPeriodEndDate           |string<br/>`YYYY-MM-DD`    |This is the date the billing period ends, returned in the request response.|
 |plan                           |[plan](#planobject)        |This is the full plan information, returned in the request response. |
 |profile                        |[profile](#profileobject)  |This is the customer's full [profile information from the Paysafe Customer Vault](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/profiles/create-a-profile), returned in the request response. |
-|merchantRefNum                 |string<br/>`length<=255`   |This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.|
 |dupCheck                       |boolean                    |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
 |reAttemptPayment               |boolean                    |In the case of a payment failure, this automatically retries the payment one time. <br/>**Note:** This value defaults to *true*. <br>Currently, this is supported for credit card payments only. For Direct Debit payments, the standard representment process will apply, if configured for your merchant account and supported by your bank scheme. For more information, contact your account manager.|
 |reasonForSuspension            |string<br/>`length<=255`   |This is the reason for suspending the subscription. If it is suspended automatically by Paysafe due to payment failure, this value will be set to "Subscription suspended due to failed payment". |
-|status                         |enum                       |This is the status of the subscription. **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified. <ul><li>ACTIVE &ndash; The subscription is generating regular billings.</li><li>CANCELLED &ndash; The subscription has been cancelled, so no billings are  generated.</li><li>EXPIRED &ndash; The subscription has reached the end date.</li><li>PAST_DUE &ndash; One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.</li><li>SUSPENDED &ndash; The subscription is temporarily not generating billings.</li></ul> |
+|status                         |enum                       |This is the status of the subscription.<br/>**Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified. <ul><li>ACTIVE &ndash; The subscription is generating regular billings.</li><li>CANCELLED &ndash; The subscription has been cancelled, so no billings are  generated.</li><li>EXPIRED &ndash; The subscription has reached the end date.</li><li>PAST_DUE &ndash; One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.</li><li>SUSPENDED &ndash; The subscription is temporarily not generating billings.</li></ul> |
 |effectiveCancellationDate      |string<br/>`YYYY-MM-DD`    |This is the date the subscription cancellation takes effect, returned in the response. This will be in the future if the payment for the current billing cycle has already been created. |
 |reasonForCancellation          |string<br/>`length<=255`   |This is the reason for cancelling the subscription.|
 |schedule                       |[schedule](#scheduleobject)    |These are schedule details. |
@@ -501,8 +521,8 @@ The Paysafe Test environment can be used to test applications without actually r
       "dupCheck": true,
       "itemQuantity": 2,
       "status": "ACTIVE",
-      "startDate": "2015-10-10",
-      "endDate": "2016-12-31"
+      "startDate": "2018-10-10",
+      "endDate": "2019-12-31"
     }  
 ```
 
@@ -510,76 +530,270 @@ The Paysafe Test environment can be used to test applications without actually r
 
 # Error Summary
 
-Click [here](https://developer.paysafe.com/en/rest-api/partners/account-management/test-and-go-live/account-management-errors/) for a summary and description of errors you might encounter using the Account Management API.
+<a name="commonerrors" title="Common Errors"></a>
+## Common Errors
+|HTTP Status Code       |Error Code    |Description|
+|---                    |---           |---|
+|500                    |1000           |An internal error occurred.         |
+|502                    |1001           |An error occurred with the external processing gateway.|
+|500                    |1002           |An internal error occurred.            |
+|500                    |1003           |An internal error occurred.            |
+|500                    |1007           |An internal error occurred.            |
+|500                    |1008           |An internal error occurred.            |
+|429                    |1200           |The API call has been denied as it has exceeded the permissible call rate limit.|
+|401                    |5000           |Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authorized.|
+|400                    |5001           |The submitted currency code is invalid or your account does not support this currency.|
+|400                    |5003           |You submitted an invalid amount with your request.|
+|400                    |5004           |You submitted an invalid account type with your request.|
+|400                    |5005           |You submitted an invalid operation type with your request.|
+|400                    |5010           |The submitted country code is invalid.|
+|400                    |5016           |The merchant account you provided cannot be found.|
+|400                    |5017           |The merchant account you provided is disabled.|
+|402                    |5021           |Your transaction request has been declined.|
+|400                    |5023           |The request is not parseable.|
+|409                    |5031           |The transaction you have submitted has already been processed.|
+|401                    |5040           |Your merchant account is not configured for the transaction you attempted.|
+|400                    |5042           |The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
+|400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
+|404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
+|403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
+|406                    |5271           |You requested a response in the 'Accept' header that is in an unsupported format.|
+|406                    |5272           |The 'Content-Type' you specified in request header was submitted in an unsupported format.|
+|404                    |5273           |Your client reached our application but we were unable to service your request due to an invalid URL.|
+|401                    |5275           |The authentication credentials provided with the request have expired.|
+|401                    |5276           |The authentication credentials provided with the request provided have been disabled.|
+|401                    |5277           |The authentication credentials provided with the request have been locked due to multiple authentication failures.|
+|401                    |5278           |The authentication credentials provided with the request were not accepted for an unknown reason.|
+|401                    |5279           |The authentication credentials are invalid.|
+|401                    |5280           |The required authentication credentials were not provided.|
+|405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
+|400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
+
+<a name="subsplanserrors" title="Subscriptions Errors"></a>
+## Subscriptions Errors
+|HTTP Status Code       |Error Code                   |Description|
+|---------------------  |-----------------------------|-----------------------------------------------------------------------------------------|
+| 400                   | PLAN-SUBSCRIPTION-1         | Plan not modifiable. The plan cannot be modified as it is not in INITIAL status.                             |
+| 400                   | PLAN-SUBSCRIPTION-2         | Plan has subscriptions. The plan has one or more existing subscriptions and cannot be deleted.                  |
+| 400                   | PLAN-SUBSCRIPTION-3         | Subscription not modifiable. The request could not be completed due to a conflict with the current state of request. |
+| 400                   | PLAN-SUBSCRIPTION-4         | Subscription has invoices. The Subscription has one or more existing invoices and cannot be deleted.               |
+| 400                   | FUTURE-PAYMENTS-1           | Schedule has invoices. The Schedule has one or more existing invoices; the operation is invalid.               |
+
+
 
 # Using the Console Window
 To configure and test the example in the Console window, click **Switch to Console**. 
 In the Console window, you can update the headers, the request body, and parts of the API endpoint. 
-For example, for most requests you must update the endpoint to include your profile ID (returned when you create a profile), which you do by selecting **URI Parameters** and then updating the **profile_id** value. 
+For example, for some requests you must update the endpoint to include a plan (returned when you create a plan), which you do by selecting **URI Parameters** and then updating the **plan_id** value. 
 You must also update the Header to include your API Key, which you do by selecting **Headers** and then updating the **Authorization** value. 
 To get your API key User name and Password, log into the Paysafe Back Office and choose **Settings > API Key**. 
 To then generate the API Key, concatenate your User name and Password, separated by a colon, then Base64 encode it, and then prefix it with "Basic ".
 When you are ready to test your example, you can switch between the Production and Mock server environment:
 * Production server – This calls the resource on Paysafe's Test system. 
-* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your profile ID or Test API key for this request.
+* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use Test API key for this request.
 
 To call the API resource, click **Call Resource**. The response is displayed in the Console window.
 
 # Legal and Community
 <ul>
-<li><a href="https://www.paysafe.com/privacy-policy/" target="_blank">Privacy Policy</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/privacy-policy/" target="_blank">Privacy Policy</a></li>
 <li><a href="https://developer.paysafe.com/en/resources-and-support/terms-of-use/" target="_blank">Terms of Use</a></li>
-<li><a href="http://www.paysafe.com/regulatory-disclosure/" target="_blank">Regulatory Disclosures</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/regulatory-disclosures/" target="_blank">Regulatory Disclosures</a></li>
 <li><a href="http://community.paysafe.com/spaces/11/index.html" target="_blank">FAQs</a></li>
 <li><a href="http://community.paysafe.com/index.html" target="_blank">Community</a></li>
-<li><a href="http://community.paysafe.com/spaces/10/index.html" target="_blank">Paysafe Blog</a></li>
 </ul>
 
-## Verify That the Service Is Accessible [GET /monitor]
-<a name="verifyservice" title="Verify Service"></a>
-
-This call returns a status of READY if the API is available.
-
-+ Response 200 (application/json)
-
-  + Body
-
-            {
-                "status" : "READY"
-            }
 
 # Plans [/plans]
 <a name="plans" title="Plans"></a>
 
-## Create a Plan [POST /plans]
+## Create a Plan [POST /v1/plans]
 <a name="createplan" title="Create a Plan"></a>
 
-This is how you submit a plan creation request.
+Click on **Create a Plan** above to see how to create a plan.
 
-+ Request Plan Creation (application/json)
++ Attributes
+    + Include Plan
+    + Include links
 
-    + Attributes
-        + Include Plan
-        
++ Request Create a Plan (application/json)
+
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
 
+    + Body
+
+            {
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "5000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31"
+            }
+
 + Response 200 (application/json)
 
-    + Attributes
-        + Include Plan Response
+    + Body
 
-## Look Up a Plan [GET /plans/{plan_id}]
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "5000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                    }
+                ]
+            }
+
+
+## Create a New Version of a Plan [POST /v1/plans/{plan_id}/newversion]
+<a name="createnewplanversion" title="Create a New Version of a Plan"></a>
+
+Click on **Create a New Version of a Plan** above to see how to create a new version of an existing plan.
+
+This request creates a new plan by copying an existing plan, with all its values, while incrementing the version. If you provide any plan attributes in this request to the *newversion* endpoint, those values will be used in place of the ones from the plan being copied.
+
+**Note:** There are a few restrictions when creating a new version of an existing plan:
+ - None of the elements in the Attributes table are required.
+ - You can create a new version of a plan **only if** the plan you are copying has the status of INITIAL or ACTIVE. 
+ - If you provide a name that is different from the name of the plan you are copying, the *version* will be set to 1.
+ - The *status* defaults to INITIAL when copying a plan. The only valid values are INITIAL and ACTIVE.
+
++ Attributes
+    + Include Plan New
+    + Include links
+
++ Parameters
+
+    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID of the plan you want to copy, returned in the response to the original plan creation request.
+
++ Request Create a New Version of a Plan (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "amount": "8000"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "rtr7d83f-add7-4b6b-8884-dfa8693ddrtr",
+                "version": 2,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "8000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/rtr7d83f-add7-4b6b-8884-dfa8693ddrtr"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/rtr7d83f-add7-4b6b-8884-dfa8693ddrtr/subscriptions"
+                    },
+                    {
+                        "rel": "previousVersion",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    }
+                ]
+            }
+
++ Request Create a New Version of a Plan with No Changes(application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+        
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "rtr7d83f-add7-4b6b-8884-dfa8693ddrtr",
+                "version": 2,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "7000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/rtr7d83f-add7-4b6b-8884-dfa8693ddrtr"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/rtr7d83f-add7-4b6b-8884-dfa8693ddrtr/subscriptions"
+                    },
+                    {
+                        "rel": "previousVersion",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    }
+                ]
+            }
+
+## Look Up a Plan [GET /v1/plans/{plan_id}]
 <a name="getplan" title="Look Up a Plan"></a>
 
-This is how you look up a plan using the ID returned in the response to the original request.
+Click on **Look Up a Plan** above to see how to look up a plan using the ID returned in the response to the original request.
 
 + Parameters
 
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID, returned in the response to the plan creation request.
 
-+ Request Get Plan (application/json)
++ Request Look Up a Plan (application/json)
     
     + Headers
     
@@ -587,15 +801,41 @@ This is how you look up a plan using the ID returned in the response to the orig
             
 + Response 200 (application/json)
 
-    + Attributes    
-        + Include Plan Response
+    + Body
 
-## Look Up All Plans Belonging to a Merchant [GET /plans]
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold",
+                "description": "Gold plan for Elite members",
+                "amount": "5000",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                    }
+                ]
+            }
+
+## Look Up All Plans Belonging to a Merchant [GET /v1/plans]
 <a name="getplansmerchant" title="Look Up All Plans Belonging to a Merchant"></a>
 
-This is how you look up a all plans belonging to a single merchant.
+Click on **Look Up All Plans Belonging to a Merchant** above to see how to look up a all plans belonging to a single merchant.
 
-+ Request Get Plan (application/json)
++ Request Look Up All Plans (application/json)
     
     + Headers
     
@@ -603,95 +843,1266 @@ This is how you look up a all plans belonging to a single merchant.
             
 + Response 200 (application/json)
 
-    + Attributes    
-        + Include Plan Response All Plans
+    + Body
 
-## Update a Plan - PUT [PUT /plans/{plan_id}]
+            {
+                "plans": [{
+                        "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                        "version": 1,
+                        "name": "Gold",
+                        "description": "Gold plan for Elite members",
+                        "amount": 5000,
+                        "currencyCode": "USD",
+                        "billingCycle": {
+                            "frequency": "MONTHLY"
+                        },
+                        "interval": "1",
+                        "startDate": "2018-02-01",
+                        "endDate": "2018-12-31",
+                        "status": "ACTIVE",
+                        "creationTime": "2018-01-14T15:12:18Z",
+                        "lastUpdatedTime": "2018-01-14T15:12:18Z",
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                            },
+                            {
+                                "rel": "subscriptions",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "e067d83f-add7-4b6b-8884-dfa8693ee14r",
+                        "version": 1,
+                        "name": "Silver",
+                        "description": "Silver plan for senior members",
+                        "amount": 4000,
+                        "currencyCode": "USD",
+                        "billingCycle": {
+                            "frequency": "MONTHLY"
+                        },
+                        "interval": "1",
+                        "startDate": "2018-02-15",
+                        "endDate": "2018-12-15",
+                        "status": "ACTIVE",
+                        "creationTime": "2018-01-14T15:12:18Z",
+                        "lastUpdatedTime": "2018-01-14T15:12:18Z",
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r"
+                            },
+                            {
+                                "rel": "subscriptions",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r/subscriptions"
+                            }
+                        ]
+                    }
+                ],
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/?limit=10&offset=0&startDate=2018-07-01T19:43:56Z&endDate=2018-07-31T19:43:56Z"
+                }],
+                "_meta": {
+                    "numberOfRecords": 2,
+                    "limit": 10,
+                    "page": 1
+                }
+            }
+
+
+## Update a Plan - PUT [PUT /v1/plans/{plan_id}]
 <a name="updateplan" title="Update a Plan - PUT"></a>
 
-This is how you update a plan with a PUT request. For example, you can change the plan status from *INITIAL* to *ACTIVE*.
+Click on **Update a Plan - PUT** above to see how to update a plan with a PUT request.
 
-**Note:** All parameters can be updated when a plan is in the *INITIAL* status. Elements that are part of an existing plan that are not included in the update request will be set to null or to the default value if it has one.
+**Note:** All elements can be updated when a plan has the status *INITIAL*. However, only the following elements can be updated when a plan has the status *ACTIVE*:
+ - name
+ - description
+ - endDate
+ - status (for ACTIVE plan, status can be changed only to INACTIVE)
 
-+ Parameters
+**Note:** Any nullable element that is part of an existing plan that is not included in the update PUT request will be set to null or to the default value if it has one.
 
-    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
-    
-+ Request Plan Update (application/json)    
-
-    + Attributes
-        + Include Plan Update
-
-    + Headers
-    
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
-
-+ Response 200 (application/json)
-
-    + Attributes
-        + Include Plan Update Response
-
-## Update an Active Plan - PUT [PUT /plans/{plan_id}]
-<a name="updateplanactive" title="Update an Active Plan"></a>
-
-This is how you update an active plan with a PUT request.
-
-**Note:** Only a subset of parameters can be updated once a plan is in *ACTIVE* status. Elements that are part of an existing plan that are not included in the update request will be set to null or to the default value if it has one.
++ Attributes
+    + Include Plan
+    + Include links
 
 + Parameters
 
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
     
-+ Request Plan Update (application/json)    
++ Request Update a Plan with Status INITIAL (application/json)    
 
-    + Attributes
-        + Include Plan Update Active
 
     + Headers
     
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "7500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31"
+            }
 
 + Response 200 (application/json)
 
-    + Attributes
-        + Include Plan Update Response
+    + Body
 
-## Update a Plan - PATCH [PATCH /plans/{plan_id}]
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "7500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "1"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2019-02-15T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                    }
+                ]
+            }
+
+
+## Update a Plan - PATCH [PATCH /v1/plans/{plan_id}]
 <a name="updateplanpatch" title="Update a Plan - PATCH"></a>
 
-This is how you update a plan with a PATCH request. For example, you can change the plan status from *INITIAL* to *ACTIVE*.
+Click on **Update a Plan - PATCH** above to see how to update a plan with a PATCH request.
 
-**Note:** All parameters can be updated when a plan is in the *INITIAL* status. 
+**Note:**  The following elements can be updated only when a plan has the status *INITIAL*:
+ - amount
+ - currencyCode
+ - startDate
+
+In addition, for the *status* element:
+ - INITIAL status can be changed only to ACTIVE
+ - ACTIVE status can be changed only to INACTIVE 
+
++ Attributes
+    + Include Plan
+    + Include links
 
 + Parameters
 
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
     
-+ Request Plan Update (application/json)    
-
-    + Attributes
-        + Include Plan Update PATCH
++ Request Update a Plan (application/json)    
 
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
 
+    + Body
+
+            {
+                "amount": "8500",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "2"
+                }
+            }
+
 + Response 200 (application/json)
 
-    + Attributes
-        + Include Plan Update Response
+    + Body
 
-## Delete a Plan [DELETE /plans/{plan_id}]
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "8500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "2"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "INITIAL",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-15T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                    }
+                ]
+            }
+
+## Activate a Plan [PATCH /v1/plans/{plan_id}]
+<a name="activateplanpatch" title="Activate a Plan - PATCH"></a>
+
+Click on **Activate a Plan** above to see how to activate a plan with a PATCH request.
+
++ Attributes
+    + Include Plan
+    + Include links
+
++ Parameters
+
+    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
+    
++ Request Activate a Plan (application/json)    
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY  
+
+    + Body
+
+            {
+                "status": "ACTIVE"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                "version": 1,
+                "name": "Gold Plus",
+                "description": "Gold Plus plan for Elite members",
+                "amount": "8500",
+                "currencyCode": "USD",
+                "billingCycle": {
+                    "frequency": "MONTHLY",
+                    "interval": "2"
+                },
+                "startDate": "2018-03-01",
+                "endDate": "2019-03-31",
+                "status": "ACTIVE",
+                "creationTime": "2018-02-14T15:12:18Z",
+                "lastUpdatedTime": "2018-02-15T15:12:18Z",
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                    },
+                    {
+                        "rel": "subscriptions",
+                        "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f/subscriptions"
+                    }
+                ]
+            }
+
+## Delete a Plan [DELETE /v1/plans/{plan_id}]
 <a name="deleteplan" title="Delete a Plan"></a>
 
-This is how you delete a plan.
+Click on **Delete a Plan** above to see how to delete a plan.
 
-**Note:** You can delete a plan only if it does not have any subscriptions assigned to it, regardless of the status. Therefore, the primary usage of the DELETE operation is for a merchant who made an error during plan creation and does not want to keep it.
+**Note:** You can delete a plan **only if** it does not have any subscriptions assigned to it, regardless of the plan's status. Therefore, the primary usage of the DELETE operation is for a merchant who made an error when creating the plan and does not want to keep it. 
 
 + Parameters
     + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
 
-+ Request Delete a Profile (application/json)
++ Request Delete a Plan (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 204 (application/json)
+
+# Subscriptions [/subscriptions]
+<a name="subscriptions" title="Subscriptions"></a>
+
+## Create a Subscription [POST /v1/plans/{plan_id}/subscriptions]
+<a name="createsubscription" title="Create a Subscription"></a>
+
+Click on **Create a Subscription** above to see how to submit a subscription creation request.
+
+**Note:** The plan used to create a subscription **must** have a status of **ACTIVE**. If the plan *endDate* has passed, it will have the status of **EXPIRED** and can no longer be used to create a subscription.
+
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
++ Parameters
+
+    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
+
++ Request Create a Subscription (application/json)
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "paymentDescriptor": "800-555-1212",
+                "merchantRefNum": "sub-1",
+                "dupCheck": true,
+                "itemQuantity": 2,
+                "status": "ACTIVE",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31"
+            }
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "paymentDescriptor": "800-555-1212",
+                "merchantRefNum": "sub-1",
+                "itemQuantity": 2,
+                "status": "ACTIVE",
+                "creationTime": "2015-10-10T12:12:18Z",
+                "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31",
+                "billingPeriodStartDate": "2018-10-10",
+                "billingPeriodEndDate": "2019-12-09",
+                "dupCheck": true,
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
+                }],
+                "_expandable": {
+                    "plan": "https://api.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                    "profile": "https://api.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
+                }
+            }
+
+
+## Look Up a Subscription [GET /v1/subscriptions/{subscription_id}]
+<a name="getsubscription" title="Look Up a Subscription"></a>
+
+Click on **Look Up a Subscription** above to see how to look up a subscription using the ID returned in the response to the original request.
+
++ Parameters
+
+    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID, returned in the response to the subscription creation request.
+
++ Request Look Up a Subscription (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+                       {
+                           "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                           "creationTime": "2018-02-14T15:12:18Z",
+                           "lastUpdatedTime": "2018-02-14T15:12:18Z",
+                           "startDate": "2018-03-01",
+                           "endDate": "2019-03-31",
+                           "accountId": "88919000",
+                           "paymentToken": "CNjEzMTM4NDg1",
+                           "merchantRefNum": "sub-1",
+                           "itemQuantity": 2,
+                           "billingPeriodStartDate": "2018-11-10",
+                           "billingPeriodEndDate": "2019-11-09",
+                           "dupCheck": true,
+                           "reAttemptPayment": true,
+                           "paymentDescriptor": "800-555-1212",
+                           "links": [{
+                               "rel": "self",
+                               "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                           }],
+                           "status": "ACTIVE",
+                           "schedule": {
+                               "nextPayment": {
+                                   "amount": 5000,
+                                   "accountId": "1001058570",
+                                   "paymentToken": "CQ8tfGj6bSgU6gO",
+                                   "paymentMethod": "CC",
+                                   "paymentDate": "2018-10-10"
+                               }
+                           },
+                           "_expandable": {
+                               "plan": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968",
+                               "profile": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214"
+                           }
+                       }
+
+## Look Up a Subscription with Resource Expansion [GET /v1/subscriptions/{subscription_id}?expand={expand_elements}]
+<a name="getsubscriptionresources" title="Look Up a Subscription with Resource Expansion"></a>
+
+Click on **Look Up a Subscription with Resource Expansion** above to see how to look up a subscription with resource expansion to include the *plan* and *profile* objects related to this subscription.
+
++ Parameters
+
+    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID, returned in the response to the subscription creation request.
+    + expand_elements:`plan,profile`
+
++ Request Look Up a Subscription with Resource Expansion (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                "creationTime": "2018-08-01T13:06:42Z",
+                "lastUpdatedTime": "2018-08-01T13:06:42Z",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31",
+                "accountId": "1001058570",
+                "paymentToken": "CQ8tfGj6bSgU6gO",
+                "merchantRefNum": "sub-1",
+                "itemQuantity": 2,
+                "billingPeriodStartDate": "2018-11-10",
+                "billingPeriodEndDate": "2019-11-09",
+                "dupCheck": true,
+                "reAttemptPayment": true,
+                "paymentDescriptor": "800-555-1212",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3{?expand}"
+                }],
+                "status": "ACTIVE",
+                "plan": {
+                    "id": "a7046016-902e-4113-9ee3-bb7c54a1e968",
+                    "creationTime": "2018-08-01T12:57:35Z",
+                    "lastUpdatedTime": "2018-08-01T13:05:29Z",
+                    "startDate": "2018-09-01",
+                    "endDate": "2019-03-31",
+                    "name": "Gold Star Redux",
+                    "version": 1,
+                    "description": "Gold plan for Elite members",
+                    "amount": 5000,
+                    "currencyCode": "CAD",
+                    "billingCycle": {
+                        "frequency": "MONTHLY",
+                        "interval": 1
+                    },
+                    "links": [{
+                            "rel": "self",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968"
+                        },
+                        {
+                            "rel": "subscriptions",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968/subscriptions"
+                        }
+                    ],
+                    "status": "ACTIVE"
+                },
+                "profile": {
+                    "id": "5248c1f8-dcce-4b14-a7ee-121542a86214",
+                    "merchantCustomerId": "mycustomerID2233",
+                    "locale": "en_US",
+                    "firstName": "Jane",
+                    "middleName": "Joan",
+                    "lastName": "Smith",
+                    "paymentToken": "PFAImkWKRphYQQK",
+                    "dateOfBirth": {
+                        "year": 1984,
+                        "month": 10,
+                        "day": 24
+                    },
+                    "ip": "192.0.126.111",
+                    "gender": "F",
+                    "nationality": "Canadian",
+                    "phone": "777-444-4444",
+                    "cellPhone": "777-555-3333",
+                    "email": "jane.smith@email.com",
+                    "status": "ACTIVE"
+                },
+                "schedule": {
+                    "nextPayment": {
+                        "amount": 5000,
+                        "accountId": "1001058570",
+                        "paymentToken": "CQ8tfGj6bSgU6gO",
+                        "paymentMethod": "CC",
+                        "paymentDate": "2018-10-10"
+                    }
+                },
+                "_expandable": {
+                    "plan": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968",
+                    "profile": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214"
+                }
+            }
+
+## Look Up a Subscription Using a Merchant Reference Number [GET /v1/subscriptions?merchantRefNum={merchantRefNum}&limit={limit}]
+<a name="getsubscriptionmerchantrefnum" title="Look Up a Subscription Using a Merchant Reference Number"></a>
+
+Click on **Look Up a Subscription Using a Merchant Reference Number** above to see how to look up subscriptions using the merchant reference number used in the subscription creation request(s).
+
++ Parameters
+
+    + merchantRefNum:`ABCDE-12345` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
+    + limit:3 (string, optional) - This is the total number of records to return. Default value is 10. Max value is 50.
+
++ Request Look Up a Subscription Using a Merchant Reference Number (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "_meta": {
+                    "numberOfRecords": 3,
+                    "limit": 3,
+                    "page": 1
+                },
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions?merchantRefNum=ABCDE-12345&limit=3&offset=0&startDate=2018-10-10T13:01:50Z&endDate=2019-12-31T13:06:50Z"
+                    }
+                ],
+                "subscriptions": [{
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b1",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "ACTIVE",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "creationTime": "2018-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2018-10-11T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-11-10",
+                        "billingPeriodEndDate": "2019-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b1"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "ACTIVE",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "creationTime": "2018-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2018-10-11T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-11-10",
+                        "billingPeriodEndDate": "2019-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b4",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "CANCELLED",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "reasonForCancellation": "User upgraded to different plan",
+                        "creationTime": "2015-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2015-10-10T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-11-10",
+                        "billingPeriodEndDate": "2019-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b4"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    }
+                ]
+            }
+
+## Look Up a Subscription Using a Profile ID [GET /v1/subscriptions?profileId={profile_id}&limit={limit}]
+<a name="getsubscriptionmerchantrefnum" title="Look Up a Subscription Using a Merchant Reference Number"></a>
+
+Click on **Look Up a Subscription Using a Profile ID** above to see how to look up subscriptions using the merchant reference number used in the subscription creation request(s).
+
++ Parameters
+
+    + profile_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the profile ID from which the *paymentToken* (representing the card or bank account) was taken to use in the subscription payment.
+    + limit:`2` (string, optional) - This is the total number of records to return. Default value is 10. Max value is 50.
+
++ Request Look Up a Subscription Using a Profile ID (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "subscriptions": [{
+                    "id": "5e2ea47e-9c68-4028-bebc-e8771ac070de",
+                    "creationTime": "2018-08-01T13:06:42Z",
+                    "lastUpdatedTime": "2018-08-01T13:06:42Z",
+                    "startDate": "2018-10-10",
+                    "endDate": "2019-12-31",
+                    "accountId": "1001058570",
+                    "paymentToken": "CQ8tfGj6bSgU6gO",
+                    "merchantRefNum": "sub-1",
+                    "itemQuantity": 2,
+                    "billingPeriodStartDate": "2018-10-10",
+                    "billingPeriodEndDate": "2019-11-09",
+                    "dupCheck": true,
+                    "reAttemptPayment": true,
+                    "paymentDescriptor": "800-555-1212",
+                    "links": [{
+                            "rel": "self",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/5e2ea47e-9c68-4028-bebc-e8771ac070de{?expand}"
+                        },
+                        {
+                            "rel": "plan",
+                            "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968"
+                        },
+                        {
+                            "rel": "profile",
+                            "href": "https://api.test.stp.local/customervault/admin/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
+                        }
+                    ],
+                    "status": "ACTIVE",
+                    "schedule": {
+                        "nextPayment": {
+                            "amount": 5000,
+                            "accountId": "1001058570",
+                            "paymentToken": "CQ8tfGj6bSgU6gO",
+                            "paymentMethod": "CC",
+                            "paymentDate": "2018-10-10"
+                        }
+                    }
+                }],
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions?profileId=5248c1f8-dcce-4b14-a7ee-121542a86214&limit=2&offset=0&startDate=2018-10-10T13:21:15Z&endDate=2019-12-31T13:21:15Z"
+                }],
+                "_meta": {
+                    "numberOfRecords": 1,
+                    "limit": 2,
+                    "page": 1
+                }
+            }
+
+## Look Up All Subscriptions Associated with a Plan [GET /v1/plans/{plan_id}/subscriptions]
+<a name="getallsubscription" title="Look Up All Subscriptions Associated with a Plan"></a>
+
+Click on **Look Up All Subscriptions Associated with a Plan** above to see how to return a list of all subscriptions associated with a specific plan. 
+
++ Parameters
+
+    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
+
++ Request Look Up a Subscription (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "subscriptions": [{
+                        "id": "5e2ea47e-9c68-4028-bebc-e8771ac070de",
+                        "creationTime": "2018-08-01T13:06:42Z",
+                        "lastUpdatedTime": "2018-08-02T13:06:42Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "accountId": "1001058570",
+                        "paymentToken": "CQ8tfGj6bSgU6gO",
+                        "merchantRefNum": "sub-1",
+                        "itemQuantity": 2,
+                        "billingPeriodStartDate": "2018-10-10",
+                        "billingPeriodEndDate": "2019-11-09",
+                        "dupCheck": true,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/5e2ea47e-9c68-4028-bebc-e8771ac070de{?expand}"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214"
+                            }
+                        ],
+                        "status": "ACTIVE",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        }
+                    },
+                    {
+                        "id": "e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                        "creationTime": "2018-03-01T13:06:42Z",
+                        "lastUpdatedTime": "2018-03-01T13:06:42Z",
+                        "startDate": "2018-04-10",
+                        "endDate": "2019-12-31",
+                        "accountId": "1001058570",
+                        "paymentToken": "CQ8tfGj6bSgU6gO",
+                        "merchantRefNum": "sub-1",
+                        "itemQuantity": 2,
+                        "billingPeriodStartDate": "2018-04-10",
+                        "billingPeriodEndDate": "2019-11-30",
+                        "dupCheck": true,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-4444",
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/e067d83f-add7-4b6b-8884-dfa8693dde1f{?expand}"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86333"
+                            }
+                        ],
+                        "status": "ACTIVE",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6h8",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        }
+                    }
+                ],
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968/subscriptions?limit=10&offset=0&startDate=2018-07-02T13:24:16Z&endDate=2018-08-01T13:24:16Z"
+                }],
+                "_meta": {
+                    "numberOfRecords": 2,
+                    "limit": 10,
+                    "page": 1
+                }
+            }
+
+## Look Up All Subscriptions Belonging to a Merchant [GET /v1/subscriptions]
+<a name="getsubscriptionsmerchant" title="Look Up All Subscriptions Belonging to a Merchant"></a>
+
+Click on **Look Up All Subscriptions Belonging to a Merchant** above to see how to look up a all subscriptions belonging to a single merchant.
+
++ Request Look Up All Subscriptions (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "_meta": {
+                    "numberOfRecords": 4,
+                    "limit": 10,
+                    "page": 1
+                },
+                "links": [{
+                        "rel": "self",
+                        "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions?merchantRefNum=ABCDE-12345&limit=10&offset=0&startDate=2018-10-10T13:01:50Z&endDate=2019-12-31T13:06:50Z"
+                    }
+                ],
+                "subscriptions": [{
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b1",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "ACTIVE",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "creationTime": "2018-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2018-10-10T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-10-10",
+                        "billingPeriodEndDate": "2018-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b1"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b2",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "ACTIVE",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "creationTime": "2018-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2018-10-10T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-10-10",
+                        "billingPeriodEndDate": "2018-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b2"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "ACTIVE",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "creationTime": "2018-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2018-10-11T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-10-10",
+                        "billingPeriodEndDate": "2019-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b4",
+                        "merchantRefNum": "ABCDE-12345",
+                        "accountId": "88919000",
+                        "paymentToken": "CNjEzMTM4NDg1",
+                        "itemQuantity": 1,
+                        "status": "CANCELLED",
+                        "dupCheck": false,
+                        "reAttemptPayment": true,
+                        "paymentDescriptor": "800-555-1212",
+                        "reasonForCancellation": "User upgraded to different plan",
+                        "creationTime": "2018-10-10T12:12:18Z",
+                        "lastUpdatedTime": "2018-10-11T12:12:18Z",
+                        "startDate": "2018-10-10",
+                        "endDate": "2019-12-31",
+                        "billingPeriodStartDate": "2018-10-10",
+                        "billingPeriodEndDate": "2019-11-09",
+                        "schedule": {
+                            "nextPayment": {
+                                "amount": 5000,
+                                "accountId": "1001058570",
+                                "paymentToken": "CQ8tfGj6bSgU6gO",
+                                "paymentMethod": "CC",
+                                "paymentDate": "2018-10-10"
+                            }
+                        },
+                        "links": [{
+                                "rel": "self",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b4"
+                            },
+                            {
+                                "rel": "plan",
+                                "href": "https://api.paysafe.com/subscriptionsplans/v1/plans/9aa0ff63-0379-4cdd-8d16-d042531e54ca"
+                            },
+                            {
+                                "rel": "profile",
+                                "href": "https://api.paysafe.com/customervault/v1/profiles/832d7b37-1caa-496b-a0d1-722477602df6"
+                            }
+                        ]
+                    }
+                ]
+            }
+
+## Update a Subscription - PUT [PUT /v1/subscriptions/{subscription_id}]
+<a name="updatesubscription" title="Update a Subscription - PUT"></a>
+
+Click on **Update a Subscription - PUT** above to see how to update a subscription with a PUT request.
+
+**Notes:**
+
+Subscriptions can be updated only if they are have the following status:
+ - ACTIVE
+ - SUSPENDED
+ - PAST_DUE
+
+The following subscription elements can be updated with a PUT request:
+ - accountId
+ - paymentToken
+ - paymentDescriptor
+ - itemQuantity - The change takes effect on the next billing cycle. For example, if a subscription is billed at the first day of the cycle and this value is changed in the middle of the current cycle, it will take effect on the next payment, since that is at the first day of the next cycle. 
+ - startDate - If a billing cycle has already started (the current start date is in the past) this cannot be changed.
+ - endDate
+ - status - The status can be changed only to **CANCELLED** or **SUSPENDED**.
+ - reasonForCancellation - This can be specified only when the status is being changed to **CANCELLED**.
+
+The following elements are **required** when updating a subscription with a PUT request.
+ - merchantRefNum
+ - accountId
+ - paymentToken
+ - itemQuantity
+ - startDate
+
+Any nullable element that is part of an existing subscription that is not included in the update PUT request will be set to null or to the default value if it has one.
+
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
++ Parameters
+
+    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+    
++ Request Update a Subscription (application/json)    
+
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "itemQuantity": 1,
+                "startDate": "2018-10-10",
+                "merchantRefNum": "A8fh3Kd9"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "itemQuantity": 1,
+                "status": "ACTIVE",
+                "merchantRefNum": "A8fh3Kd9",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31",
+                "billingPeriodStartDate": "2018-10-10",
+                "billingPeriodEndDate": "2019-11-09",
+                "creationTime": "2018-10-09T12:12:18Z",
+                "lastUpdatedTime": "2018-10-11T16:02:35Z",
+                "reAttemptPayment": true,
+                "paymentDescriptor": "800-555-1212",
+                "dupCheck": true,
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
+                }],
+                "_expandable": {
+                    "plan": "https://api.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                    "profile": "https://api.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
+                }
+            }
+
+## Update a Subscription - PATCH [PATCH /v1/subscriptions/{subscription_id}]
+<a name="updatesubscriptionpatch" title="Update a Subscription - PATCH"></a>
+
+Click on **Update a Subscription - PATCH** above to see how to update a subscription with a PATCH request.
+
+**Note:** The following subscription elements can be updated with a PATCH request:
+ - accountId
+ - paymentToken
+ - paymentDescriptor
+ - itemQuantity - The change takes effect on the next billing cycle. For example, if a subscription is billed at the first day of the cycle and this value is changed in the middle of the current cycle, it will take effect on the next payment, since that is at the first day of the next cycle. 
+ - startDate - If a billing cycle has already started (the current start date is in the past) this cannot be changed.
+ - endDate
+ - status - The status can be changed only to **CANCELLED** or **SUSPENDED**.
+ - reasonForCancellation - This can be specified only when the status is being changed to **CANCELLED**.
+ - reasonForSuspension - This can be specified only when the status is being changed to **SUSPENDED**.
+
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
++ Parameters
+
+    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+    
++ Request Update a Subscription (application/json)    
+
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "endDate": "2019-12-31"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "382d5b82-5e3f-40b7-a36d-eb982116c2b3",
+                "accountId": "88919000",
+                "paymentToken": "CNjEzMTM4NDg1",
+                "itemQuantity": 1,
+                "status": "ACTIVE",
+                "merchantRefNum": "A8fh3Kd9",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31",
+                "billingPeriodStartDate": "2018-10-10",
+                "billingPeriodEndDate": "2019-11-09",
+                "creationTime": "2018-09-10T12:12:18Z",
+                "lastUpdatedTime": "2015-10-11T16:02:35Z",
+                "reAttemptPayment": true,
+                "paymentDescriptor": "800-555-1212",
+                "dupCheck": true,
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3"
+                }],
+                "_expandable": {
+                    "plan": "https://api.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f",
+                    "profile": "https://api.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1"
+                }
+            }
+
+## Cancel a Subscription [PATCH /v1/subscriptions/{subscription_id}]
+<a name="cancelsubscription" title="Cancel a Subscription - PATCH"></a>
+
+You can cancel a subscription at any time. However, if you cancel a subscription on the day of the *nextPayment* date, that payment will be processed, and the subscription will be canceled for all subsequent payments. 
+You can see the next payment date for a subscription by processing a [GET request on that subscription](#getsubscription).
+
+Click on **Cancel a Subscription** above to see how to cancel a subscription with a PATCH request.
+
+**Note:** 
+ - The *status* element is required and must be set to CANCELLED. 
+ - The *reasonForCancellation* element is optional.
+
++ Attributes
+    + Include Subscription
+    + Include links subscription
+
++ Parameters
+
+    + subscription_id:`82522762-fb59-42b8-886d-0a74ab8d239b` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+    
++ Request Update a Subscription (application/json)    
+
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "status": "CANCELLED",
+                "reasonForCancellation": "Switched to different plan"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "82522762-fb59-42b8-886d-0a74ab8d239b",
+                "creationTime": "2018-08-01T13:40:13Z",
+                "lastUpdatedTime": "2018-08-01T13:42:40Z",
+                "startDate": "2018-10-10",
+                "endDate": "2019-12-31",
+                "accountId": "1001058570",
+                "paymentToken": "CQ8tfGj6bSgU6gO",
+                "merchantRefNum": "sub-2",
+                "itemQuantity": 1,
+                "billingPeriodStartDate": "2018-10-10",
+                "billingPeriodEndDate": "2018-11-09",
+                "effectiveCancellationDate": "2018-10-10",
+                "reasonForCancellation": "Switched Plans",
+                "dupCheck": true,
+                "reAttemptPayment": true,
+                "paymentDescriptor": "800-555-1212",
+                "links": [{
+                    "rel": "self",
+                    "href": "https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/82522762-fb59-42b8-886d-0a74ab8d239b{?expand}"
+                }],
+                "status": "CANCELLED",
+                "_expandable": {
+                    "plan": "https://api.test.paysafe.com/subscriptionsplans/v1/plans/a7046016-902e-4113-9ee3-bb7c54a1e968",
+                    "profile": "https://api.test.stp.local/customervault/admin/v1/profiles/5248c1f8-dcce-4b14-a7ee-121542a86214"
+                }
+            }
+
+## Delete a Subscription [DELETE /v1/subscriptions/{subscription_id}]
+<a name="deletesubscription" title="Delete a Subscription"></a>
+
+Click on **Delete a Subscription** above to see how to delete a subscription.
+
+**Note:** You can delete a subscription **only if** its related schedule does not have any invoices or payments linked to it, regardless of the subscription status. Therefore, the primary usage of the DELETE operation is for a merchant who made a mistake when creating the subscription and does not want to keep it.
+
++ Parameters
+    + subscription_id:`82522762-fb59-42b8-886d-0a74ab8d239b` (string, required) - This is the subscription ID returned in the response to the subscription creation request.
+
++ Request Delete a Subscription (application/json)
 
     + Headers        
 
@@ -699,318 +2110,357 @@ This is how you delete a plan.
             
 + Response 200 (application/json)
 
-# Subscriptions [/subscriptions]
-<a name="subscriptions" title="Subscriptions"></a>
-
-## Create a Subscription [POST /plans/{plan_id}/subscriptions]
-<a name="createsubscription" title="Create a Subscription"></a>
-
-This is how you submit a subscription creation request.
-
-+ Parameters
-
-    + plan_id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the plan ID returned in the response to the plan creation request.
-
-+ Request Subscription Creation (application/json)
-
-    + Attributes
-        + Include Subscription
-        
-    + Headers
-    
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-
-+ Response 200 (application/json)
-
-    + Attributes
-        + Include Subscription Response
-
-
-## Look Up a Subscription [GET /subscriptions/{subscription_id}]
-<a name="getsubscription" title="Look Up a Subscription"></a>
-
-This is how you look up a plan using the ID returned in the response to the original request.
-
-+ Parameters
-
-    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID, returned in the response to the subscription creation request.
-
-+ Request Get Subscription (application/json)
-    
-    + Headers
-    
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-            
-+ Response 200 (application/json)
-
-    + Attributes    
-        + Include Subscription Response
-
-## Look Up a Subscription with Resource Expansion [GET /subscriptions/{subscription_id}?expand={expand_elements}]
-<a name="getsubscriptionresources" title="Look Up a Subscription with Resource Expansion"></a>
-
-This is how you look up a plan with resource expansion.
-
-+ Parameters
-
-    + subscription_id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID, returned in the response to the subscription creation request.
-    + expand_elements:`plan,profile`
-
-+ Request Get Subscription with Resource Expansion (application/json)
-    
-    + Headers
-    
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-            
-+ Response 200 (application/json)
-
-    + Attributes    
-        + Include Subscription Response Expansion
-
 # Data Structures
 
 ## Billing Cycle
-+ frequency:`MONTHLY` (string, required) - This is the billing frequency for the plan.
-    - DAILY
-    - MONTHLY
-    - YEARLY
-+ interval:`1` (string, required) - This is the number of time units between each subscription payment. For example, to create a weekly plan, set *frequency* to DAILY and *interval* to 7.
+
++ `billingCycle` (object, required) - This defines the billing cycle for the plan and subscription.
+    + `frequency`:`MONTHLY` (enum, required) - Combine this value with the *interval* element to specify how often a subscription should be billed.
+        - DAILY
+        - MONTHLY
+        - YEARLY
+    + `interval`:`1` (string, required) - Combine this value with the *frequency* element to specify the number of time units between each subscription payment. For example, to create a monthly plan, set *frequency* to MONTHLY and *interval* to 1. To create a weekly plan, set *frequency* to DAILY and *interval* to 7.
 
 ## Date of Birth
-+ year:`1980`
-+ month:`12`
-+ day:`25`
++ `year`:`1980`
++ `month`:`12`
++ `day`:`25`
+
+
+## `link`
++ `rel`: `self` 
++ `href`: `https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
+
+## `links`
++ `links` (array[link]) - This is an array of links related to the resource.  
+
+    Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
+    You may also see links for any call to action flows.
+
+## `link subscription`
++ `rel`: `self`
++ `href`: `https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/e067d83f-add7-4b6b-8884-dfa8693dde1f`
+
+## `links subscription`
++ `links` (array[link subscription]) - This is an array of links related to the resource.  
+
+    Typically you will have reference to any parent resources, and a reference to the child resource (if applicable).
+    You may also see links for any call to action flows.
+
+## Meta
++ `meta` (object) - This defines the number of records per page
+    _Read Only_
+
+    + Properties
+        + `numberOfRecords`:`10` (number) - This is the number of records in the request.
+        + `limit`:`2` (number) - This is the number of records to be returned per page. The default is 10 and the maximum is 100.
+        + `page`:`1` (number) - This is the number of pages to display.
+
+## Next Payment
++ `nextPayment` (object) - These are [details about the next payment](#nextpaymentobject) in the subscription schedule.
+    _Read Only_
+    
+    + Properties
+        + `amount`:`4999` - This is the amount of the payment, in minor units.
+        + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
+        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
+        + `paymentMethod`:`CC` - This is the payment method used for the payment.
+            - `CC` - credit card
+            - `DD_ACH`  - ACH bank account
+            - `DD_EFT` - EFT bank account
+            - `DD_BACS` - BACS bank account
+            - `DD_SEPA` - SEPA bank account        
+        + `paymentDate`:`2017-11-01` - This is the payment date.
 
 ## Plan
-+ name:`Gold` (string, required) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan.
-+ amount:`5000` (string, required) - This is the amount of the plan, in minor units. 
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
-+ billingCycle (object, required) - This is the billing cycle of the plan.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
++ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID, returned in the response.
+    _length<=36_
+    
+    _Read Only_
++ `version`:`1` (number) - This is the version of the plan, returned in the response.
+    _max=4_
+    
+    _Read Only_
++ `name`:`Gold` (string, required) - This is merchant's name for the plan.
+    _length=4-50_
++ `description`:`Gold plan for Elite members` (string) - This is a short description of the plan.
+    _length<=255_
++ `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
+    _max=99999999999_
++ `currencyCode`:`USD` (string, required) - This is [the currency used](#currencycodes) for the plan amounts, e.g., USD or CAD.
+    _length=3_
++ Include Billing Cycle
++ `startDate`:`2018-10-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
+    _YYYY-MM-DD_
++ `endDate`:`2019-12-31` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
+    _YYYY-MM-DD_
++ `creationTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the plan was created.
+    _UTC formatted date_
+    
+    _Read Only_
++ `lastUpdatedTime`:`2018-04-15T15:12:18Z` (string) - This is the date and time the plan was last updated.
+    _UTC formatted date_
+    
+    _Read Only_
++ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
-## Plan 2
-+ name:`Silver` (string, required) - This is merchant's name for the plan.
-+ description:`Silver plan for senior members` (string, optional) - This is a short description of the plan.
-+ amount:`4000` (string, required) - This is the amount of the plan, in minor units. 
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD.
-+ billingCycle (object, required) - This is the billing cycle of the plan.
-    + Include Billing Cycle
-+ startDate:`2017-01-15` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-15` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
+    + Members
+        + `INITIAL` - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+        + `ACTIVE` - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
+        + `INACTIVE` - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + `EXPIRED` - The plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
++ Include Meta
 
-## Plan Response
-+ id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-+ version:`1` (number, required) - This is the version of the plan.
-+ Include Plan
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-+ lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the URI of the resource.
+## Plan New
++ `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
+    _length<=36_
+    
+    _Read Only_
++ `version`:`1` (number) - This is the version of the plan, returned in the response.
+    _max=4_
+    
+    _Read Only_
++ `name`:`Gold` (string) - This is merchant's name for the plan.
+    _length=4-50_
++ `description`:`Gold plan for Elite members` (string) - This is a short description of the plan.
+    _length<=255_
++ `amount`:`5000` (number) - This is the amount of the plan, in minor units. 
+    _max=99999999999_
++ `currencyCode`:`USD` (string) - This is [the currency used](#currencycodes) for the plan amounts, e.g., USD or CAD.
+    _length=3_
++ Include Billing Cycle
++ `startDate`:`2018-10-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
+    _YYYY-MM-DD_
++ `endDate`:`2019-12-31` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
+    _YYYY-MM-DD_
++ `creationTime`:`2018-04-14T15:12:18Z` (string) - This is the date and time the plan was created.
+    _UTC formatted date_
+    
+    _Read Only_
++ `lastUpdatedTime`:`2018-04-15T15:12:18Z` (string) - This is the date and time the plan was last updated.
+    _UTC formatted date_
+    
+    _Read Only_
++ status:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
-## Plan Response Expansion
-+ id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-+ version:`1` (number, required) - This is the version of the plan.
-+ Include Plan
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-+ lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
+    + Members
+        + `INITIAL` - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+        + `ACTIVE` - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
+        + `INACTIVE` - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+        + `EXPIRED` - The plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
-## Plan Response All Plans
-+ plans (array, required) - This is an array of plans.
-    + (object)
-        + id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-        + version:`1` (number, required) - This is the version of the plan.
-        + Include Plan
-        + creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-        + lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-        + links (array, required) - This is an array of [links](#linksobject).
-            + (object)
-                + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-                + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the URI of the resource.
-    + (object)
-        + id:`e067d83f-add7-4b6b-8884-dfa8693ee14r` (string, required) - This is the unique plan ID.
-        + version:`1` (number, required) - This is the version of the plan.
-        + Include Plan 2
-        + creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-        + lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-        + links (array, required) - This is an array of [links](#linksobject).
-            + (object)
-                + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-                + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693ee14r` (string, required) - This is the URI of the resource.
+## Plan Object
++ `plan` (object) - This is the plan information associated with the subscription.
+    _Read Only_
 
-## Plan Update
-+ name:`Gold` (string, required) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan. **Note:** You cannot modify this field in the update request.
-+ amount:`5500` (string, required) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field in the update request.
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD. **Note:** You cannot modify this field in the update request.
-+ billingCycle (object, required) - This is the billing cycle of the plan. **Note:** You cannot modify this field in the update request.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts. **Note:** You cannot modify this field in the update request.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
+    + Properties
+        + `id`:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string) - This is the unique plan ID.
+            _length<=36_
+    
+            _Read Only_
+        + `version`:`1` (number) - This is the version of the plan, returned in the response.
+            _max=4_
+    
+            _Read Only_
+        + `name`:`Gold` (string, required) - This is merchant's name for the plan.
+            _length=4-50_
+        + `description`:`Gold plan for Elite members` (string) - This is a short description of the plan.
+            _length<=255_
+        + `amount`:`5000` (number, required) - This is the amount of the plan, in minor units. 
+            _max=99999999999_
+        + `currencyCode`:`USD` (string, required) - This is [the currency used](#currencycodes) for the plan amounts, e.g., USD or CAD.
+            _length=3_
+        + Include Billing Cycle
+        + `startDate`:`2018-10-01` (string) - This is the date the plan starts. **Note:** This defaults to the current date.
+            _YYYY-MM-DD_
+        + `endDate`:`2019-12-31` (string) - This is the date the plan ends. **Note:** If no end date is specified, the plan is valid indefinitely. Once the end date for the plan is reached, no new subscriptions can be created for that plan. However, any existing subscriptions associated with this plan will continue.
+            _YYYY-MM-DD_
+        + `creationTime`:`2018-02-14T15:12:18Z` (string) - This is the date and time the plan was created.
+            _UTC formatted date_
+    
+            _Read Only_
+        + `lastUpdatedTime`:`2018-02-15T15:12:18Z` (string) - This is the date and time the plan was last updated.
+            _UTC formatted date_
+    
+            _Read Only_
+        + `status`:`ACTIVE` (enum) - This is the [status of the plan](#planobject).
 
-## Plan Update Response
-+ id:`e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the unique plan ID.
-+ version:`1` (number, required) - This is the version of the plan.
-+ Include Plan Update
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the plan was created.
-+ lastUpdatedTime:`2014-04-14T15:12:18Z` (string, required) This is the date and time the plan was last updated.
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f` (string, required) - This is the URI of the resource.
+            + Members
+                + `INITIAL` - The plan has been newly created. A plan with this status cannot be used to create a subscription. All elements can be changed when a plan is in this status.
+                + `ACTIVE` - The plan can be used to create subscriptions. Once a plan is active, only some elements can be changed.
+                + `INACTIVE` - The plan can not be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
+                + `EXPIRED` - The plan *endDate* is now in the past. The plan can no longer be updated or used to create a subscription. Existing subscriptions for this plan will continue to be billed until they expire or are cancelled.
 
-## Plan Update Active
-+ name:`Gold` (string, required) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan.
-+ amount:`5500` (string, required) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field once the plan is in *ACTIVE* status.
-+ currencyCode:`USD` (string, required) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD. **Note:** You cannot modify this field once the plan is in *ACTIVE* status.
-+ billingCycle (object, required) - This is the billing cycle of the plan. **Note:** You cannot modify these fields once the plan is in *ACTIVE* status.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
-
-## Plan Update PATCH
-+ name:`Gold` (string, optional) - This is merchant's name for the plan.
-+ description:`Gold plan for Elite members` (string, optional) - This is a short description of the plan.
-+ amount:`5500` (string, optional) - This is the amount of the plan, in minor units. **Note:** You cannot modify this field in the update request.
-+ currencyCode:`USD` (string, optional) - This is [the currency used](#currencyobject) for the plan amounts, e.g., USD or CAD. **Note:** You cannot modify this field in the update request.
-+ billingCycle (object, optional) - This is the billing cycle of the plan. **Note:** You cannot modify this field in the update request.
-    + Include Billing Cycle
-+ startDate:`2017-01-01` (string, optional) - This is the date the plan starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the plan ends.
-+ status:`ACTIVE` (string, optional) - This is the [status of the plan](#planobject).
-    - INITIAL
-    - INACTIVE
-    - ACTIVE
-    - EXPIRED
+## Previous Payment
++ previousPayment (object) - These are [details about the previous payment](#previouspaymentobject) in the subscription schedule.
+    _Read Only_
+    
+    + Properties
+        + `amount`:`4999` (number) - This is the amount of the payment, in minor units.
+            _max=99999999999_
+        + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
+             _length<=36_
+        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
+            _length<=50_
+        + `paymentMethod`:`CC` (enum) - This is the payment method used for the payment. This is the payment method used for the payment. 
+            - `CC` - credit card
+            - `DD_ACH`  - ACH bank account
+            - `DD_EFT` - EFT bank account
+            - `DD_BACS` - BACS bank account
+            - `DD_SEPA` - SEPA bank account
+        + `paymentDate`:`2017-10-01` (string) - This is the payment date.
+            _YYYY-MM-DD_
+        + `status`:`FAILED` (enum) - This is the status of the payment.
+            - `PENDING` - The payment has not been completed yet.
+            - `COMPLETED` - The payment was successful.
+            - `HELD` - The payment request was made but was not sent to the gateway due to a risk rule.
+            - `CANCELLED` - The payment was cancelled.
+            - `FAILED` - The payment request received an error or was declined.
 
 ## Profile
-+ id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the ID returned in the profile creation response.
-+ status:`ACTIVE` (enum, required) - This is the status of the customer profile.
-    - INITIAL
-    - ACTIVE
-+ merchantCustomerId:`john.smith1400783052032` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
-+ locale:`en_US` (string, required) - This indicates the language of the profile.
-    - en_US
-    - fr_CA
-    - en_GB
-+ firstName:`John` (string, optional) - This is the customer’s first name.
-+ middleName:`James` (string, optional) - This is the customer's middle name.
-+ lastName:`Smith` (string, optional) - This is the customer’s last name.
-+ dateOfBirth (object, optional) - This is the customer's date of birth.
++ `id`:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string, required) - This is the ID returned in the profile creation response.
++ `status`:`ACTIVE` (enum, required) - This is the status of the customer profile.
+    - `INITIAL`
+    - `ACTIVE`
++ `merchantCustomerId`:`john.smith1400783052032` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
++ `locale`:`en_US` (enum, required) - This indicates the language of the profile.
+    - `en_US`
+    - `fr_CA`
+    - `en_GB`
++ `firstName`:`John` (string, optional) - This is the customer’s first name.
++ `middleName`:`James` (string, optional) - This is the customer's middle name.
++ `lastName`:`Smith` (string, optional) - This is the customer’s last name.
++ `paymentToken`:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
++ `dateOfBirth` (object, optional) - This is the customer's date of birth.
     + Include Date of Birth
-+ ip:`192.0.126.111` (string, optional) - This is the customer’s IP address.
-+ gender:`M` (enum, optional) - This is the customer’s gender.
-    - M
-    - F
-+ paymentToken:`CNjEzMTM4NDg1` (string, optional) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request.
++ `ip`:`192.0.126.111` (string, optional) - This is the customer’s IP address.
++ `gender`:`M` (enum, optional) - This is the customer’s gender.
+    - `M`
+    - `F`
++ `nationality`:`Canadian` (string) - This is the customer’s nationality.
+    _length<=30_
++ `email`:`jane.smith@email.com` (string) - This is the customer's email address.
+    _length<=255_
++ `phone`:`777-444-4444` (string) - This is the customer's phone number.
+    _length<=40_
++ `cellPhone`:`777-555-3333` (string) - This is the customer's cell phone number.
+    _length<=40_
+
+
+## Profile Object
++ `profile` (object) - This is the profile information associated with the subscription, returned in the response.
+    _Read Only_
+
+    + Properties
+        + `id`:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string) - This is the ID returned in the profile creation response.
+        + `status`:`ACTIVE` (enum) - This is the status of the customer profile.
+            - `INITIAL`
+            - `ACTIVE`
+        + `merchantCustomerId`:`john.smith1400783052032` (string) - This is a customer ID that the merchant provides with the request for their own internal customer identification.
+        + `locale`:`en_US` (enum) - This indicates the language of the profile.
+            - `en_US`
+            - `fr_CA`
+            - `en_GB`
+        + `firstName`:`John` (string) - This is the customer’s first name.
+        + `middleName`:`James` (string) - This is the customer's middle name.
+        + `lastName`:`Smith` (string) - This is the customer’s last name.
+        + `dateOfBirth` (object) - This is the customer's date of birth.
+            + Include Date of Birth
+        + `ip`:`192.0.126.111` (string) - This is the customer’s IP address.
+        + `gender`:`M` (enum) - This is the customer’s gender.
+            - `M
+            - `F`
+        + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the profile creation request. **Note:** This is **not** the *paymentToken* you use when creating a subscription.
+        + `nationality`:`Canadian` (string) - This is the customer’s nationality.
+            _length<=30_
+        + `email`:`jane.smith@email.com` (string) - This is the customer's email address.
+            _length<=255_
+        + `phone`:`777-444-4444` (string) - This is the customer's phone number.
+            _length<=40_
+        + `cellPhone`:`777-555-3333` (string) - This is the customer's cell phone number.
+            _length<=40_
+
+## Retry Payment
++ `retryPayment` (object) - These are [details about the payment retry](#retrypaymentobject) in the case where a failed payment has to be retried.
+    _Read Only_
+    
+    + Properties
+        + `amount`:`4999` - This is the amount of the payment, in minor units.
+        + `accountId`:`1000055555` - This is the merchant account that is used to process the payment.
+        + `paymentToken`:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
+        + `paymentMethod`:`CC` - This is the payment method used for the payment.
+            - `CC` - credit card
+            - `DD_ACH`  - ACH bank account
+            - `DD_EFT` - EFT bank account
+            - `DD_BACS` - BACS bank account
+            - `DD_SEPA` - SEPA bank account
+        + `paymentDate`:`2017-10-01` - This is the payment date.
+
+## Schedule
++ `schedule` (object) - These are [details about the subscription payment schedule](#scheduleobject).
+    _Read Only_
+    
+    + Properties
+        + Include Previous Payment
+        + Include Retry Payment
+        + Include Next Payment
 
 ## Subscription
-+ accountId:`1000055555` (string, required) - This is the merchant account that is used to process this subscription.
-+ paymentToken:`CNjEzMTM4NDg1` (string, required) - This is the [card payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/cards/create-a-card) or the [bank account payment token](http://paysafegroup.github.io/paysafe_api_customervault_v1/#/reference/0/eft-bank-accounts/create-an-eft-bank-account) to be used for billing the customer.
-+ merchantRefNum:`Sub19C24` (string, required) - This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.
-+ paymentDescriptor:`800-555-2222` (string, optional) - This is a descriptor that will appear on the consumer's credit card or bank account statement. It will be passed to the card payment's *merchantDescriptor.dynamicDescriptor* element or to the bank payment's *paymentDescriptor* element.
-+ dupCheck:`true` (boolean, optional) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days. **Note:** This value defaults to *true*.
-+ itemQuantity:`2` (string, optional) - The number of items in the subscription.
-+ status:`ACTIVE` (string, optional) - This is the [status of the subscription](#subscriptionobject).
-+ startDate:`2017-01-01` (string, optional) - This is the date the subscription starts.
-+ endDate:`2017-12-31` (string, optional) - This is the date the subscription ends.
++ `id`:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string) - This is the unique subscription ID, returned in the response.
+    _length<=36_
+    
+    _Read Only_
++ `accountId`:`1000055555` (string, required) - This is the merchant account that is used to process this subscription. **Note:** The processing currency of the merchant account must be the same as the plan's currency, except if it is a load balancing master account.
+    _length<=36_
++ `paymentToken`:`CNjEzMTM4NDg1` (string, required) - This is the [card payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/cards/create-a-card) or the [bank account payment token](https://developer.paysafe.com/en/vault/api/#/reference/0/ach-bank-accounts/create-an-ach-bank-account) to be used for billing the customer.
+    _length<=50_
++ `merchantRefNum`:`Sub19C24` (string, required) - This is the merchant reference number, an identifier created by the merchant and submitted as part of the request.
+    _length<=255_
++ `paymentDescriptor`:`800-555-2222` (string) - This is a descriptor that will appear on the consumer's credit card or bank account statement. It will be passed to the card payment's *merchantDescriptor.dynamicDescriptor* element or to the bank payment's *paymentDescriptor* element.
+    _length<=12_
++ `dupCheck`:`true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.
+    + Default: true
++ `itemQuantity`:`2` (string) - The number of items in the subscription. E.g., if set to 2, the consumer would be charged two times the *amount* value [specified in the plan](#createplan) at each billing period.
+    + Default: 1
++ `startDate`:`2018-10-01` (string) - This is the date the subscription starts. **Note:** This defaults to the current date.
+    _YYYY-MM-DD_
++ `endDate`:`2019-12-31` (string) - This is the date the subscription ends. **Note:** If not provided, the subscription will continue indefinitely.
+    _YYYY-MM-DD_
++ `status`:`ACTIVE` (enum) - This is the [status of the subscription](#subscriptionobject). **Note:** Defaults to ACTIVE. A subscription with the status of CANCELLED or EXPIRED cannot be modified.
 
-## Subscription Response
-+ id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID.
-+ Include Subscription
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the subscription was created.
-+ billingPeriodStartDate:`2017-01-01` (string, optional) - This is the date the billing period starts.
-+ billingPeriodEndDate:`2017-12-31` (string, optional) - This is the date the billing period ends.
-+ schedule (object, optional)  
-    + previousPayment (object, optional) - These are [details about the previous payment](#previouspaymentobject).
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-01` - This is the payment date.
-        + status:`FAILED` - This is the status of the payment.
-    + retryPayment (object, optional) - These are [details about the payment retry](#retrypaymentobject) in the case where a payment has failed.
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-06` - This is the payment retry date.
-    + nextPayment (object, optional) - These are [details about the next payment](#nextpaymentobject).
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-11-01` - This is the next payment date.
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
-+ _expandable (object, required) - This displays expandable resources.
-    + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
-    + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
+    + Members
+        + `ACTIVE` - The subscription is generating regular billings.
+        + `CANCELLED` - The subscription has been cancelled, so no billings are generated.
+        + `EXPIRED` - The subscription has reached the end date.
+        + `PAST_DUE` - One or more payment attempts have failed and re-attempt(s) have been scheduled; scheduled billings are still being generated.
+        + `SUSPENDED` - The subscription is temporarily not generating billings.
 
-## Subscription Response Expansion
-+ id:`382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the unique subscription ID.
-+ Include Subscription
-+ creationTime:`2017-02-14T15:12:18Z` (string, required) - This is the date and time the subscription was created.
-+ billingPeriodStartDate:`2017-01-01` (string, optional) - This is the date the billing period starts.
-+ billingPeriodEndDate:`2017-12-31` (string, optional) - This is the date the billing period ends.
-+ schedule (object, optional)  
-    + previousPayment (object, optional) - These are [details about the previous payment](#previouspaymentobject).
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-01` - This is the payment date.
-        + status:`FAILED` - This is the status of the payment.
-    + retryPayment (object, optional) - These are [details about the payment retry](#retrypaymentobject) in the case where a payment has failed.
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-10-06` - This is the payment retry date.
-    + nextPayment (object, optional) - These are [details about the next payment](#nextpaymentobject).
-        + amount:`4999` - This is the amount of the payment, in minor units.
-        + accountId:`1000055555` - This is the merchant account that is used to process the payment.
-        + paymentToken:`CNjEzMTM4NDg1` - This is the payment token used for the payment.
-        + paymentMethod:`CC` - This is the payment method used for the payment.
-        + paymentDate:`2017-11-01` - This is the next payment date.
-+ plan (object, required) - These are details about the plan.
-    + Include Plan Response Expansion
-+ profile (object, required) - These are details about the customer profile.
-    + Include Profile
-+ links (array, required) - This is an array of [links](#linksobject).
-    + (object)
-        + rel:`self` (string, required) - This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.
-        + href:`https://api.test.paysafe.com/subscriptionsplans/v1/subscriptions/382d5b82-5e3f-40b7-a36d-eb982116c2b3` (string, required) - This is the URI of the resource.
-+ _expandable (object, required) - This displays expandable resources.
-    + plan:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
-    + profile: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
-
-
-
-
-## Empty Set
-{
-}
++ `effectiveCancellationDate`:`2018-12-31` (string) - This is the date the subscription cancellation takes effect. This will be in the future if the payment for the current billing cycle has already been created.
+    _YYYY-MM-DD_
+    
+    _Read Only_
++ `reasonForCancellation`:`Subscription not wanted` (string) - This is the reason for cancelling the subscription.
+    _length<=255_
++ `creationTime`:`2018-09-14T15:12:18Z` (string) - This is the date and time the subscription was created.
+    _UTC formatted date_
+    
+    _Read Only_
++ `lastUpdatedTime`:`2018-09-15T15:12:18Z` (string) - This is the date and time the subscription was last updated.
+    _UTC formatted date_
+    
+    _Read Only_
++ `billingPeriodStartDate`:`2018-10-01` (string) - This is the date the billing period starts.
+    _YYYY-MM-DD_
+    
+    _Read Only_
++ `billingPeriodEndDate`:`2019-12-31` (string, optional) - This is the date the billing period ends.
+    _YYYY-MM-DD_
+    
+    _Read Only_
++ Include Plan Object
++ Include Profile Object
++ Include Schedule
++ _expandable (object) - This displays expandable resources.
+    _Read Only_
+    + `plan`:`https://api.test.paysafe.com/subscriptionsplans/v1/plans/e067d83f-add7-4b6b-8884-dfa8693dde1f`
+    + `profile`: `https://api.test.paysafe.com/customervault/v1/profiles/a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1`
